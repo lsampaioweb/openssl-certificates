@@ -1,0 +1,8 @@
+01 - How to Create Your Own SSL Certificate Authority for Local HTTPS Development
+  https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/
+
+02 - So you're making an RSA key for an HTTPS certificate. What key size do you use?
+  https://expeditedsecurity.com/blog/measuring-ssl-rsa-keys/
+
+03 - Creating a certificate authority in Ansible
+  https://milliams.com/posts/2020/ansible-certificate-authority/
