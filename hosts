@@ -1,0 +1,16 @@
+[CertificateAuthorityServer]
+MacBook-Pro-Luciano.local
+
+[MacBookProLuciano]
+MacBook-Pro-Luciano.local
+
+[MacBookProFernanda]
+MacBook-Pro-Fernanda.local
+
+[TplinkT1600G]
+tplinkt1600g ansible_host=192.168.0.3
+
+[Proxmox]
+host01 ansible_host=192.168.0.4
+host02 ansible_host=192.168.0.5
+host03 ansible_host=192.168.0.6
