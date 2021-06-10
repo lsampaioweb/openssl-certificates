@@ -1,0 +1,41 @@
+---
+- name: Creating variables
+  set_fact:    
+    certificate_full_path : "{{ certificate_path }}/{{ certificate_path | basename }}"
+    backup_path           : "{{ certificate_path }}/{{ backup_folder }}/{{ today }}/"
+  vars:
+    today                 : "{{ ansible_date_time.date }}"
+
+- name: Preparing list of files that depend on the private key
+  set_fact:    
+    files_to_search:
+      - "{{ certificate_full_path }}.{{ privatekey_extention }}"
+      - "{{ certificate_full_path }}.{{ csr_extention }}"
+      - "{{ certificate_full_path }}.{{ certificate_extention }}"
+      - "{{ certificate_full_path }}.{{ pkcs12_extention }}"
+  when: "'privatekey' in depend_on"
+
+- name: Creating the backup folder "{{ backup_path }}"
+  file:
+    path: "{{ backup_path }}"
+    state: directory
+    recurse: yes
+  when: backup | bool
+
+- name: Copying certificate related (.key, .csr, .crt and .p12) files to the backup folder
+  copy:
+    src: "{{ file }}"
+    dest: "{{ backup_path }}"
+  failed_when: False
+  loop: "{{ files_to_search }}"
+  loop_control:
+    loop_var: file
+  when: backup | bool
+
+- name: Deleting certificate related (.key, .csr, .crt and .p12) files
+  file:
+    path: "{{ file }}"
+    state: absent
+  loop: "{{ files_to_search }}"
+  loop_control:
+    loop_var: file

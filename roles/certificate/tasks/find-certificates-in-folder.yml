@@ -1,0 +1,23 @@
+---
+- name: Joining the elements of the certificates array as a string
+  set_fact:
+    certificates_to_find_patterns: "{{ certificates | join(',') }}"
+  when: certificates is defined
+
+- name: Getting the list of certificates in the "{{ certificates_path }}" folder
+  find:
+    paths: 
+      - "{{ certificates_path }}"
+    file_type: "directory"
+    use_regex: yes
+    patterns: "{{ certificates_to_find_patterns | default(certificates_patterns, true) }}"
+  register: folders_found
+
+- name: Creating the certificates_list variable
+  set_fact:
+    certificates_list: "{{ folders_found | json_query('files[*].path') }}"
+
+- name: Printing variables
+  debug:
+    var: "certificates_list"
+  when: debug | bool

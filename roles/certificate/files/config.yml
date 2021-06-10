@@ -1,0 +1,23 @@
+---
+# Variables that will be used for creating a private key.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
+privatekey_extention: "key"
+privatekey_type: "RSA"
+privatekey_size: 2048
+privatekey_cipher: "auto"
+
+# If the variable is "" (empty), no password will be created for the files.
+# if the variable is "?" (a question mark), a random password will be created.
+privatekey_passphrase: "?"
+
+# That size of the random password.
+privatekey_passphrase_size: 30
+
+# 
+csr_extention: "csr"
+
+# 
+certificate_extention: "crt"
+
+# 
+pkcs12_extention: "p12"

@@ -1,0 +1,17 @@
+---
+- name: Creating config variables
+  set_fact:
+    global_config_path      : "../files/{{ config_file }}"
+    certificate_config_path : "{{ certificate_path }}/{{ config_file }}"
+
+- name: Including the global config file
+  include_vars: "{{ global_config_path }}"
+
+- name: Verifying if the "{{ certificate_config_path }}" file exists
+  stat:
+    path: "{{ certificate_config_path }}"
+  register: config_file_found
+
+- name: Including the certificate specific config file "{{ certificate_config_path }}"
+  include_vars: "{{ certificate_config_path }}"
+  when: config_file_found.stat.exists

@@ -1,0 +1,14 @@
+---
+- name: Create a private key
+  hosts: CertificateAuthorityServer
+
+  tasks: 
+    - name: Getting the list of certificates
+      import_tasks: "roles/certificate/tasks/find-certificates-in-folder.yml"
+
+    - name: Including task to create a private key
+      include_tasks: "roles/certificate/tasks/create-private-key.yml"
+      vars:
+        certificate_path : "{{ item }}"
+        include_config_files: True
+      loop: "{{ certificates_list }}"
