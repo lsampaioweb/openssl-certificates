@@ -1,0 +1,22 @@
+---
+- name: Prepare the Certificate Authority Server
+  hosts: CertificateAuthorityServer
+
+  tasks: 
+    - name: Installing all the required Python packages
+      pip:
+        name: "{{ item }}"
+        state: "latest"
+      loop:
+        - "cryptography"
+        - "pyOpenSSL"
+        - "jmespath"
+        - "pexpect"
+
+    - name: Creating the folder that will contain all OpenSSL Certificates
+      file:
+        path: "{{ item }}"
+        state: directory
+        recurse: yes
+      loop: 
+        - "{{ certificates_path }}"
