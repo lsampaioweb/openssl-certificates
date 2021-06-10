@@ -29,7 +29,16 @@ The Certificate Authority Server (CAS) must be a MAC OSX. If you want to use the
 
 # Variables:
 
-1. certificates
+1. debug
+
+Specify if more messages should be displayed during the executions.
+If no value is passed, the default value **True** will be used.
+
+  ```json
+  --extra-vars='{"debug":True}'
+  ```
+
+2. certificates
 
 Specify which certificates will be verified and, if requested, created.
 If no value is passed, all certificates will be verified.
@@ -37,21 +46,12 @@ If no value is passed, all certificates will be verified.
   --extra-vars='{"certificates":["domain.com", "otherdomain.com.br"]}'
   ```
 
-2. backup
+3. backup
 
 Specify if when creating new certificates the old ones should be moved to the backup folder.
-If no value is passed, the default value **"True"** will be used.
+If no value is passed, the default value **True** will be used.
   ```json
-  --extra-vars='{"backup":"True"}'
-  ```
-
-1. debug
-
-Specify if more messages should be displayed during the executions.
-If no value is passed, the default value **"True"** will be used.
-
-  ```json
-  --extra-vars='{"debug":"True"}'
+  --extra-vars='{"backup":True}'
   ```
 
 # Exclude folders:
