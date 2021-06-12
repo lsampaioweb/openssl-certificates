@@ -23,6 +23,13 @@
       - "{{ certificate_full_path }}.{{ pkcs12_extention }}"
   when: "'certificate-signing-request' in depend_on"
 
+- name: Preparing list of files that depend on the certificate
+  set_fact:    
+    files_to_search:
+      - "{{ certificate_full_path }}.{{ certificate_extention }}"
+      - "{{ certificate_full_path }}.{{ pkcs12_extention }}"
+  when: "'certificate' in depend_on"
+
 - name: Creating the backup folder "{{ backup_path }}"
   file:
     path: "{{ backup_path }}"

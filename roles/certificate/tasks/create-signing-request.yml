@@ -84,7 +84,6 @@
 
     privatekey_path             : "{{ privatekey_path }}"
     privatekey_passphrase       : "{{ passphrase | default(omit, true) }}"
-  register: file_creation_output
   when: should_create_file
 
 - name: Reseting variables for next elements in the loop (if any)

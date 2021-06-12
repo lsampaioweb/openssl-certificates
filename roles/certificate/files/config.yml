@@ -31,8 +31,17 @@ csr_key_usage_critical: True
 csr_key_usage: ['digitalSignature', 'keyEncipherment']
 csr_extended_key_usage: ['serverAuth', 'clientAuth']
 
-# 
+# Variables that will be used for creating a certificate.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
 certificate_extention: "crt"
+
+# The default option is "ownca" (Own Certificate Authority). The option "selfsigned" is also possible.
+certificate_provider: "ownca"
+certificate_digest: "sha256"
+certificate_not_after: "+365d"
+
+certificate_authority_name: "certificate.authority"
+certificate_authority_path : "{{ certificates_path }}{{ certificate_authority_name }}"
 
 # 
 pkcs12_extention: "p12"
