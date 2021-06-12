@@ -1,0 +1,6 @@
+---
+- name: Including the dependence to create a private key
+  include_tasks: "roles/certificate/tasks/create-private-key.yml"
+  vars:
+    include_config_files: False
+  when: "'privatekey' in dependencies_list"

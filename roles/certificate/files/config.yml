@@ -13,8 +13,23 @@ privatekey_passphrase: "?"
 # That size of the random password.
 privatekey_passphrase_size: 30
 
-# 
+# Variables that will be used for creating a certificate signing request.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
 csr_extention: "csr"
+csr_digest: "sha256"
+csr_country_name: "BR"
+csr_state_or_province_name: "Sergipe"
+csr_locality_name: "Aracaju"
+csr_organization_name: "TheCodeMaster"
+csr_organizational_unit_name: "HomeLab"
+csr_common_name: ""
+csr_email_address: "lsampaioweb@gmail.com"
+csr_subject_alt_name: []
+csr_basic_constraints_critical: True
+csr_basic_constraints: "CA:FALSE"
+csr_key_usage_critical: True
+csr_key_usage: ['digitalSignature', 'keyEncipherment']
+csr_extended_key_usage: ['serverAuth', 'clientAuth']
 
 # 
 certificate_extention: "crt"
