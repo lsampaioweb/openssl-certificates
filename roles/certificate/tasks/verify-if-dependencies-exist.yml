@@ -10,3 +10,9 @@
   vars:
     include_config_files: False
   when: "'certificate-signing-request' in dependencies_list"
+
+- name: Including the dependence to create a certificate
+  include_tasks: "roles/certificate/tasks/create-certificate.yml"
+  vars:
+    include_config_files: False
+  when: "'certificate' in dependencies_list"

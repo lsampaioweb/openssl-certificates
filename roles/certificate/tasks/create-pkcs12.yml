@@ -1,0 +1,65 @@
+---
+- name: Including config files for "{{ certificate_path | basename }}"
+  include_tasks: "include-config-files.yml"
+  when: include_config_files
+
+- name: Creating dependencies, if they do not already exist
+  include_tasks: "verify-if-dependencies-exist.yml"
+  vars:
+    dependencies_list: 
+      - "certificate"
+
+- name: Creating variables
+  set_fact:
+    certificate_name     : "{{ temp_certificate_name }}"
+    pkcs12_path          : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ pkcs12_extention }}"
+  vars:
+    temp_certificate_name: "{{ certificate_path | basename }}"
+
+- name: Verifying if "{{ pkcs12_path }}" file exists
+  stat:
+    path: "{{ pkcs12_path }}"
+  register: file_exists
+
+- name: Creating the should_create_file variable
+  set_fact:
+    should_create_file: "{{ not file_exists.stat.exists }}"
+
+- name: Creating the specific variables
+  set_fact:
+    privatekey_path      : "{{ certificate_path }}/{{ certificate_name }}.{{ privatekey_extention }}"
+    passphrase           : "{{ lookup('template', '../templates/get-password-from-secret-manager.j2') }}"
+
+    ssl_certificate_path : "{{ certificate_path }}/{{ certificate_name }}.{{ certificate_extention }}"
+  vars:
+    password_id : "{{ certificate_name }}"
+  when: should_create_file
+
+- name: Printing variables
+  debug:
+    msg: 
+      - "Should create file : {{ should_create_file }}"
+      - "Action             : {{ pkcs12_action }}"
+      - "Friendly name      : {{ pkcs12_friendly_name }}"
+      - "Path               : {{ pkcs12_path }}"
+      - "Certificate path   : {{ ssl_certificate_path }}"
+      - "Privatekey path    : {{ privatekey_path }}"
+  when: debug | bool and should_create_file | bool
+
+- name: Creating a PKCS#12 file
+  openssl_pkcs12:
+    action                : "{{ pkcs12_action }}"
+    path                  : "{{ pkcs12_path }}"
+    friendly_name         : "{{ pkcs12_friendly_name }}"
+    passphrase            : "{{ passphrase | default(omit, true) }}"
+
+    certificate_path      : "{{ ssl_certificate_path }}"
+    
+    privatekey_path       : "{{ privatekey_path }}"
+    privatekey_passphrase : "{{ passphrase | default(omit, true) }}"
+  register: file_creation_output
+  when: should_create_file
+
+- name: Reseting variables for next elements in the loop (if any)
+  set_fact:
+    passphrase : ""
