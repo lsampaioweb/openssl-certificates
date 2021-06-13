@@ -53,3 +53,15 @@ pkcs12_friendly_name: "{{ csr_organization_name }}"
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_info_module.html
 certificate_days_for_yellow_situation: "+15d"
 certificate_days_for_red_situation: "+1d"
+
+# Variables that will be used for sending email notifications about the certificates.
+# https://docs.ansible.com/ansible/latest/collections/community/general/mail_module.html
+mail_host: "smtp.gmail.com"
+mail_port: 587
+mail_subtype: "html"
+mail_smtp_username: "lsampaioweb@gmail.com"
+mail_smtp_password_id: "certificate-smtp-password"
+mail_from: "Luciano Sampaio <lsampaioweb@gmail.com>"
+mail_to: 
+  - "Luciano Sampaio <lsampaioweb@gmail.com>"
+mail_cc: []

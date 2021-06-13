@@ -27,3 +27,6 @@ debug: True
 
 # The prefix that will be used to identify a secret in the long list of secrets.
 certificate_secret_manager_prefix: "ssl."
+
+# The file that will contain the dates of every notification that was sent about a certification expiring date.
+notification_file: "notifications.log"

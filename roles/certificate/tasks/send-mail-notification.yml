@@ -1,0 +1,27 @@
+---
+- name: Verifying if a previous notification was already sent today
+  lineinfile:
+    path: "{{ certificate_path }}/{{ notification_file }}"
+    line: "{{ ansible_date_time.date }}"
+    state: present
+    create: yes
+  register: notification_sent
+
+- name: Sending the email notification
+  mail:
+    host: "{{ mail_host }}"
+    port: "{{ mail_port }}"
+
+    username: "{{ mail_smtp_username }}"
+    password: "{{ lookup('template', '../templates/get-password-from-secret-manager.j2') }}"
+
+    from: "{{ mail_from }}"
+    to: "{{ mail_to }}"
+    cc: "{{ mail_cc }}"
+    
+    subject: "{{ subject }}"
+    subtype: "{{ mail_subtype }}"
+    body: "{{ lookup('template', '../templates/{{ body_file }}') }}"
+  vars:
+    password_id : "{{ mail_smtp_password_id }}"    
+  when: notification_sent.changed
