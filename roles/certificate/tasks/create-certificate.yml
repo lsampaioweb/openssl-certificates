@@ -79,7 +79,7 @@
   when: debug | bool and should_create_file | bool
 
 - name: Creating a certificate
-  openssl_certificate:
+  community.crypto.x509_certificate:
     provider                    : "{{ certificate_provider }}"
     path                        : "{{ ssl_certificate_path }}"
 

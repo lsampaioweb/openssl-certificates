@@ -48,3 +48,8 @@ certificate_authority_path : "{{ certificates_path }}{{ certificate_authority_na
 pkcs12_extention: "p12"
 pkcs12_action: "export"
 pkcs12_friendly_name: "{{ csr_organization_name }}"
+
+# Variables that will be used for verifying if a certificate is still valid.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_info_module.html
+certificate_days_for_yellow_situation: "+15d"
+certificate_days_for_red_situation: "+1d"
