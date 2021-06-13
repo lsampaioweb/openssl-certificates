@@ -1,6 +1,6 @@
-# Verify and Create
+# Create, Verify and Import OpenSSL Certificates
 
-The playbook can verify if the certificate created by our own Certificate Authority (CA) is still valid and if necessary can create a new one.
+The playbook can verify if the certificate created by our own Certificate Authority (CA) is still valid. Can also create a new one and import it into several different applications.
 
 # Requirements:
 
@@ -13,15 +13,15 @@ The Certificate Authority Server (CAS) must be a MAC OSX. If you want to use the
   ```
   
   ```bash
-  ansible-playbook verify-certificate.yml
-  ```
-  
-  ```bash
   ansible-playbook create-private-key.yml
   ansible-playbook create-signing-request.yml
   ansible-playbook create-certificate.yml
   ansible-playbook create-pkcs12.yml
   ```
+
+  ```bash
+  ansible-playbook verify-certificate.yml
+  ```  
   
   ```bash
   ansible-playbook import-certificate.yml
