@@ -1,0 +1,19 @@
+---
+# macoskeychain
+keychain_path: "/Library/Keychains/System.keychain"
+temp_folder: "/tmp"
+
+import_config: [
+  macoskeychain: [
+    {
+      host: "MacBook-Pro-Luciano.local",
+      keychain_path: "{{ keychain_path }}",
+      temp_folder: "{{ temp_folder }}"
+    },
+    {
+      host: "MacBook-Pro-Fernanda.local",
+      keychain_path: "{{ keychain_path }}",
+      temp_folder: "{{ temp_folder }}"
+    }
+  ]
+]

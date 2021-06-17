@@ -1,0 +1,7 @@
+---
+- name: Including config files for "{{ certificate_path | basename }}"
+  include_tasks: "include-config-files.yml"
+  when: include_config_files
+
+- name: Including import file for "{{ certificate_path | basename }}"
+  include_tasks: "include-import-file.yml"

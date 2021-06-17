@@ -1,0 +1,8 @@
+---
+- name: Including task to import the certificate into the MacOSX keychain
+  include_tasks: "macoskeychain.yml"
+  loop: "{{ import_type.macoskeychain | default([]) }}"
+  loop_control:
+    loop_var: host_config
+    label: ""
+  when: "'macoskeychain' in import_type"

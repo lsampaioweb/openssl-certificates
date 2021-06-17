@@ -5,6 +5,7 @@ ansible_python_interpreter: "/usr/bin/python3"
 # The default user and password to connect to the remote hosts.
 ansible_user: "usr_ansible"
 ansible_password: "{{ lookup('pipe', 'security find-generic-password -a $USER -s {{ ansible_user }} -w') }}"
+ansible_become_password: "{{ ansible_password }}"
 
 # The folder that will contain all OpenSSL Certificates.
 certificates_path: "/opt/certificates/"
@@ -30,3 +31,6 @@ certificate_secret_manager_prefix: "ssl."
 
 # The file that will contain the dates of every notification that was sent about a certification expiring date.
 notification_file: "notifications.log"
+
+# The file with the instructions to import a certificate.
+import_file: "import.yml"

@@ -1,0 +1,79 @@
+---
+- name: Creating variables
+  set_fact:
+    host                      : "{{ host_config.host }}"
+    keychain_path             : "{{ host_config.keychain_path }}"
+
+    certificate_name          : "{{ temp_certificate_name }}"
+    ssl_certificate_path      : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
+    ssl_certificate_tmp_path  : "{{ host_config.temp_folder }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
+  vars:
+    temp_certificate_name: "{{ certificate_path | basename }}"
+
+- name: Verifying if "{{ ssl_certificate_path }}" file exists
+  stat:
+    path: "{{ ssl_certificate_path }}"
+  register: file_exists
+
+- name: Getting info about the certificate
+  openssl_certificate_info:
+    path: "{{ ssl_certificate_path }}"
+  register: certificate_info
+  when: file_exists.stat.exists | bool
+
+- name: Checking if the certificate is already imported into the keychain on {{ host }}
+  delegate_to: "{{ host }}"
+  shell: "security find-certificate -c '{{ certificate_info.subject.commonName }}' -p | openssl x509 -text | grep 'Not After'"
+  register: find_certificate_output
+  failed_when: false
+  changed_when: false
+  when: file_exists.stat.exists | bool and not certificate_info.expired
+
+- name: Creating the should_import_certificate variable
+  set_fact:
+    should_import_certificate: "{{ (file_exists.stat.exists and not certificate_info.expired) 
+      and 
+      (
+        find_certificate_output.rc != 0
+        or 
+        (find_certificate_output.rc == 0 and (new_cert_expire_day | to_datetime('%Y%m%d%H%M%SZ') != imported_cert_expire_day | to_datetime('%b %d %H:%M:%S %Y %Z')))
+      ) }}"
+  vars:
+    new_cert_expire_day: "{{ certificate_info.not_after }}"
+    imported_cert_expire_day: "{{ find_certificate_output.stdout[24:49] }}"
+  when: file_exists.stat.exists | bool
+
+- name: Printing variables
+  debug:
+    msg:
+      - "should_import_certificate : {{ should_import_certificate }}"
+      - "Certificate path          : {{ ssl_certificate_tmp_path }}"
+      - "Common Name               : {{ certificate_info.subject.commonName }}"
+      - "Expired                   : {{ certificate_info.expired }}"
+      - "Should import certificate : {{ should_import_certificate }}"
+      - "Cert Info expired day     : {{ new_cert_expire_day }}"
+      - "Imported cert expired day : {{ imported_cert_expire_day }}"
+  vars:
+    new_cert_expire_day: "{{ certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')}}"
+    imported_cert_expire_day: "{{ find_certificate_output.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') }}"
+  when: debug | bool and file_exists.stat.exists | bool and find_certificate_output.rc == 0
+  
+- name: Copying the certificate file to the specified destination on {{ host }}
+  delegate_to: "{{ host }}"
+  copy:
+    src: "{{ ssl_certificate_path }}"
+    dest: "{{ ssl_certificate_tmp_path }}"
+  when: should_import_certificate | bool
+
+- name: Importing the certificate into the keychain on {{ host }}
+  delegate_to: "{{ host }}"
+  become: True
+  command: "security add-trusted-cert -d -r trustRoot -k {{ keychain_path }} '{{ ssl_certificate_tmp_path }}'"
+  when: should_import_certificate | bool
+
+- name: Deleting the certificate file that was copied to {{ host }}
+  delegate_to: "{{ host }}"
+  file:
+    path: "{{ ssl_certificate_tmp_path }}"
+    state: absent
+  when: should_import_certificate | bool
