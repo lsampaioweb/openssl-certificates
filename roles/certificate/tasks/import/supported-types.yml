@@ -6,3 +6,11 @@
     loop_var: host_config
     label: ""
   when: "'macoskeychain' in import_type"
+
+- name: Including task to import the certificate into Eclipse application
+  include_tasks: "eclipse.yml"
+  loop: "{{ import_type.eclipse | default([]) }}"
+  loop_control:
+    loop_var: host_config
+    label: ""
+  when: "'eclipse' in import_type"

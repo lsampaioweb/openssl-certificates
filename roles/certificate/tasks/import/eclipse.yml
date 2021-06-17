@@ -1,0 +1,53 @@
+---
+- name: Creating variables
+  set_fact:
+    certificate_name     : "{{ temp_certificate_name }}"
+    pkcs12_path          : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ pkcs12_extention }}"
+  vars:
+    temp_certificate_name: "{{ certificate_path | basename }}"
+
+- name: Verifying if "{{ pkcs12_path }}" file exists
+  stat:
+    path: "{{ pkcs12_path }}"
+  register: file_exists
+
+- name: Creating the specific variables
+  set_fact:
+    host              : "{{ host_config.host }}"
+    pkcs12_dest       : "{{ host_config.pkcs12_dest }}"
+    secret_file       : "{{ host_config.secret_file }}"
+    secret_key        : "{{ host_config.secret_key }}"
+    
+    passphrase : "{{ lookup('template', '../../templates/get-password-from-secret-manager.j2') }}"
+  vars:
+    password_id       : "{{ certificate_name }}"
+  when: file_exists.stat.exists | bool
+
+- name: Printing variables
+  debug:
+    msg:     
+      - "host         : {{ host }}"
+      - "pkcs12_dest  : {{ pkcs12_dest }}"
+      - "secret_file  : {{ secret_file }}"
+      - "secret_key   : {{ secret_key }}"  
+  when: debug | bool and file_exists.stat.exists | bool
+
+- name: Copying the PKCS#12 file to the specified destination
+  delegate_to: "{{ host }}"
+  become: True
+  copy:
+    src: "{{ pkcs12_path }}"
+    dest: "{{ pkcs12_dest }}"
+  when: file_exists.stat.exists | bool    
+
+- name: Updating the password in the secrets file
+  delegate_to: "{{ host }}"
+  become: True
+  lineinfile:
+    path: "{{ secret_file }}"
+    regexp: "^{{ secret_key }}="
+    line: "{{ secret_key }}={{ passphrase }}"
+    state: present
+    create: yes
+  no_log: True
+  when: file_exists.stat.exists | bool

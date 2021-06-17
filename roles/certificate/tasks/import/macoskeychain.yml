@@ -21,7 +21,7 @@
   register: certificate_info
   when: file_exists.stat.exists | bool
 
-- name: Checking if the certificate is already imported into the keychain on {{ host }}
+- name: Checking if the certificate is already imported into the keychain
   delegate_to: "{{ host }}"
   shell: "security find-certificate -c '{{ certificate_info.subject.commonName }}' -p | openssl x509 -text | grep 'Not After'"
   register: find_certificate_output
@@ -58,14 +58,14 @@
     imported_cert_expire_day: "{{ find_certificate_output.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') }}"
   when: debug | bool and file_exists.stat.exists | bool and find_certificate_output.rc == 0
   
-- name: Copying the certificate file to the specified destination on {{ host }}
+- name: Copying the certificate file to the specified destination
   delegate_to: "{{ host }}"
   copy:
     src: "{{ ssl_certificate_path }}"
     dest: "{{ ssl_certificate_tmp_path }}"
   when: should_import_certificate | bool
 
-- name: Importing the certificate into the keychain on {{ host }}
+- name: Importing the certificate into the keychain
   delegate_to: "{{ host }}"
   become: True
   command: "security add-trusted-cert -d -r trustRoot -k {{ keychain_path }} '{{ ssl_certificate_tmp_path }}'"
