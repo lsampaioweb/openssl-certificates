@@ -5,7 +5,7 @@ ansible_password: "{{ lookup('pipe', 'security find-generic-password -a $USER -s
 ansible_become_password: "{{ ansible_password }}"
 
 # The folder that will contain all OpenSSL Certificates.
-certificates_path: "/opt/certificates/"
+certificates_path: "/opt/certificates"
 
 # The regex that will be used to search for folders. If a folder starts with "_", it will be ignored.
 certificates_patterns: "['^[^_](.)*$']"

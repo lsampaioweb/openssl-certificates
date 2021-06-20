@@ -22,3 +22,11 @@
     loop_var: host_config
     label: ""
   when: "'tplinkt1600g' in import_type"
+
+- name: Including task to import the certificate into the Proxmox Hosts
+  include_tasks: "proxmox.yml"
+  loop: "{{ import_type.proxmox | default([]) }}"
+  loop_control:
+    loop_var: host_config
+    label: ""
+  when: "'proxmox' in import_type"

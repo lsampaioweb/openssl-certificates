@@ -86,7 +86,7 @@
 - name: Copying the certificate and private key files to the TFTP folder  
   copy:
     src: "{{ file.src }}"
-    dest: "{{ tftp_folder }}{{ file.dest }}"
+    dest: "{{ tftp_folder }}/{{ file.dest }}"
   loop:
     - { src: "{{ ssl_certificate_path }}", dest: "{{ ssl_certificate_name }}" }
     - { src: "{{ privatekey_path }}"     , dest: "{{ privatekey_name }}" }
@@ -144,7 +144,7 @@
 
 - name: Deleting the certificate and private key files from the TFTP folder
   file:
-    path: "{{ tftp_folder }}{{ file }}"
+    path: "{{ tftp_folder }}/{{ file }}"
     state: absent
   loop:
     - "{{ ssl_certificate_name }}"

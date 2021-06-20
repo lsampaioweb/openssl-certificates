@@ -41,7 +41,7 @@ certificate_digest: "sha256"
 certificate_not_after: "+365d"
 
 certificate_authority_name: "certificate.authority"
-certificate_authority_path : "{{ certificates_path }}{{ certificate_authority_name }}"
+certificate_authority_path : "{{ certificates_path }}/{{ certificate_authority_name }}"
 
 # Variables that will be used for creating a PKCS#12 file.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
