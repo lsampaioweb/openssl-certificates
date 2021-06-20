@@ -3,6 +3,11 @@
   hosts: CertificateAuthorityServer
 
   tasks: 
+    - name: Installing and upgrading the pip package
+      pip:
+        name: "pip"
+        state: "latest"
+
     - name: Installing all the required Python packages
       pip:
         name: "{{ item }}"
