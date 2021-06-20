@@ -1,7 +1,4 @@
 ---
-# Inform Ansible to use this specific version of python.
-ansible_python_interpreter: "/usr/bin/python3"
-
 # The default user and password to connect to the remote hosts.
 ansible_user: "usr_ansible"
 ansible_password: "{{ lookup('pipe', 'security find-generic-password -a $USER -s {{ ansible_user }} -w') }}"
