@@ -1,0 +1,162 @@
+---
+- name: Creating variables
+  set_fact:
+    switch_id             : "{{ host_config.switch_id }}"
+    host                  : "{{ host_config.host }}"
+    url                   : "{{ host_config.url }}"
+    port                  : "{{ host_config.port }}"
+    tftp_folder           : "{{ host_config.tftp_folder }}"
+    tftp_app              : "{{ host_config.tftp_app }}"
+    tftp_app_plist        : "{{ host_config.tftp_app_plist }}"
+    tftp_server_ip        : "{{ lookup('pipe', 'ipconfig getifaddr en0') }}" 
+
+    certificate_name      : "{{ temp_certificate_name }}"
+    ssl_certificate_path  : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
+    privatekey_path       : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ privatekey_extention }}"
+
+    ssl_certificate_name  : "certificate.{{ certificate_extention }}"
+    privatekey_name       : "certificate.{{ privatekey_extention }}"
+  vars:
+    temp_certificate_name: "{{ certificate_path | basename }}"
+
+- name: Verifying if "{{ ssl_certificate_path }}" file exists
+  stat:
+    path: "{{ ssl_certificate_path }}"
+  register: certificate_file_exists
+
+- name: Getting info about the certificate
+  community.crypto.x509_certificate_info:
+    path: "{{ ssl_certificate_path }}"
+  register: new_certificate_info
+  when: certificate_file_exists.stat.exists | bool
+
+- name: Getting the current (if any) certificate from url {{ url }}
+  get_certificate:
+    host: "{{ url }}"
+    port: "{{ port }}"
+  register: current_certificate_info
+  when: certificate_file_exists.stat.exists | bool and not new_certificate_info.expired
+
+- name: Verifying if "{{ privatekey_path }}" file exists
+  stat:
+    path: "{{ privatekey_path }}"
+  register: privatekey_file_exists
+
+- name: Creating the should_import_certificate variable
+  set_fact:
+    should_import_certificate: "{{ certificate_file_exists.stat.exists | bool and not new_certificate_info.expired and privatekey_file_exists.stat.exists | bool and (current_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') != new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) }}"
+
+- name: Printing variables
+  debug:
+    msg:     
+      - "should_import_certificate  : {{ should_import_certificate }}"
+      - "host                       : {{ host }}"
+      - "url                        : {{ url }}"
+      - "port                       : {{ port }}"
+      - "tftp_folder                : {{ tftp_folder }}"
+      - "tftp_app                   : {{ tftp_app }}"
+      - "tftp_app_plist             : {{ tftp_app_plist }}"
+      - "tftp server ip             : {{ tftp_server_ip }}"
+      
+      - "ssl_certificate_path       : {{ ssl_certificate_path }}"
+      - "privatekey_path            : {{ privatekey_path }}"
+      
+      - "ssl_certificate_name       : {{ ssl_certificate_name }}"
+      - "privatekey_name            : {{ privatekey_name }}"
+  when: debug | bool
+
+- name: Starting TFTP Server 
+  become: True
+  command: "{{ command }}"
+  loop:
+    - "launchctl load -F {{ tftp_app_plist }}"
+    - "launchctl start {{ tftp_app }}"
+  loop_control:
+    loop_var: command
+  when: should_import_certificate | bool
+
+- name: Giving 777 permissions on the "{{ tftp_folder }}" folder so the switch can access it
+  become: True
+  file:
+   path: "{{ tftp_folder }}"
+   mode: "777"
+   recurse: yes
+  when: should_import_certificate | bool
+
+- name: Copying the certificate and private key files to the TFTP folder  
+  copy:
+    src: "{{ file.src }}"
+    dest: "{{ tftp_folder }}{{ file.dest }}"
+  loop:
+    - { src: "{{ ssl_certificate_path }}", dest: "{{ ssl_certificate_name }}" }
+    - { src: "{{ privatekey_path }}"     , dest: "{{ privatekey_name }}" }
+  loop_control:
+    loop_var: file
+  when: should_import_certificate | bool
+
+- name: Copying the certificate and private key file to the switch
+  shell: |
+    set timeout 5
+    spawn ssh {{ ansible_user }}@{{ host }}
+    
+    expect "{{ switch_id }}>"
+    send "enable\r"
+    
+    expect "{{ switch_id }}#"
+    send "config\r"
+
+    expect "{{ switch_id }}(config)#"
+    send "ip http secure-server\r"
+
+    expect "{{ switch_id }}(config)#"
+    send "ip http secure-server download certificate {{ ssl_certificate_name }} ip-address {{ tftp_server_ip }}\r"
+
+    expect "{{ switch_id }}(config)#"
+    send "ip http secure-server download key {{ privatekey_name }} ip-address {{ tftp_server_ip }}\r"
+
+    expect "{{ switch_id }}(config)#"
+    send "exit\r"
+
+    expect "{{ switch_id }}#"
+    send "copy running-config startup-config\r"
+
+    expect "{{ switch_id }}#"
+    send "exit\r"
+    
+    expect "{{ switch_id }}>"
+    send "exit\r"
+   
+    exit 0
+  args:
+    executable: "/usr/bin/expect"
+  register: output
+  failed_when: (output.rc != 0) or 'Download SSL certificate OK' not in output.stdout or 'Download SSL key OK' not in output.stdout
+  when: should_import_certificate | bool
+
+- name: Stopping TFTP Server 
+  become: True
+  command: "{{ command }}"
+  loop:
+    - "launchctl unload -F {{ tftp_app_plist }}"
+  loop_control:
+    loop_var: command
+  when: should_import_certificate | bool
+
+- name: Deleting the certificate and private key files from the TFTP folder
+  file:
+    path: "{{ tftp_folder }}{{ file }}"
+    state: absent
+  loop:
+    - "{{ ssl_certificate_name }}"
+    - "{{ privatekey_name }}"
+  loop_control:
+    loop_var: file
+  when: should_import_certificate | bool
+
+- name: Giving back the proper (644) permissions on the "{{ tftp_folder }}" folder
+  become: True
+  file:
+    path: "{{ tftp_folder }}"
+    mode: "644"
+    recurse: yes
+  when: should_import_certificate | bool

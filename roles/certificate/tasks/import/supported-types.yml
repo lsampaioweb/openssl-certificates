@@ -14,3 +14,11 @@
     loop_var: host_config
     label: ""
   when: "'eclipse' in import_type"
+
+- name: Including task to import the certificate into the Switch Tplink T1600G-28TS-SG2424
+  include_tasks: "tplinkt1600g.yml"
+  loop: "{{ import_type.tplinkt1600g | default([]) }}"
+  loop_control:
+    loop_var: host_config
+    label: ""
+  when: "'tplinkt1600g' in import_type"
