@@ -63,6 +63,19 @@ If you want to exclude one or more folders from the verification, you can add a 
     domain.com.br -> _domain.com.br
   ```
 
+# Config File:
+
+In the config [File](roles/certificate/files/config.yml "Config File"), you will find all the **default** configurations that will be used to generate the certificate related files. You should not change configs in this file if that config will be used for only one certificate. If that's the case, you should create a specific config file inside the folder of the certificate, with only the configs you want to be different from the default ones.
+
+# Available Import Options:
+
+1. MacOSX Keychain.
+2. Eclipse.
+3. Switch Tplink T1600G-28TS-SG2424.
+4. Proxmox.
+
+See the import sample [File](roles/certificate/files/import-sample.yml "Import Sample File").
+
 # License:
 
 MIT
