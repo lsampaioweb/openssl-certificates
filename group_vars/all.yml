@@ -1,7 +1,10 @@
 ---
 # The default user and password to connect to the remote hosts.
 ansible_user: "usr_ansible"
-ansible_password: "{{ lookup('pipe', 'security find-generic-password -a $USER -s {{ ansible_user }} -w') }}"
+
+# The id that will be used to retrieve the Ansible user's password saved in the MacOSX Keychain. It will be the same for all hosts.
+ansible_password_id: "ansible-password"
+ansible_password: "{{ lookup('pipe', 'security find-generic-password -a $USER -s {{ ansible_password_id }} -w') }}"
 ansible_become_password: "{{ ansible_password }}"
 
 # The folder that will contain all OpenSSL Certificates.
