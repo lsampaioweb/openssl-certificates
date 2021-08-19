@@ -52,20 +52,20 @@ import_config: [
   ],
   proxmox: [
     {
-      host      : "host01",
-      url       : "host01.aprendendo.com.br",
+      host      : "pve01",
+      url       : "pve01.aprendendo.com.br",
       port      : "{{ proxmox_port }}",
       tmp_folder: "{{ proxmox_tmp_folder }}"
     },
     {
-      host      : "host02",
-      url       : "host02.aprendendo.com.br",
+      host      : "pve02",
+      url       : "pve02.aprendendo.com.br",
       port      : "{{ proxmox_port }}",
       tmp_folder: "{{ proxmox_tmp_folder }}"
     },
     {
-      host      : "host03",
-      url       : "host03.aprendendo.com.br",
+      host      : "pve03",
+      url       : "pve03.aprendendo.com.br",
       port      : "{{ proxmox_port }}",
       tmp_folder: "{{ proxmox_tmp_folder }}"
     }
