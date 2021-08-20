@@ -5,6 +5,8 @@ ansible_user: "usr_ansible"
 # The id that will be used to retrieve the Ansible user's password saved in the MacOSX Keychain. It will be the same for all hosts.
 ansible_password_id: "ansible-password"
 ansible_password: "{{ lookup('pipe', 'security find-generic-password -a $USER -s {{ ansible_password_id }} -w') }}"
+
+# The password that will be used when a sudo command is issued.
 ansible_become_password: "{{ ansible_password }}"
 
 # The folder that will contain all OpenSSL Certificates.

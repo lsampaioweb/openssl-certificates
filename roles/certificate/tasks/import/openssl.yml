@@ -1,0 +1,41 @@
+---
+- name: Creating variables
+  set_fact:
+    host                 : "{{ host_config.host }}"
+    ssl_certificate_path : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
+  vars:
+    temp_certificate_name: "{{ certificate_path | basename }}"
+
+- name: Verifying if "{{ ssl_certificate_path }}" file exists
+  stat:
+    path: "{{ ssl_certificate_path }}"
+  register: file_exists
+
+- name: Getting the default path of the openssl certificates
+  command: "openssl version -a"
+  register: output
+  changed_when: false
+  when: file_exists.stat.exists | bool
+
+- name: Print
+  set_fact:
+    certificate_dest: "{{ output.stdout | regex_search('(\/[\\w\\d\\.-@]+)+', '\\1') | first + '/cert.pem' }}"
+  when: file_exists.stat.exists | bool
+
+- name: Printing variables
+  debug:
+    msg:     
+      - "host                 : {{ host }}"
+      - "certificate_dest     : {{ certificate_dest }}"
+      - "ssl_certificate_path : {{ ssl_certificate_path }}"
+  when: debug | bool and file_exists.stat.exists | bool
+
+- name: Adding the certificate into the default (cert.pem) file
+  delegate_to: "{{ host }}"
+  become: True
+  blockinfile:
+    path: "{{ certificate_dest }}"
+    block: "{{ lookup('file', '{{ ssl_certificate_path }}') }}"
+    insertbefore: "BOF"
+    state: "present"
+  when: certificate_dest != "" and file_exists.stat.exists | bool 

@@ -69,10 +69,12 @@ In the config [file](roles/certificate/files/config.yml "Config File"), you will
 
 # Available Import Options:
 
-1. MacOSX Keychain.
-2. Eclipse.
-3. Switch Tplink T1600G-28TS-SG2424.
+1. Eclipse.
+2. MacOSX Keychain.
+3. OpenSSL.
 4. Proxmox.
+5. Python.
+6. Switch Tplink T1600G-28TS-SG2424.
 
 See the import sample [file](roles/certificate/files/import-sample.yml "Import Sample File").
 

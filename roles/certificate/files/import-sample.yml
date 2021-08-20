@@ -39,6 +39,11 @@ import_config: [
       temp_folder   : "{{ keychain_temp_folder }}"
     }
   ],
+  openssl: [
+    {
+      host    : "MacBook-Pro-Luciano.local"
+    }
+  ],
   proxmox: [
     {
       host      : "pve01",
