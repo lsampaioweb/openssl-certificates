@@ -1,12 +1,16 @@
 ---
 ### This is just a sample file. Create import files using this one as an example.
 
+# eclipse
+eclipse_secret_key: "KEY_STORE_PASSWORD"
+
 # macoskeychain
 keychain_path       : "/Library/Keychains/System.keychain"
 keychain_temp_folder: "/tmp"
 
-# eclipse
-eclipse_secret_key: "KEY_STORE_PASSWORD"
+# proxmox
+proxmox_port       : 8006
+proxmox_tmp_folder : "/tmp"
 
 # tplinkt1600g
 tplink_port           : 443
@@ -14,11 +18,15 @@ tplink_tftp_folder    : "/private/tftpboot"
 tplink_tftp_app       : "com.apple.tftpd"
 tplink_tftp_app_plist : "/System/Library/LaunchDaemons/tftp.plist"
 
-# proxmox
-proxmox_port       : 8006
-proxmox_tmp_folder : "/tmp"
-
 import_config: [
+  eclipse: [
+    {
+      host        : "MacBook-Pro-Luciano.local",
+      pkcs12_dest : "/opt/certificates/localhost/localhost.p12",
+      secret_file : "/Users/lsampaio/.config/SpringBoot/secret.properties",
+      secret_key  : "{{ eclipse_secret_key }}"
+    }
+  ],
   macoskeychain: [
     {
       host          : "MacBook-Pro-Luciano.local",
@@ -29,25 +37,6 @@ import_config: [
       host          : "MacBook-Pro-Fernanda.local",
       keychain_path : "{{ keychain_path }}",
       temp_folder   : "{{ keychain_temp_folder }}"
-    }
-  ],
-  eclipse: [
-    {
-      host        : "MacBook-Pro-Luciano.local",
-      pkcs12_dest : "/opt/certificates/localhost/localhost.p12",
-      secret_file : "/Users/lsampaio/.config/SpringBoot/secret.properties",
-      secret_key  : "{{ eclipse_secret_key }}"
-    }
-  ],
-  tplinkt1600g: [
-    {
-      switch_id     : "T1600G-28TS",
-      host          : "tplinkswitch",
-      url           : "tplinkswitch.aprendendo.com.br",
-      port          : "{{ tplink_port }}",
-      tftp_folder   : "{{ tplink_tftp_folder }}",
-      tftp_app      : "{{ tplink_tftp_app }}",
-      tftp_app_plist: "{{ tplink_tftp_app_plist }}"
     }
   ],
   proxmox: [
@@ -68,6 +57,23 @@ import_config: [
       url       : "pve03.aprendendo.com.br",
       port      : "{{ proxmox_port }}",
       tmp_folder: "{{ proxmox_tmp_folder }}"
+    }
+  ],
+  python: [
+    {
+      host    : "MacBook-Pro-Luciano.local",
+      version : "3"
+    }
+  ],
+  tplinkt1600g: [
+    {
+      switch_id     : "T1600G-28TS",
+      host          : "tplinkswitch",
+      url           : "tplinkswitch.aprendendo.com.br",
+      port          : "{{ tplink_port }}",
+      tftp_folder   : "{{ tplink_tftp_folder }}",
+      tftp_app      : "{{ tplink_tftp_app }}",
+      tftp_app_plist: "{{ tplink_tftp_app_plist }}"
     }
   ]
 ]
