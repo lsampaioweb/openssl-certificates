@@ -12,6 +12,7 @@
   register: file_exists
 
 - name: Getting the default path of the openssl certificates
+  delegate_to: "{{ host }}"
   command: "openssl version -a"
   register: output
   changed_when: false

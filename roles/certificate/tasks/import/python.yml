@@ -13,6 +13,7 @@
   register: file_exists
 
 - name: Getting the default path of certificates for the specified python
+  delegate_to: "{{ host }}"
   command: "python{{ version }} -c 'import ssl; print(ssl.get_default_verify_paths())'"
   register: output
   changed_when: false
@@ -34,6 +35,7 @@
 
 - name: Adding the certificate into the default (cert.pem) file
   delegate_to: "{{ host }}"
+  become: true
   blockinfile:
     path: "{{ certificate_dest }}"
     block: "{{ lookup('file', '{{ ssl_certificate_path }}') }}"
