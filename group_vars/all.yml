@@ -1,4 +1,7 @@
 ---
+# Specify if more messages should be displayed during the executions.
+debug: True
+
 # The default user and password to connect to the remote hosts.
 ansible_user: "usr_ansible"
 
@@ -24,9 +27,6 @@ backup: True
 # When backup is true, old files will be moved into this folder.
 # Each certificate's folder will contain a backup folder.
 backup_folder: "backup"
-
-# Specify if more messages should be displayed during the executions.
-debug: True
 
 # The prefix that will be used to identify a secret in the long list of secrets.
 certificate_secret_manager_prefix: "ssl."

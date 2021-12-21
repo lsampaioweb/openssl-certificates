@@ -47,19 +47,19 @@ import_config: [
   proxmox: [
     {
       host      : "pve01",
-      url       : "pve01.aprendendo.com.br",
+      url       : "pve01.homelab",
       port      : "{{ proxmox_port }}",
       tmp_folder: "{{ proxmox_tmp_folder }}"
     },
     {
       host      : "pve02",
-      url       : "pve02.aprendendo.com.br",
+      url       : "pve02.homelab",
       port      : "{{ proxmox_port }}",
       tmp_folder: "{{ proxmox_tmp_folder }}"
     },
     {
       host      : "pve03",
-      url       : "pve03.aprendendo.com.br",
+      url       : "pve03.homelab",
       port      : "{{ proxmox_port }}",
       tmp_folder: "{{ proxmox_tmp_folder }}"
     }
@@ -74,7 +74,7 @@ import_config: [
     {
       switch_id     : "T1600G-28TS",
       host          : "tplinkswitch",
-      url           : "tplinkswitch.aprendendo.com.br",
+      url           : "tplinkswitch.homelab",
       port          : "{{ tplink_port }}",
       tftp_folder   : "{{ tplink_tftp_folder }}",
       tftp_app      : "{{ tplink_tftp_app }}",
