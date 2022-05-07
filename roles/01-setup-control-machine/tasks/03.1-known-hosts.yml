@@ -8,6 +8,7 @@
   include_tasks: "roles/common/tasks/known_hosts/add.yml"
   loop:
     - { name: "{{ item }}"                        , key: "{{ item }}" }
+    - { name: "{{ item }}.{{ domain }}"           , key: "{{ item }}.{{ domain }}" }
     - { name: "{{ hostvars[item].ansible_host }}" , key: "{{ hostvars[item].ansible_host }}" }
   loop_control:
     loop_var: "host"
