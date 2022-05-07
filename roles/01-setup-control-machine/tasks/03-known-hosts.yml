@@ -1,0 +1,6 @@
+---
+- name: Adding the fingerprint of the hosts into the know_hosts file
+  include_tasks: "03.1-known-hosts.yml"
+  vars:
+    ansible_become: False
+  loop: "{{ groups['all'] }}"

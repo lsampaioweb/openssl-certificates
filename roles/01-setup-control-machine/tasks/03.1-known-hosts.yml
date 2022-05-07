@@ -1,0 +1,14 @@
+---
+- name: Creating .ssh directory
+  file:
+    path: "~/.ssh/"
+    state: "directory"
+
+- name: Adding the fingerprint of host {{ item }} into the know_hosts file
+  include_tasks: "roles/common/tasks/known_hosts/add.yml"
+  loop:
+    - { name: "{{ item }}"                        , key: "{{ item }}" }
+    - { name: "{{ hostvars[item].ansible_host }}" , key: "{{ hostvars[item].ansible_host }}" }
+  loop_control:
+    loop_var: "host"
+  when: hostvars[item].ansible_host is defined

@@ -1,16 +1,16 @@
 ---
 - name: Creating variables
   set_fact:
-    host                  : "{{ host_config.host }}"
-    url                   : "{{ host_config.url }}"
-    port                  : "{{ host_config.port }}"
-    tmp_folder            : "{{ host_config.tmp_folder }}"
+    host: "{{ host_config.host }}"
+    url: "{{ host_config.url }}"
+    port: "{{ host_config.port }}"
+    tmp_folder: "{{ host_config.tmp_folder }}"
 
-    ssl_certificate_path  : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
-    privatekey_path       : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ privatekey_extention }}"
+    ssl_certificate_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
+    privatekey_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ privatekey_extention }}"
 
-    ssl_certificate_name  : "{{ temp_certificate_name }}.{{ certificate_extention }}"
-    privatekey_name       : "{{ temp_certificate_name }}.{{ privatekey_extention }}"
+    ssl_certificate_name: "{{ temp_certificate_name }}.{{ certificate_extention }}"
+    privatekey_name: "{{ temp_certificate_name }}.{{ privatekey_extention }}"
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
@@ -23,7 +23,7 @@
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
   register: new_certificate_info
-  when: certificate_file_exists.stat.exists | bool  
+  when: certificate_file_exists.stat.exists | bool
 
 - name: Getting the current (if any) certificate from url {{ url }}
   get_certificate:
@@ -49,10 +49,10 @@
       - "url                        : {{ url }}"
       - "port                       : {{ port }}"
       - "tmp_folder                 : {{ tmp_folder }}"
-      
+
       - "ssl_certificate_path       : {{ ssl_certificate_path }}"
       - "privatekey_path            : {{ privatekey_path }}"
-      
+
       - "ssl_certificate_name       : {{ ssl_certificate_name }}"
       - "privatekey_name            : {{ privatekey_name }}"
   when: debug | bool

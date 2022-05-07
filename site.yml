@@ -1,0 +1,8 @@
+---
+- import_playbook: "01-setup-control-machine.yml"
+- import_playbook: "02-create-private-key.yml"
+- import_playbook: "03-create-signing-request.yml"
+- import_playbook: "04-create-certificate.yml"
+- import_playbook: "05-create-pkcs12.yml"
+- import_playbook: "06-verify-certificate.yml"
+- import_playbook: "07-import-certificate.yml"

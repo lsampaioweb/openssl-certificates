@@ -2,18 +2,6 @@
 # Specify if more messages should be displayed during the executions.
 debug: True
 
-# The default user and password to connect to the remote hosts.
-ansible_user: "usr_ansible"
-
-# The id that will be used to retrieve the Ansible user's password saved in the Secret Manager. It will be the same for all hosts.
-ansible_password_id: "ansible-password"
-
-# The password that Ansible will use to connect and run commands into each host.
-ansible_password: "{{ lookup('pipe', 'secret-tool lookup password {{ ansible_password_id }}') }}"
-
-# The password that will be used when a sudo command is issued.
-ansible_become_password: "{{ ansible_password }}"
-
 # The folder that will contain all OpenSSL Certificates.
 certificates_path: "/opt/certificates"
 

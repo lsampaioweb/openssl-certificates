@@ -1,0 +1,8 @@
+---
+- name: Adding the IP and name of each host into the hosts file
+  lineinfile:
+    path: "/etc/hosts"
+    line: "{{ hostvars[item].ansible_host }} {{ item }}"
+    state: "present"
+  when: hostvars[item].ansible_host is defined
+  loop: "{{ groups['all'] }}"

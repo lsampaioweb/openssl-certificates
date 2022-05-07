@@ -1,5 +1,19 @@
 [CertificateAuthorityServer]
-localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3.8
+localhost ansible_connection=local
 
-[TrueNAS]
-truenas01 ansible_python_interpreter=/usr/local/bin/python3
+[Proxmox]
+kvm01 ansible_host=192.168.0.10
+kvm02 ansible_host=10.0.3.4
+kvm03 ansible_host=10.0.3.5
+kvm04 ansible_host=10.0.3.6
+kvm05 ansible_host=10.0.3.7
+#kvm06 ansible_host=10.0.3.8
+
+[Proxmox:vars]
+ansible_python_interpreter=/usr/bin/python3.9
+
+[MacBooks]
+MacBook-Pro-Luciano ansible_host=192.168.0.100
+
+[MacBooks:vars]
+ansible_python_interpreter=/usr/local/bin/python3.9
