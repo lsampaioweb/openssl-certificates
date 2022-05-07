@@ -25,3 +25,10 @@
         recurse: yes
       loop: 
         - "{{ certificates_path }}"
+
+    - name: Installing all the required collections
+      community.general.ansible_galaxy_install:
+        type: "collection"
+        name: "{{ item }}"
+      loop:
+        - "community.crypto"

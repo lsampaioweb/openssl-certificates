@@ -43,23 +43,24 @@
 - name: Printing variables
   debug:
     msg: 
-      - "Should create file         : {{ should_create_file }}"
-      - "CSR path                   : {{ csr_path }}"
-      - "Default digest             : {{ csr_digest }}"
-      - "Country name               : {{ csr_country_name }}"
-      - "State or province name     : {{ csr_state_or_province_name }}"
-      - "Locality name              : {{ csr_locality_name }}"
-      - "Organization name          : {{ csr_organization_name }}"
-      - "Organization unit name     : {{ csr_organizational_unit_name }}"
-      - "Common name                : {{ csr_common_name | default(certificate_name, true) }}"
-      - "Email address              : {{ csr_email_address }}"
-      - "Subject alt name           : {{ csr_subject_alt_name | default(['DNS:' + certificate_name], true) }}"
-      - "basic_constraints_critical : {{ csr_basic_constraints_critical | default(omit, true) }}"
-      - "Basic constraints          : {{ csr_basic_constraints | default(omit, true) }}"
-      - "Key usage critical         : {{ csr_key_usage_critical | default(omit, true) }}"
-      - "key usage                  : {{ csr_key_usage | default(omit, true) }}"
-      - "Extended key usage         : {{ csr_extended_key_usage | default(omit, true) }}"
-      - "Privatekey path            : {{ privatekey_path }}"
+      - "Should create file           : {{ should_create_file }}"
+      - "CSR path                     : {{ csr_path }}"
+      - "Default digest               : {{ csr_digest }}"
+      - "Country name                 : {{ csr_country_name }}"
+      - "State or province name       : {{ csr_state_or_province_name }}"
+      - "Locality name                : {{ csr_locality_name }}"
+      - "Organization name            : {{ csr_organization_name }}"
+      - "Organization unit name       : {{ csr_organizational_unit_name }}"
+      - "Common name                  : {{ csr_common_name | default(certificate_name, true) }}"
+      - "Email address                : {{ csr_email_address }}"
+      - "Subject alt name             : {{ csr_subject_alt_name | default(['DNS:' + certificate_name], true) }}"
+      - "basic_constraints critical   : {{ csr_basic_constraints_critical | default(omit, true) }}"
+      - "Basic constraints            : {{ csr_basic_constraints | default(omit, true) }}"
+      - "Key usage critical           : {{ csr_key_usage_critical | default(omit, true) }}"
+      - "key usage                    : {{ csr_key_usage | default(omit, true) }}"
+      - "Extended key usage critical  : {{ csr_extended_key_usage_critical | default(omit, true) }}"
+      - "Extended key usage           : {{ csr_extended_key_usage | default(omit, true) }}"
+      - "Privatekey path              : {{ privatekey_path }}"
   when: debug | bool and should_create_file | bool
 
 - name: Creating a certificate signing request (CSR)
@@ -78,8 +79,11 @@
     
     basic_constraints_critical  : "{{ csr_basic_constraints_critical | default(omit, true) }}"    
     basic_constraints           : "{{ csr_basic_constraints | default(omit, true) }}"    
+    
     key_usage_critical          : "{{ csr_key_usage_critical | default(omit, true) }}"
     key_usage                   : "{{ csr_key_usage | default(omit, true) }}"
+    
+    extended_key_usage_critical : "{{ csr_extended_key_usage_critical | default(omit, true) }}"
     extended_key_usage          : "{{ csr_extended_key_usage | default(omit, true) }}"
 
     privatekey_path             : "{{ privatekey_path }}"
