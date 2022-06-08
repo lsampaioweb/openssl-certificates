@@ -32,11 +32,6 @@ import_config: [
       host          : "MacBook-Pro-Luciano.local",
       keychain_path : "{{ keychain_path }}",
       temp_folder   : "{{ keychain_temp_folder }}"
-    },
-    {
-      host          : "MacBook-Pro-Fernanda.local",
-      keychain_path : "{{ keychain_path }}",
-      temp_folder   : "{{ keychain_temp_folder }}"
     }
   ],
   openssl: [
@@ -46,20 +41,8 @@ import_config: [
   ],
   proxmox: [
     {
-      host      : "pve01",
-      url       : "pve01.homelab",
-      port      : "{{ proxmox_port }}",
-      tmp_folder: "{{ proxmox_tmp_folder }}"
-    },
-    {
-      host      : "pve02",
-      url       : "pve02.homelab",
-      port      : "{{ proxmox_port }}",
-      tmp_folder: "{{ proxmox_tmp_folder }}"
-    },
-    {
-      host      : "pve03",
-      url       : "pve03.homelab",
+      host      : "kvm-01",
+      url       : "kvm-01.homelab",
       port      : "{{ proxmox_port }}",
       tmp_folder: "{{ proxmox_tmp_folder }}"
     }
