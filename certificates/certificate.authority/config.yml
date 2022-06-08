@@ -1,0 +1,10 @@
+---
+csr_organization_name: "Certificate Authority"
+csr_common_name: "certificate.authority"
+csr_subject_alt_name: ["DNS:certificate.authority"]
+csr_basic_constraints: "CA:TRUE"
+csr_key_usage: ["digitalSignature", "keyEncipherment", "keyCertSign"]
+
+certificate_provider: "selfsigned"
+certificate_digest: "sha256"
+certificate_not_after: "+1095d"
