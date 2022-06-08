@@ -20,9 +20,9 @@
 - name: Printing variables
   debug:
     msg:
-      - "Contact from : {{ mail_from }}"
-      - "Contact to   : {{ mail_to }}"
-      - "Contact cc   : {{ mail_cc }}"
+      - "Contact from : {{ mail_from | b64decode }}"
+      - "Contact to   : {{ mail_to | b64decode }}"
+      - "Contact cc   : {{ mail_cc | b64decode }}"
   when: debug | bool and (certificate_situation_is_yellow or certificate_situation_is_red or certificate_situation_is_expired)
 
 - name: Sending the notification

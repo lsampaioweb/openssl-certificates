@@ -52,7 +52,7 @@
       - "Organization name            : {{ csr_organization_name }}"
       - "Organization unit name       : {{ csr_organizational_unit_name }}"
       - "Common name                  : {{ csr_common_name | default(certificate_name, true) }}"
-      - "Email address                : {{ csr_email_address }}"
+      - "Email address                : {{ csr_email_address | b64decode }}"
       - "Subject alt name             : {{ csr_subject_alt_name | default(['DNS:' + certificate_name], true) }}"
       - "basic_constraints critical   : {{ csr_basic_constraints_critical | default(omit, true) }}"
       - "Basic constraints            : {{ csr_basic_constraints | default(omit, true) }}"
@@ -74,7 +74,7 @@
     organization_name           : "{{ csr_organization_name }}"
     organizational_unit_name    : "{{ csr_organizational_unit_name }}"
     common_name                 : "{{ csr_common_name | default(certificate_name, true) }}"
-    email_address               : "{{ csr_email_address }}"
+    email_address               : "{{ csr_email_address | b64decode }}"
     subject_alt_name            : "{{ csr_subject_alt_name | default(['DNS:' + certificate_name], true) }}"
     
     basic_constraints_critical  : "{{ csr_basic_constraints_critical | default(omit, true) }}"    

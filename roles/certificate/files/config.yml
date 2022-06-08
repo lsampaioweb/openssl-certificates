@@ -23,14 +23,14 @@ csr_locality_name: "Aracaju"
 csr_organization_name: "TheCodeMaster"
 csr_organizational_unit_name: "HomeLab"
 csr_common_name: ""
-csr_email_address: "lsampaioweb@gmail.com"
+csr_email_address: "bHNhbXBhaW93ZWJAZ21haWwuY29t" # String was encoded on base64 to avoid spammers.
 csr_subject_alt_name: []
 csr_basic_constraints_critical: True
 csr_basic_constraints: "CA:FALSE"
 csr_key_usage_critical: True
-csr_key_usage: ['digitalSignature', 'keyEncipherment']
+csr_key_usage: ["digitalSignature", "keyEncipherment"]
 csr_extended_key_usage_critical: True
-csr_extended_key_usage: ['serverAuth', 'clientAuth']
+csr_extended_key_usage: ["serverAuth", "clientAuth"]
 
 # Variables that will be used for creating a certificate.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
@@ -42,7 +42,7 @@ certificate_digest: "sha256"
 certificate_not_after: "+365d"
 
 certificate_authority_name: "certificate.authority"
-certificate_authority_path : "{{ certificates_path }}/{{ certificate_authority_name }}"
+certificate_authority_path: "{{ certificates_path }}/{{ certificate_authority_name }}"
 
 # Variables that will be used for creating a PKCS#12 file.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
@@ -60,9 +60,9 @@ certificate_days_for_red_situation: "+1d"
 mail_host: "smtp.gmail.com"
 mail_port: 587
 mail_subtype: "html"
-mail_smtp_username: "lsampaioweb@gmail.com"
+mail_smtp_username: "bHNhbXBhaW93ZWJAZ21haWwuY29t" # String was encoded on base64 to avoid spammers.
 mail_smtp_password_id: "certificate-smtp-password"
-mail_from: "Luciano Sampaio <lsampaioweb@gmail.com>"
-mail_to: 
-  - "Luciano Sampaio <lsampaioweb@gmail.com>"
+mail_from: "THVjaWFubyBTYW1wYWlvIDxsc2FtcGFpb3dlYkBnbWFpbC5jb20+" # String was encoded on base64 to avoid spammers.
+mail_to:
+  - "THVjaWFubyBTYW1wYWlvIDxsc2FtcGFpb3dlYkBnbWFpbC5jb20+" # String was encoded on base64 to avoid spammers.
 mail_cc: []
