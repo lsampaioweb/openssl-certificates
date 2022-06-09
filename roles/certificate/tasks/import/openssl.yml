@@ -33,7 +33,7 @@
 
 - name: Adding the certificate into the default (cert.pem) file
   delegate_to: "{{ host }}"
-  become: True
+  become: yes
   blockinfile:
     path: "{{ certificate_dest }}"
     block: "{{ lookup('file', '{{ ssl_certificate_path }}') }}"

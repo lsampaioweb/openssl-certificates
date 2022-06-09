@@ -34,7 +34,7 @@
 
 - name: Copying the PKCS#12 file to the specified destination
   delegate_to: "{{ host }}"
-  become: True
+  become: yes
   copy:
     src: "{{ pkcs12_path }}"
     dest: "{{ pkcs12_dest }}"
@@ -42,7 +42,7 @@
 
 - name: Updating the password in the secrets file
   delegate_to: "{{ host }}"
-  become: True
+  become: yes
   lineinfile:
     path: "{{ secret_file }}"
     regexp: "^{{ secret_key }}="

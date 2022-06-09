@@ -7,3 +7,6 @@ ansible_password: ""
 
 # The password that will be used when a sudo command is issued.
 ansible_become_password: ""
+
+# The path in the git repository where all config and import files are stored.
+certificates_path_in_repository: "{{ lookup('env','HOME') }}/Git/openssl-certificates/certificates"

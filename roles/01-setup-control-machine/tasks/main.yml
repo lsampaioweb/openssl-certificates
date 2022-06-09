@@ -7,3 +7,6 @@
 
 - name: Adding the fingerprint of each host into the know_hosts file
   import_tasks: "03-known-hosts.yml"
+
+- name: Creating the folder that will contain all OpenSSL Certificates
+  import_tasks: "04-certificate-folder.yml"

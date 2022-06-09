@@ -67,19 +67,19 @@
 
 - name: Allowing Ansible to write into the com.apple.trust-settings.admin settings
   delegate_to: "{{ host }}"
-  become: True
+  become: yes
   command: "/usr/bin/security authorizationdb write com.apple.trust-settings.admin allow"
   when: should_import_certificate | bool
 
 - name: Importing the certificate into the keychain
   delegate_to: "{{ host }}"
-  become: True
+  become: yes
   command: "/usr/bin/security add-trusted-cert -d -r trustRoot -k {{ keychain_path }} '{{ ssl_certificate_tmp_path }}'"
   when: should_import_certificate | bool
 
 - name: Denying Ansible to write into the com.apple.trust-settings.admin settings
   delegate_to: "{{ host }}"
-  become: True
+  become: yes
   command: "/usr/bin/security authorizationdb remove com.apple.trust-settings.admin"
   when: should_import_certificate | bool
 

@@ -7,7 +7,7 @@
       - { name: "sshpass" }
 
 - name: Installing pip packages
-  become: False
+  become: false
   import_tasks: "roles/common/tasks/packages/pip.yml"
   vars:
     packages:
@@ -15,14 +15,6 @@
       - { name: "pyOpenSSL" }
       - { name: "jmespath" }
       - { name: "pexpect" }
-
-- name: Creating the folder that will contain all OpenSSL Certificates
-  file:
-    path: "{{ item }}"
-    state: directory
-    recurse: yes
-  loop: 
-    - "{{ certificates_path }}"
 
 - name: Installing all the required collections
   community.general.ansible_galaxy_install:

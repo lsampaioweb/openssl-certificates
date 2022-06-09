@@ -72,7 +72,7 @@
 
 - name: Importing the certificate and private key into {{ host }}
   delegate_to: "{{ host }}"
-  become: True
+  become: yes
   command: "pvenode cert set {{ tmp_folder }}/{{ ssl_certificate_name }} {{ tmp_folder }}/{{ privatekey_name }} --force --restart"
   register: output
   when: should_import_certificate | bool

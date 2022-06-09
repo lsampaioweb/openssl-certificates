@@ -66,7 +66,7 @@
   when: debug | bool
 
 - name: Starting TFTP Server 
-  become: True
+  become: yes
   command: "{{ command }}"
   loop:
     - "launchctl load -F {{ tftp_app_plist }}"
@@ -76,7 +76,7 @@
   when: should_import_certificate | bool
 
 - name: Giving 777 permissions on the "{{ tftp_folder }}" folder so the switch can access it
-  become: True
+  become: yes
   file:
    path: "{{ tftp_folder }}"
    mode: "777"
@@ -134,7 +134,7 @@
   when: should_import_certificate | bool
 
 - name: Stopping TFTP Server 
-  become: True
+  become: yes
   command: "{{ command }}"
   loop:
     - "launchctl unload -F {{ tftp_app_plist }}"
@@ -154,7 +154,7 @@
   when: should_import_certificate | bool
 
 - name: Giving back the proper (644) permissions on the "{{ tftp_folder }}" folder
-  become: True
+  become: yes
   file:
     path: "{{ tftp_folder }}"
     mode: "644"
