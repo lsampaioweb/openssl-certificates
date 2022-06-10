@@ -5,6 +5,7 @@
     packages:
       - { name: "pip" }
       - { name: "sshpass" }
+      - { name: "libsecret-tools" }
 
 - name: Installing pip packages
   become: false
