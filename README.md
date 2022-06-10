@@ -28,7 +28,7 @@ The Certificate Authority Server (CAS) must be a MAC OSX. If you want to use the
   ```  
   
   ```bash
-  ansible-playbook 07-import-certificate.yml
+  ansible-playbook 07-import-certificate.yml --ask-pass -K
   ```
 
 # Variables:

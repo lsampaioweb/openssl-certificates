@@ -13,8 +13,8 @@ kvm-01 ansible_host=192.168.0.10
 [Proxmox:vars]
 ansible_python_interpreter=/usr/bin/python3.9
 
-#[MacBooks]
-#MacBook-Pro-Luciano ansible_host=192.168.0.100
+[MacBooks]
+MacBook-Pro-Luciano ansible_host=192.168.0.100
 
-#[MacBooks:vars]
-#ansible_python_interpreter=/usr/local/bin/python3.9
+[MacBooks:vars]
+ansible_python_interpreter=/usr/local/bin/python3.9
