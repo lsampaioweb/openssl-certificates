@@ -6,7 +6,7 @@
 
 - name: Getting the list of certificates in the "{{ certificates_path }}" folder
   find:
-    paths: 
+    paths:
       - "{{ certificates_path }}"
     file_type: "directory"
     use_regex: yes

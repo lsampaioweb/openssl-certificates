@@ -6,15 +6,15 @@
 - name: Creating dependencies, if they do not already exist
   include_tasks: "verify-if-dependencies-exist.yml"
   vars:
-    dependencies_list: 
+    dependencies_list:
       - "privatekey"
 
 - name: Creating variables
   set_fact:
-    certificate_name : "{{ temp_certificate_name }}"
-    csr_path         : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ csr_extention }}"
+    certificate_name: "{{ temp_certificate_name }}"
+    csr_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ csr_extention }}"
   vars:
-    temp_certificate_name : "{{ certificate_path | basename }}"
+    temp_certificate_name: "{{ certificate_path | basename }}"
 
 - name: Verifying if "{{ csr_path }}" file exists
   stat:
@@ -28,21 +28,21 @@
 - name: Including task to delete files that depend on the certificate signing request
   include_tasks: "delete-files-that-depend.yml"
   vars:
-    depend_on: 
+    depend_on:
       - "certificate-signing-request"
   when: should_create_file
 
 - name: Creating the specific variables
   set_fact:
-    privatekey_path : "{{ certificate_path }}/{{ certificate_name }}.{{ privatekey_extention }}"
-    passphrase      : "{{ lookup('template', '../templates/get-password-from-secret-manager.j2') }}"
+    privatekey_path: "{{ certificate_path }}/{{ certificate_name }}.{{ privatekey_extention }}"
+    passphrase: "{{ lookup('template', '../templates/get-password-from-secret-manager.j2') }}"
   vars:
-    password_id : "{{ certificate_name }}"
+    password_id: "{{ certificate_name }}"
   when: should_create_file
 
 - name: Printing variables
   debug:
-    msg: 
+    msg:
       - "Should create file           : {{ should_create_file }}"
       - "CSR path                     : {{ csr_path }}"
       - "Default digest               : {{ csr_digest }}"
@@ -65,31 +65,31 @@
 
 - name: Creating a certificate signing request (CSR)
   openssl_csr:
-    path                        : "{{ csr_path }}"
-    
-    digest                      : "{{ csr_digest }}"
-    country_name                : "{{ csr_country_name }}"
-    state_or_province_name      : "{{ csr_state_or_province_name }}"
-    locality_name               : "{{ csr_locality_name }}"
-    organization_name           : "{{ csr_organization_name }}"
-    organizational_unit_name    : "{{ csr_organizational_unit_name }}"
-    common_name                 : "{{ csr_common_name | default(certificate_name, true) }}"
-    email_address               : "{{ csr_email_address | b64decode }}"
-    subject_alt_name            : "{{ csr_subject_alt_name | default(['DNS:' + certificate_name], true) }}"
-    
-    basic_constraints_critical  : "{{ csr_basic_constraints_critical | default(omit, true) }}"    
-    basic_constraints           : "{{ csr_basic_constraints | default(omit, true) }}"    
-    
-    key_usage_critical          : "{{ csr_key_usage_critical | default(omit, true) }}"
-    key_usage                   : "{{ csr_key_usage | default(omit, true) }}"
-    
-    extended_key_usage_critical : "{{ csr_extended_key_usage_critical | default(omit, true) }}"
-    extended_key_usage          : "{{ csr_extended_key_usage | default(omit, true) }}"
+    path: "{{ csr_path }}"
 
-    privatekey_path             : "{{ privatekey_path }}"
-    privatekey_passphrase       : "{{ passphrase | default(omit, true) }}"
+    digest: "{{ csr_digest }}"
+    country_name: "{{ csr_country_name }}"
+    state_or_province_name: "{{ csr_state_or_province_name }}"
+    locality_name: "{{ csr_locality_name }}"
+    organization_name: "{{ csr_organization_name }}"
+    organizational_unit_name: "{{ csr_organizational_unit_name }}"
+    common_name: "{{ csr_common_name | default(certificate_name, true) }}"
+    email_address: "{{ csr_email_address | b64decode }}"
+    subject_alt_name: "{{ csr_subject_alt_name | default(['DNS:' + certificate_name], true) }}"
+
+    basic_constraints_critical: "{{ csr_basic_constraints_critical | default(omit, true) }}"
+    basic_constraints: "{{ csr_basic_constraints | default(omit, true) }}"
+
+    key_usage_critical: "{{ csr_key_usage_critical | default(omit, true) }}"
+    key_usage: "{{ csr_key_usage | default(omit, true) }}"
+
+    extended_key_usage_critical: "{{ csr_extended_key_usage_critical | default(omit, true) }}"
+    extended_key_usage: "{{ csr_extended_key_usage | default(omit, true) }}"
+
+    privatekey_path: "{{ privatekey_path }}"
+    privatekey_passphrase: "{{ passphrase | default(omit, true) }}"
   when: should_create_file
 
 - name: Reseting variables for next elements in the loop (if any)
   set_fact:
-    passphrase : ""
+    passphrase: ""

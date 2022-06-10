@@ -1,21 +1,21 @@
 ---
 - name: Creating variables
   set_fact:
-    switch_id             : "{{ host_config.switch_id }}"
-    host                  : "{{ host_config.host }}"
-    url                   : "{{ host_config.url }}"
-    port                  : "{{ host_config.port }}"
-    tftp_folder           : "{{ host_config.tftp_folder }}"
-    tftp_app              : "{{ host_config.tftp_app }}"
-    tftp_app_plist        : "{{ host_config.tftp_app_plist }}"
-    tftp_server_ip        : "{{ lookup('pipe', 'ipconfig getifaddr en0') }}" 
+    switch_id: "{{ host_config.switch_id }}"
+    host: "{{ host_config.host }}"
+    url: "{{ host_config.url }}"
+    port: "{{ host_config.port }}"
+    tftp_folder: "{{ host_config.tftp_folder }}"
+    tftp_app: "{{ host_config.tftp_app }}"
+    tftp_app_plist: "{{ host_config.tftp_app_plist }}"
+    tftp_server_ip: "{{ lookup('pipe', 'ipconfig getifaddr en0') }}"
 
-    certificate_name      : "{{ temp_certificate_name }}"
-    ssl_certificate_path  : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
-    privatekey_path       : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ privatekey_extention }}"
+    certificate_name: "{{ temp_certificate_name }}"
+    ssl_certificate_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
+    privatekey_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ privatekey_extention }}"
 
-    ssl_certificate_name  : "certificate.{{ certificate_extention }}"
-    privatekey_name       : "certificate.{{ privatekey_extention }}"
+    ssl_certificate_name: "certificate.{{ certificate_extention }}"
+    privatekey_name: "certificate.{{ privatekey_extention }}"
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
@@ -48,7 +48,7 @@
 
 - name: Printing variables
   debug:
-    msg:     
+    msg:
       - "should_import_certificate  : {{ should_import_certificate }}"
       - "host                       : {{ host }}"
       - "url                        : {{ url }}"
@@ -57,15 +57,15 @@
       - "tftp_app                   : {{ tftp_app }}"
       - "tftp_app_plist             : {{ tftp_app_plist }}"
       - "tftp server ip             : {{ tftp_server_ip }}"
-      
+
       - "ssl_certificate_path       : {{ ssl_certificate_path }}"
       - "privatekey_path            : {{ privatekey_path }}"
-      
+
       - "ssl_certificate_name       : {{ ssl_certificate_name }}"
       - "privatekey_name            : {{ privatekey_name }}"
   when: debug | bool
 
-- name: Starting TFTP Server 
+- name: Starting TFTP Server
   become: yes
   command: "{{ command }}"
   loop:
@@ -78,18 +78,18 @@
 - name: Giving 777 permissions on the "{{ tftp_folder }}" folder so the switch can access it
   become: yes
   file:
-   path: "{{ tftp_folder }}"
-   mode: "777"
-   recurse: yes
+    path: "{{ tftp_folder }}"
+    mode: "777"
+    recurse: yes
   when: should_import_certificate | bool
 
-- name: Copying the certificate and private key files to the TFTP folder  
+- name: Copying the certificate and private key files to the TFTP folder
   copy:
     src: "{{ file.src }}"
     dest: "{{ tftp_folder }}/{{ file.dest }}"
   loop:
     - { src: "{{ ssl_certificate_path }}", dest: "{{ ssl_certificate_name }}" }
-    - { src: "{{ privatekey_path }}"     , dest: "{{ privatekey_name }}" }
+    - { src: "{{ privatekey_path }}", dest: "{{ privatekey_name }}" }
   loop_control:
     loop_var: file
   when: should_import_certificate | bool
@@ -98,10 +98,10 @@
   shell: |
     set timeout 5
     spawn ssh {{ ansible_user }}@{{ host }}
-    
+
     expect "{{ switch_id }}>"
     send "enable\r"
-    
+
     expect "{{ switch_id }}#"
     send "config\r"
 
@@ -122,10 +122,10 @@
 
     expect "{{ switch_id }}#"
     send "exit\r"
-    
+
     expect "{{ switch_id }}>"
     send "exit\r"
-   
+
     exit 0
   args:
     executable: "/usr/bin/expect"
@@ -133,7 +133,7 @@
   failed_when: (output.rc != 0) or 'Download SSL certificate OK' not in output.stdout or 'Download SSL key OK' not in output.stdout
   when: should_import_certificate | bool
 
-- name: Stopping TFTP Server 
+- name: Stopping TFTP Server
   become: yes
   command: "{{ command }}"
   loop:

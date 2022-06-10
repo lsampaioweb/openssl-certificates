@@ -1,13 +1,13 @@
 ---
 - name: Creating variables
-  set_fact:    
-    certificate_full_path : "{{ certificate_path }}/{{ certificate_path | basename }}"
-    backup_path           : "{{ certificate_path }}/{{ backup_folder }}/{{ today }}/"
+  set_fact:
+    certificate_full_path: "{{ certificate_path }}/{{ certificate_path | basename }}"
+    backup_path: "{{ certificate_path }}/{{ backup_folder }}/{{ today }}/"
   vars:
-    today                 : "{{ ansible_date_time.date }}"
+    today: "{{ ansible_date_time.date }}"
 
 - name: Preparing list of files that depend on the private key
-  set_fact:    
+  set_fact:
     files_to_search:
       - "{{ certificate_full_path }}.{{ privatekey_extention }}"
       - "{{ certificate_full_path }}.{{ csr_extention }}"
@@ -16,7 +16,7 @@
   when: "'privatekey' in depend_on"
 
 - name: Preparing list of files that depend on the certificate signing request
-  set_fact:    
+  set_fact:
     files_to_search:
       - "{{ certificate_full_path }}.{{ csr_extention }}"
       - "{{ certificate_full_path }}.{{ certificate_extention }}"
@@ -24,7 +24,7 @@
   when: "'certificate-signing-request' in depend_on"
 
 - name: Preparing list of files that depend on the certificate
-  set_fact:    
+  set_fact:
     files_to_search:
       - "{{ certificate_full_path }}.{{ certificate_extention }}"
       - "{{ certificate_full_path }}.{{ pkcs12_extention }}"

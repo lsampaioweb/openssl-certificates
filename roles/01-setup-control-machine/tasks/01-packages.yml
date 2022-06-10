@@ -12,8 +12,10 @@
   import_tasks: "roles/common/tasks/packages/pip.yml"
   vars:
     packages:
-      - { name: "cryptography==36.0.2" }
-      - { name: "pyOpenSSL" }
+      - { name: "pyOpenSSL==21.0.0" }
+      - { name: "cryptography==3.4.8" }
+      - { name: "setuptools" }
+      - { name: "idna" }
       - { name: "jmespath" }
       - { name: "pexpect" }
 

@@ -4,11 +4,11 @@
   when: include_config_files
 
 - name: Creating variables
-  set_fact:    
-    privatekey_name : "{{ temp_certificate_name }}"
-    privatekey_path : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ privatekey_extention }}"
+  set_fact:
+    privatekey_name: "{{ temp_certificate_name }}"
+    privatekey_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ privatekey_extention }}"
   vars:
-    temp_certificate_name : "{{ certificate_path | basename }}"
+    temp_certificate_name: "{{ certificate_path | basename }}"
 
 - name: Verifying if "{{ privatekey_path }}" file exists
   stat:
@@ -22,20 +22,20 @@
 - name: Including task to delete files that depend on the private key
   include_tasks: "delete-files-that-depend.yml"
   vars:
-    depend_on: 
+    depend_on:
       - "privatekey"
   when: should_create_file
 
 - name: Creating a random password with {{ privatekey_passphrase_size }} characters
-  set_fact:    
-    passphrase: "{{ lookup('pipe', 'openssl rand -base64 {{ privatekey_passphrase_size }} | tr -d \"=+/\" | colrm {{ privatekey_passphrase_size + 1 }}') }}"
+  set_fact:
+    passphrase: '{{ lookup(''pipe'', ''openssl rand -base64 {{ privatekey_passphrase_size }} | tr -d "=+/" | colrm {{ privatekey_passphrase_size + 1 }}'') }}'
   when: should_create_file and privatekey_passphrase == "?"
 
 - name: Setting the password as an empty string because found ""
-  set_fact:    
+  set_fact:
     passphrase: ""
   when: should_create_file and privatekey_passphrase == ""
-  
+
 - name: Printing variables
   debug:
     msg:
@@ -59,11 +59,11 @@
 - name: Saving the password of the private key in the secret manager
   import_tasks: "save-password.yml"
   vars:
-    password_id : "{{ privatekey_name }}"
+    password_id: "{{ privatekey_name }}"
     password: "{{ passphrase }}"
   when: should_create_file and not file_creation_output.failed
   no_log: true
 
 - name: Reseting variables for next elements in the loop (if any)
   set_fact:
-    passphrase : ""
+    passphrase: ""

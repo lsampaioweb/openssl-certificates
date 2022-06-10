@@ -1,8 +1,8 @@
 ---
 - name: Creating config variables
   set_fact:
-    global_config_path      : "../files/{{ config_file }}"
-    certificate_config_path : "{{ certificate_path }}/{{ config_file }}"
+    global_config_path: "../files/{{ config_file }}"
+    certificate_config_path: "{{ certificate_path }}/{{ config_file }}"
 
 - name: Including the global config file
   include_vars: "{{ global_config_path }}"

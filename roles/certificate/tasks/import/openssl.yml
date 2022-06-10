@@ -1,8 +1,8 @@
 ---
 - name: Creating variables
   set_fact:
-    host                 : "{{ host_config.host }}"
-    ssl_certificate_path : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
+    host: "{{ host_config.host }}"
+    ssl_certificate_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
@@ -25,7 +25,7 @@
 
 - name: Printing variables
   debug:
-    msg:     
+    msg:
       - "host                 : {{ host }}"
       - "certificate_dest     : {{ certificate_dest }}"
       - "ssl_certificate_path : {{ ssl_certificate_path }}"
@@ -39,4 +39,4 @@
     block: "{{ lookup('file', '{{ ssl_certificate_path }}') }}"
     insertbefore: "BOF"
     state: "present"
-  when: certificate_dest != "" and file_exists.stat.exists | bool 
+  when: certificate_dest != "" and file_exists.stat.exists | bool

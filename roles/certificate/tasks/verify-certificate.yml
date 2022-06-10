@@ -5,8 +5,8 @@
 
 - name: Creating variables
   set_fact:
-    certificate_name     : "{{ temp_certificate_name }}"
-    ssl_certificate_path : "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
+    certificate_name: "{{ temp_certificate_name }}"
+    ssl_certificate_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
@@ -26,9 +26,9 @@
 
 - name: Printing variables
   debug:
-    msg: 
+    msg:
       - "Certificate path : {{ ssl_certificate_path }}"
-      - "Expired          : {{ certificate_info.expired }}"      
+      - "Expired          : {{ certificate_info.expired }}"
       - "Expire days      : {{ (( certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ')) ).days }}"
       - "Valid {{ certificate_days_for_yellow_situation }}       : {{ certificate_info.valid_at.point_1 }}"
       - "Valid {{ certificate_days_for_red_situation }}        : {{ certificate_info.valid_at.point_2 }}"
@@ -37,8 +37,8 @@
 - name: Notifying team if necessary
   include_tasks: "notify-team.yml"
   vars:
-    expire_days : "{{ (( certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ')) ).days }}"
+    expire_days: "{{ (( certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ')) ).days }}"
     certificate_situation_is_expired: "{{ expire_days | int < 0 }}"
-    certificate_situation_is_yellow : "{{ not certificate_info.valid_at.point_1 }}"
-    certificate_situation_is_red    : "{{ not certificate_info.valid_at.point_2 }}"
+    certificate_situation_is_yellow: "{{ not certificate_info.valid_at.point_1 }}"
+    certificate_situation_is_red: "{{ not certificate_info.valid_at.point_2 }}"
   when: file_exists.stat.exists | bool
