@@ -1,0 +1,22 @@
+---
+# tplinkt1600g
+tplink_port: 443
+tplink_tftp_folder: "/private/tftpboot"
+tplink_tftp_app: "com.apple.tftpd"
+tplink_tftp_app_plist: "/System/Library/LaunchDaemons/tftp.plist"
+
+import_config:
+  [
+    tplinkt1600g:
+      [
+        {
+          switch_id: "T1600G-28TS",
+          host: "tplinkswitch",
+          url: "tplinkswitch.homelab",
+          port: "{{ tplink_port }}",
+          tftp_folder: "{{ tplink_tftp_folder }}",
+          tftp_app: "{{ tplink_tftp_app }}",
+          tftp_app_plist: "{{ tplink_tftp_app_plist }}",
+        },
+      ],
+  ]
