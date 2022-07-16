@@ -43,5 +43,11 @@ import_config:
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
+        {
+          host: "DC-BR-SE-AJU-KVM-07",
+          url: "DC-BR-SE-AJU-KVM-07.homelab",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        },
       ],
   ]
