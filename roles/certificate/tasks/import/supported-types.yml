@@ -31,6 +31,14 @@
     label: ""
   when: "'proxmox' in import_type"
 
+- name: Including task to import the certificate authority into the Proxmox Hosts
+  include_tasks: "proxmox-ca.yml"
+  loop: "{{ import_type.proxmox_ca | default([]) }}"
+  loop_control:
+    loop_var: host_config
+    label: ""
+  when: "'proxmox_ca' in import_type"
+
 - name: Including task to import the certificate into the cert.pem of Python
   include_tasks: "python.yml"
   loop: "{{ import_type.python | default([]) }}"

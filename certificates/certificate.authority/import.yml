@@ -13,4 +13,13 @@ import_config:
           temp_folder: "{{ keychain_temp_folder }}",
         },
       ],
+    proxmox_ca:
+      [
+        { host: "DC-BR-SE-AJU-KVM-01" },
+        { host: "DC-BR-SE-AJU-KVM-02" },
+        { host: "DC-BR-SE-AJU-KVM-03" },
+        { host: "DC-BR-SE-AJU-KVM-04" },
+        { host: "DC-BR-SE-AJU-KVM-05" },
+        { host: "DC-BR-SE-AJU-KVM-06" },
+      ],
   ]
