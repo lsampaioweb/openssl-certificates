@@ -7,7 +7,6 @@
     port: "{{ host_config.port }}"
     tftp_folder: "{{ host_config.tftp_folder }}"
     tftp_app: "{{ host_config.tftp_app }}"
-    tftp_app_plist: "{{ host_config.tftp_app_plist }}"
     tftp_server_ip: "{{ lookup('pipe', 'ipconfig getifaddr en0') }}"
 
     certificate_name: "{{ temp_certificate_name }}"
@@ -55,7 +54,6 @@
       - "port                       : {{ port }}"
       - "tftp_folder                : {{ tftp_folder }}"
       - "tftp_app                   : {{ tftp_app }}"
-      - "tftp_app_plist             : {{ tftp_app_plist }}"
       - "tftp server ip             : {{ tftp_server_ip }}"
 
       - "ssl_certificate_path       : {{ ssl_certificate_path }}"
@@ -69,7 +67,6 @@
   become: yes
   command: "{{ command }}"
   loop:
-    - "launchctl load -F {{ tftp_app_plist }}"
     - "launchctl start {{ tftp_app }}"
   loop_control:
     loop_var: command

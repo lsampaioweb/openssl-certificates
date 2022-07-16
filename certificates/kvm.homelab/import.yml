@@ -9,37 +9,37 @@ import_config:
       [
         {
           host: "DC-BR-SE-AJU-KVM-01",
-          url: "kvm-01.homelab",
+          url: "DC-BR-SE-AJU-KVM-01.homelab",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
           host: "DC-BR-SE-AJU-KVM-02",
-          url: "kvm-02.homelab",
+          url: "DC-BR-SE-AJU-KVM-02.homelab",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
           host: "DC-BR-SE-AJU-KVM-03",
-          url: "kvm-03.homelab",
+          url: "DC-BR-SE-AJU-KVM-03.homelab",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
           host: "DC-BR-SE-AJU-KVM-04",
-          url: "kvm-04.homelab",
+          url: "DC-BR-SE-AJU-KVM-04.homelab",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
           host: "DC-BR-SE-AJU-KVM-05",
-          url: "kvm-05.homelab",
+          url: "DC-BR-SE-AJU-KVM-05.homelab",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
           host: "DC-BR-SE-AJU-KVM-06",
-          url: "kvm-06.homelab",
+          url: "DC-BR-SE-AJU-KVM-06.homelab",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
