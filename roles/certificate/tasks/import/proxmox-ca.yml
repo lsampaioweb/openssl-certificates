@@ -35,23 +35,27 @@
       - "ssl_certificate_name       : {{ ssl_certificate_name }}"
   when: debug | bool
 
-- name: Copying certificate to {{ host }}
-  delegate_to: "{{ host }}"
-  copy:
-    src: "{{ ssl_certificate_path }}"
-    dest: "{{ folder }}/{{ ssl_certificate_name }}"
-    mode: "644"
-  register: "certificate_copy"
-  when: should_import_certificate | bool
+- block:
+    - name: Copying certificate to {{ host }}
+      delegate_to: "{{ host }}"
+      copy:
+        src: "{{ ssl_certificate_path }}"
+        dest: "{{ folder }}/{{ ssl_certificate_name }}"
+        mode: "644"
+      register: "certificate_copy"
+      when: should_import_certificate | bool
 
-- name: Importing the certificate into {{ host }}
-  delegate_to: "{{ host }}"
-  command: "update-ca-certificates"
-  register: "output"
-  when: certificate_copy.changed | bool
+    - name: Importing the certificate into {{ host }}
+      delegate_to: "{{ host }}"
+      command: "update-ca-certificates"
+      register: "output"
+      when: certificate_copy.changed | bool
 
-- name: Printing output of the import certificate
-  debug:
-    msg:
-      - "output  : {{ output.stdout_lines }}"
-  when: debug | bool and certificate_copy.changed | bool
+    - name: Printing output of the import certificate
+      debug:
+        msg:
+          - "output  : {{ output.stdout_lines }}"
+      when: debug | bool and certificate_copy.changed | bool
+
+  ignore_unreachable: yes
+  ignore_errors: yes
