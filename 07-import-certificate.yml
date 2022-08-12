@@ -1,6 +1,7 @@
 ---
 - name: Import the certificates where they are used
   hosts: CertificateAuthorityServer
+  become: yes
 
   tasks: 
     - name: Getting the list of certificates

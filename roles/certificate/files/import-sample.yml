@@ -19,6 +19,12 @@ tplink_tftp_app: "tftpd-hpa"
 
 import_config:
   [
+    debian_ca:
+      [
+        { host: "DC-BR-SE-AJU-KVM-01" },
+        { host: "DC-BR-SE-AJU-KVM-02" },
+        { host: "jump-server-core" },
+      ],
     eclipse:
       [
         {

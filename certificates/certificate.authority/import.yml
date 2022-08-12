@@ -13,7 +13,7 @@ import_config:
           temp_folder: "{{ keychain_temp_folder }}",
         },
       ],
-    proxmox_ca:
+    debian_ca:
       [
         { host: "DC-BR-SE-AJU-KVM-01" },
         { host: "DC-BR-SE-AJU-KVM-02" },
@@ -22,5 +22,6 @@ import_config:
         { host: "DC-BR-SE-AJU-KVM-05" },
         { host: "DC-BR-SE-AJU-KVM-06" },
         { host: "DC-BR-SE-AJU-KVM-07" },
+        { host: "jump-server-core" },
       ],
   ]
