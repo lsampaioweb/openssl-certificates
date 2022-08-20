@@ -9,4 +9,4 @@ ansible_password: ""
 ansible_become_password: ""
 
 # The path in the git repository where all config and import files are stored.
-certificates_path_in_repository: "{{ lookup('env','HOME') }}/Git/openssl-certificates/certificates"
+certificates_path_in_repository: "{{ lookup('env','HOME') }}/Git/01-openssl-certificates/certificates"
