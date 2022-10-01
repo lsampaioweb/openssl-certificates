@@ -15,13 +15,13 @@ import_config:
       ],
     debian_ca:
       [
-        { host: "DC-BR-SE-AJU-KVM-01" },
-        { host: "DC-BR-SE-AJU-KVM-02" },
-        { host: "DC-BR-SE-AJU-KVM-03" },
-        { host: "DC-BR-SE-AJU-KVM-04" },
-        { host: "DC-BR-SE-AJU-KVM-05" },
-        { host: "DC-BR-SE-AJU-KVM-06" },
-        { host: "DC-BR-SE-AJU-KVM-07" },
-        { host: "jump-server-core" },
+        { host: "kvm-01" },
+        { host: "kvm-02" },
+        { host: "kvm-03" },
+        { host: "kvm-04" },
+        { host: "kvm-05" },
+        { host: "kvm-06" },
+        { host: "kvm-07" },
+        { host: "jumpserver" },
       ],
   ]

@@ -2,50 +2,52 @@
 # proxmox
 proxmox_port: 8006
 proxmox_tmp_folder: "/tmp"
+proxmox_prefix: "kvm"
+proxmox_domain: "homelab"
 
 import_config:
   [
     proxmox:
       [
         {
-          host: "DC-BR-SE-AJU-KVM-01",
-          url: "DC-BR-SE-AJU-KVM-01.homelab",
+          host: "{{ proxmox_prefix }}-01",
+          url: "{{ proxmox_prefix }}-01.{{ proxmox_domain }}",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
-          host: "DC-BR-SE-AJU-KVM-02",
-          url: "DC-BR-SE-AJU-KVM-02.homelab",
+          host: "{{ proxmox_prefix }}-02",
+          url: "{{ proxmox_prefix }}-02.{{ proxmox_domain }}",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
-          host: "DC-BR-SE-AJU-KVM-03",
-          url: "DC-BR-SE-AJU-KVM-03.homelab",
+          host: "{{ proxmox_prefix }}-03",
+          url: "{{ proxmox_prefix }}-03.{{ proxmox_domain }}",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
-          host: "DC-BR-SE-AJU-KVM-04",
-          url: "DC-BR-SE-AJU-KVM-04.homelab",
+          host: "{{ proxmox_prefix }}-04",
+          url: "{{ proxmox_prefix }}-04.{{ proxmox_domain }}",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
-          host: "DC-BR-SE-AJU-KVM-05",
-          url: "DC-BR-SE-AJU-KVM-05.homelab",
+          host: "{{ proxmox_prefix }}-05",
+          url: "{{ proxmox_prefix }}-05.{{ proxmox_domain }}",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
-          host: "DC-BR-SE-AJU-KVM-06",
-          url: "DC-BR-SE-AJU-KVM-06.homelab",
+          host: "{{ proxmox_prefix }}-06",
+          url: "{{ proxmox_prefix }}-06.{{ proxmox_domain }}",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
         {
-          host: "DC-BR-SE-AJU-KVM-07",
-          url: "DC-BR-SE-AJU-KVM-07.homelab",
+          host: "{{ proxmox_prefix }}-07",
+          url: "{{ proxmox_prefix }}-07.{{ proxmox_domain }}",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
