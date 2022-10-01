@@ -1,24 +1,24 @@
 ---
 - name: Creating variables for yellow situation
-  set_fact:
+  ansible.builtin.set_fact:
     subject: "[Attention] - Certificate expiring in {{ expire_days }} days"
     body_file: "notification-certificate-expiring.j2"
   when: certificate_situation_is_yellow
 
 - name: Creating variables for red situation
-  set_fact:
+  ansible.builtin.set_fact:
     subject: "[ALERT] - Certificate expiring in {{ expire_days }} days"
     body_file: "notification-certificate-expiring.j2"
   when: certificate_situation_is_red
 
 - name: Creating variables for expired situation
-  set_fact:
+  ansible.builtin.set_fact:
     subject: "[URGENT] - Certificate expired - [URGENT]"
     body_file: "notification-certificate-expired.j2"
   when: certificate_situation_is_expired
 
 - name: Printing variables
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Contact from : {{ mail_from | b64decode }}"
       - "Contact to   : {{ mail_to | b64decode }}"

@@ -1,6 +1,6 @@
 ---
 - name: Creating variables
-  set_fact:
+  ansible.builtin.set_fact:
     host: "{{ host_config.host }}"
     folder: "/usr/local/share/ca-certificates/"
 
@@ -10,7 +10,7 @@
     temp_certificate_name: "{{ certificate_path | basename }}"
 
 - name: Verifying if "{{ ssl_certificate_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
   register: new_certificate_file_exists
 
@@ -21,11 +21,11 @@
   when: new_certificate_file_exists.stat.exists | bool
 
 - name: Creating the should_import_certificate variable
-  set_fact:
+  ansible.builtin.set_fact:
     should_import_certificate: "{{ (new_certificate_file_exists.stat.exists | bool and not new_certificate_info.expired) }}"
 
 - name: Printing variables
-  debug:
+  ansible.builtin.debug:
     msg:
       - "should_import_certificate  : {{ should_import_certificate }}"
       - "host                       : {{ host }}"
@@ -35,10 +35,11 @@
       - "ssl_certificate_name       : {{ ssl_certificate_name }}"
   when: debug | bool
 
-- block:
+- name: Block of tasks to import certificate in a debian
+  block:
     - name: Copying certificate to {{ host }}
       delegate_to: "{{ host }}"
-      copy:
+      ansible.builtin.copy:
         src: "{{ ssl_certificate_path }}"
         dest: "{{ folder }}/{{ ssl_certificate_name }}"
         mode: "644"
@@ -47,15 +48,17 @@
 
     - name: Importing the certificate into {{ host }}
       delegate_to: "{{ host }}"
-      command: "update-ca-certificates"
+      ansible.builtin.command: "update-ca-certificates"
       register: "output"
       when: certificate_copy.changed | bool
 
     - name: Printing output of the import certificate
-      debug:
+      ansible.builtin.debug:
         msg:
           - "output  : {{ output.stdout_lines }}"
       when: debug | bool and certificate_copy.changed | bool
 
-  ignore_unreachable: yes
-  ignore_errors: yes
+  ignore_unreachable: true
+  ignore_errors: true
+  # failed_when: output.rc != 0
+  # changed_when: output.rc != 0

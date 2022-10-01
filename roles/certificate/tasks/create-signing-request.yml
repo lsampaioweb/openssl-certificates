@@ -1,39 +1,39 @@
 ---
 - name: Including config files for "{{ certificate_path | basename }}"
-  include_tasks: "include-config-files.yml"
+  ansible.builtin.include_tasks: "include-config-files.yml"
   when: include_config_files
 
 - name: Creating dependencies, if they do not already exist
-  include_tasks: "verify-if-dependencies-exist.yml"
+  ansible.builtin.include_tasks: "verify-if-dependencies-exist.yml"
   vars:
     dependencies_list:
       - "privatekey"
 
 - name: Creating variables
-  set_fact:
+  ansible.builtin.set_fact:
     certificate_name: "{{ temp_certificate_name }}"
     csr_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ csr_extention }}"
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
 - name: Verifying if "{{ csr_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ csr_path }}"
   register: file_exists
 
 - name: Creating the should_create_file variable
-  set_fact:
+  ansible.builtin.set_fact:
     should_create_file: "{{ not file_exists.stat.exists }}"
 
 - name: Including task to delete files that depend on the certificate signing request
-  include_tasks: "delete-files-that-depend.yml"
+  ansible.builtin.include_tasks: "delete-files-that-depend.yml"
   vars:
     depend_on:
       - "certificate-signing-request"
   when: should_create_file
 
 - name: Creating the specific variables
-  set_fact:
+  ansible.builtin.set_fact:
     privatekey_path: "{{ certificate_path }}/{{ certificate_name }}.{{ privatekey_extention }}"
     passphrase: "{{ lookup('template', '../templates/get-password-from-secret-manager.j2') }}"
   vars:
@@ -41,7 +41,7 @@
   when: should_create_file
 
 - name: Printing variables
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Should create file           : {{ should_create_file }}"
       - "CSR path                     : {{ csr_path }}"
@@ -91,5 +91,5 @@
   when: should_create_file
 
 - name: Reseting variables for next elements in the loop (if any)
-  set_fact:
+  ansible.builtin.set_fact:
     passphrase: ""

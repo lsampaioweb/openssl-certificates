@@ -4,14 +4,14 @@
   when: include_config_files
 
 - name: Creating variables
-  set_fact:
+  ansible.builtin.set_fact:
     certificate_name: "{{ temp_certificate_name }}"
     ssl_certificate_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
 - name: Verifying if "{{ ssl_certificate_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
   register: file_exists
 
@@ -25,13 +25,13 @@
   when: file_exists.stat.exists | bool
 
 - name: Printing variables
-  debug:
+  ansible.builtin.debug:
     msg:
-      - "Certificate path : {{ ssl_certificate_path }}"
-      - "Expired          : {{ certificate_info.expired }}"
-      - "Expire days      : {{ (( certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ')) ).days }}"
-      - "Valid {{ certificate_days_for_yellow_situation }}       : {{ certificate_info.valid_at.point_1 }}"
-      - "Valid {{ certificate_days_for_red_situation }}        : {{ certificate_info.valid_at.point_2 }}"
+      - "Certificate path: {{ ssl_certificate_path }}"
+      - "Expired: {{ certificate_info.expired }}"
+      - "Expire days: {{ ((certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).days }}"
+      - "Valid {{ certificate_days_for_yellow_situation }}: {{ certificate_info.valid_at.point_1 }}"
+      - "Valid {{ certificate_days_for_red_situation }}: {{ certificate_info.valid_at.point_2 }}"
   when: debug | bool and file_exists.stat.exists | bool
 
 - name: Notifying team if necessary

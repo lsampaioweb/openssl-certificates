@@ -1,19 +1,19 @@
 ---
 - name: Creating variables
-  set_fact:
+  ansible.builtin.set_fact:
     certificate_import_path: "{{ certificate_path }}/{{ import_file }}"
 
 - name: Verifying if the "{{ certificate_import_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ certificate_import_path }}"
   register: import_file_found
 
 - name: Including the certificate import file "{{ certificate_import_path }}"
-  include_vars: "{{ certificate_import_path }}"
+  ansible.builtin.include_vars: "{{ certificate_import_path }}"
   when: import_file_found.stat.exists
 
 - name: Including the specific task to import the certificate
-  include_tasks: "import/supported-types.yml"
+  ansible.builtin.include_tasks: "import/supported-types.yml"
   vars:
     import_type: "{{ specific_config }}"
   loop: "{{ import_config | default([]) }}"

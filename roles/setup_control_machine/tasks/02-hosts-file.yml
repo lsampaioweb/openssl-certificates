@@ -1,6 +1,6 @@
 ---
 - name: Adding the IP and URL of each host into the hosts file
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/etc/hosts"
     line: "{{ hostvars[item].ansible_host }} {{ item }}.{{ domain }} {{ item }}"
     state: "present"

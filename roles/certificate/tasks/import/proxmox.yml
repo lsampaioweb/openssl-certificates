@@ -1,6 +1,6 @@
 ---
 - name: Creating variables
-  set_fact:
+  ansible.builtin.set_fact:
     host: "{{ host_config.host }}"
     url: "{{ host_config.url }}"
     port: "{{ host_config.port }}"
@@ -15,7 +15,7 @@
     temp_certificate_name: "{{ certificate_path | basename }}"
 
 - name: Verifying if "{{ ssl_certificate_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
   register: certificate_file_exists
 
@@ -33,16 +33,16 @@
   when: certificate_file_exists.stat.exists | bool and not new_certificate_info.expired
 
 - name: Verifying if "{{ privatekey_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ privatekey_path }}"
   register: privatekey_file_exists
 
 - name: Creating the should_import_certificate variable
-  set_fact:
+  ansible.builtin.set_fact:
     should_import_certificate: "{{ certificate_file_exists.stat.exists | bool and not new_certificate_info.expired and privatekey_file_exists.stat.exists | bool and (current_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') != new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) }}"
 
 - name: Printing variables
-  debug:
+  ansible.builtin.debug:
     msg:
       - "should_import_certificate  : {{ should_import_certificate }}"
       - "host                       : {{ host }}"
@@ -59,7 +59,7 @@
 
 - name: Copying certificate and private key to {{ host }}
   delegate_to: "{{ host }}"
-  copy:
+  ansible.builtin.copy:
     src: "{{ file.src }}"
     dest: "{{ tmp_folder }}/{{ file.dest }}"
     mode: "644"
@@ -72,14 +72,14 @@
 
 - name: Importing the certificate and private key into {{ host }}
   delegate_to: "{{ host }}"
-  become: yes
-  command: "pvenode cert set {{ tmp_folder }}/{{ ssl_certificate_name }} {{ tmp_folder }}/{{ privatekey_name }} --force --restart"
+  become: true
+  ansible.builtin.command: "pvenode cert set {{ tmp_folder }}/{{ ssl_certificate_name }} {{ tmp_folder }}/{{ privatekey_name }} --force --restart"
   register: output
   when: should_import_certificate | bool
 
 - name: Deleting the certificate and private key files from {{ host }}
   delegate_to: "{{ host }}"
-  file:
+  ansible.builtin.file:
     path: "{{ tmp_folder }}/{{ file }}"
     state: absent
   loop:

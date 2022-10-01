@@ -1,6 +1,6 @@
 ---
 - name: Including task to import the certificate into Eclipse application
-  include_tasks: "eclipse.yml"
+  ansible.builtin.include_tasks: "eclipse.yml"
   loop: "{{ import_type.eclipse | default([]) }}"
   loop_control:
     loop_var: host_config
@@ -8,7 +8,7 @@
   when: "'eclipse' in import_type"
 
 - name: Including task to import the certificate into the MacOSX keychain
-  include_tasks: "macoskeychain.yml"
+  ansible.builtin.include_tasks: "macoskeychain.yml"
   loop: "{{ import_type.macoskeychain | default([]) }}"
   loop_control:
     loop_var: host_config
@@ -16,7 +16,7 @@
   when: "'macoskeychain' in import_type"
 
 - name: Including task to import the certificate into the cert.pem of OpenSSL
-  include_tasks: "openssl.yml"
+  ansible.builtin.include_tasks: "openssl.yml"
   loop: "{{ import_type.openssl | default([]) }}"
   loop_control:
     loop_var: host_config
@@ -24,7 +24,7 @@
   when: "'openssl' in import_type"
 
 - name: Including task to import the certificate into the Proxmox Hosts
-  include_tasks: "proxmox.yml"
+  ansible.builtin.include_tasks: "proxmox.yml"
   loop: "{{ import_type.proxmox | default([]) }}"
   loop_control:
     loop_var: host_config
@@ -32,7 +32,7 @@
   when: "'proxmox' in import_type"
 
 - name: Including task to import the certificate authority into the Debian like Hosts
-  include_tasks: "debian-ca.yml"
+  ansible.builtin.include_tasks: "debian-ca.yml"
   loop: "{{ import_type.debian_ca | default([]) }}"
   loop_control:
     loop_var: host_config
@@ -40,7 +40,7 @@
   when: "'debian_ca' in import_type"
 
 - name: Including task to import the certificate into the cert.pem of Python
-  include_tasks: "python.yml"
+  ansible.builtin.include_tasks: "python.yml"
   loop: "{{ import_type.python | default([]) }}"
   loop_control:
     loop_var: host_config
@@ -48,7 +48,7 @@
   when: "'python' in import_type"
 
 - name: Including task to import the certificate into the Switch Tplink T1600G-28TS-SG2424
-  include_tasks: "tplinkt1600g.yml"
+  ansible.builtin.include_tasks: "tplinkt1600g.yml"
   loop: "{{ import_type.tplinkt1600g | default([]) }}"
   loop_control:
     loop_var: host_config

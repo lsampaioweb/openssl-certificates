@@ -1,6 +1,6 @@
 ---
 - name: Creating variables
-  set_fact:
+  ansible.builtin.set_fact:
     host: "{{ host_config.host }}"
     version: "{{ host_config.version }}"
     ssl_certificate_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
@@ -8,24 +8,24 @@
     temp_certificate_name: "{{ certificate_path | basename }}"
 
 - name: Verifying if "{{ ssl_certificate_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
   register: file_exists
 
 - name: Getting the default path of certificates for the specified python
   delegate_to: "{{ host }}"
-  command: "python{{ version }} -c 'import ssl; print(ssl.get_default_verify_paths())'"
+  ansible.builtin.command: "python{{ version }} -c 'import ssl; print(ssl.get_default_verify_paths())'"
   register: output
   changed_when: false
   when: file_exists.stat.exists | bool
 
 - name: Print
-  set_fact:
+  ansible.builtin.set_fact:
     certificate_dest: "{{ output.stdout | regex_search('(\/[\\w\\d\\.-@]+)+', '\\1') | first }}"
   when: file_exists.stat.exists | bool
 
 - name: Printing variables
-  debug:
+  ansible.builtin.debug:
     msg:
       - "host                 : {{ host }}"
       - "version              : {{ version }}"
@@ -35,8 +35,8 @@
 
 - name: Adding the certificate into the default (cert.pem) file
   delegate_to: "{{ host }}"
-  become: yes
-  blockinfile:
+  become: true
+  ansible.builtin.blockinfile:
     path: "{{ certificate_dest }}"
     block: "{{ lookup('file', '{{ ssl_certificate_path }}') }}"
     insertbefore: "BOF"

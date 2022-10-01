@@ -1,11 +1,11 @@
 ---
 - name: Verifying if a previous notification was already sent today
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ certificate_path }}/{{ notification_file }}"
     line: "{{ ansible_date_time.date }}"
-    state: present
-    create: yes
-  register: notification_sent
+    state: "present"
+    create: true
+  register: "notification_sent"
 
 - name: Sending the email notification
   mail:

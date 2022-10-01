@@ -1,7 +1,7 @@
 ---
 - name: Setting up the control machine to run Ansible scripts
   hosts: "CertificateAuthorityServer"
-  become: yes
+  become: true
 
   roles:
-    - 01-setup-control-machine
+    - setup_control_machine

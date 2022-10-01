@@ -1,39 +1,39 @@
 ---
 - name: Including config files for "{{ certificate_path | basename }}"
-  include_tasks: "include-config-files.yml"
+  ansible.builtin.include_tasks: "include-config-files.yml"
   when: include_config_files
 
 - name: Creating dependencies, if they do not already exist
-  include_tasks: "verify-if-dependencies-exist.yml"
+  ansible.builtin.include_tasks: "verify-if-dependencies-exist.yml"
   vars:
     dependencies_list:
       - "certificate-signing-request"
 
 - name: Creating variables
-  set_fact:
+  ansible.builtin.set_fact:
     certificate_name: "{{ temp_certificate_name }}"
     ssl_certificate_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
 - name: Verifying if "{{ ssl_certificate_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
   register: file_exists
 
 - name: Creating the should_create_file variable
-  set_fact:
+  ansible.builtin.set_fact:
     should_create_file: "{{ not file_exists.stat.exists }}"
 
 - name: Including task to delete files that depend on the certificate
-  include_tasks: "delete-files-that-depend.yml"
+  ansible.builtin.include_tasks: "delete-files-that-depend.yml"
   vars:
     depend_on:
       - "certificate"
   when: should_create_file
 
 - name: Creating the specific variables
-  set_fact:
+  ansible.builtin.set_fact:
     privatekey_path: "{{ certificate_path }}/{{ certificate_name }}.{{ privatekey_extention }}"
     passphrase: "{{ lookup('template', '../templates/get-password-from-secret-manager.j2') }}"
     csr_path: "{{ certificate_path }}/{{ certificate_name }}.{{ csr_extention }}"
@@ -42,7 +42,7 @@
   when: should_create_file
 
 - name: Creating the specific variables for the certificate authority
-  set_fact:
+  ansible.builtin.set_fact:
     ca_certificate_path: "{{ certificate_authority_path }}/{{ certificate_authority_name }}.{{ certificate_extention }}"
     ca_privatekey_path: "{{ certificate_authority_path }}/{{ certificate_authority_name }}.{{ privatekey_extention }}"
     ca_passphrase: "{{ lookup('template', '../templates/get-password-from-secret-manager.j2') }}"
@@ -53,13 +53,13 @@
   when: (should_create_file | bool) and (certificate_provider == "ownca")
 
 - name: Creating the specific variables for the selfsigned certificate
-  set_fact:
+  ansible.builtin.set_fact:
     selfsigned_certificate_digest: "{{ certificate_digest }}"
     selfsigned_certificate_not_after: "{{ certificate_not_after }}"
   when: (should_create_file | bool) and (certificate_provider == "selfsigned")
 
 - name: Printing variables
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Should create file     : {{ should_create_file }}"
       - "Provider               : {{ certificate_provider }}"
@@ -69,12 +69,12 @@
 
       - "Privatekey path        : {{ privatekey_path }}"
 
-      - "ownca path             : {{ ca_certificate_path      | default(omit, true) }}"
-      - "ownca privatekey path  : {{ ca_privatekey_path       | default(omit, true) }}"
-      - "ownca digest           : {{ ca_certificate_digest    | default(omit, true) }}"
+      - "ownca path             : {{ ca_certificate_path | default(omit, true) }}"
+      - "ownca privatekey path  : {{ ca_privatekey_path | default(omit, true) }}"
+      - "ownca digest           : {{ ca_certificate_digest | default(omit, true) }}"
       - "ownca not after        : {{ ca_certificate_not_after | default(omit, true) }}"
 
-      - "selfsigned digest      : {{ selfsigned_certificate_digest    | default(omit, true) }}"
+      - "selfsigned digest      : {{ selfsigned_certificate_digest | default(omit, true) }}"
       - "selfsigned not after   : {{ selfsigned_certificate_not_after | default(omit, true) }}"
   when: debug | bool and should_create_file | bool
 
@@ -88,18 +88,18 @@
     privatekey_path: "{{ privatekey_path }}"
     privatekey_passphrase: "{{ passphrase | default(omit, true) }}"
 
-    ownca_path: "{{ ca_certificate_path      | default(omit, true) }}"
-    ownca_privatekey_path: "{{ ca_privatekey_path       | default(omit, true) }}"
-    ownca_privatekey_passphrase: "{{ ca_passphrase            | default(omit, true) }}"
-    ownca_digest: "{{ ca_certificate_digest    | default(omit, true) }}"
+    ownca_path: "{{ ca_certificate_path | default(omit, true) }}"
+    ownca_privatekey_path: "{{ ca_privatekey_path | default(omit, true) }}"
+    ownca_privatekey_passphrase: "{{ ca_passphrase | default(omit, true) }}"
+    ownca_digest: "{{ ca_certificate_digest | default(omit, true) }}"
     ownca_not_after: "{{ ca_certificate_not_after | default(omit, true) }}"
 
-    selfsigned_digest: "{{ selfsigned_certificate_digest    | default(omit, true) }}"
+    selfsigned_digest: "{{ selfsigned_certificate_digest | default(omit, true) }}"
     selfsigned_not_after: "{{ selfsigned_certificate_not_after | default(omit, true) }}"
   when: should_create_file
 
 - name: Reseting variables for next elements in the loop (if any)
-  set_fact:
+  ansible.builtin.set_fact:
     passphrase: ""
     ca_certificate_path: ""
     ca_privatekey_path: ""

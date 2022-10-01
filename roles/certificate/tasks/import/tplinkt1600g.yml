@@ -1,6 +1,6 @@
 ---
 - name: Creating variables
-  set_fact:
+  ansible.builtin.set_fact:
     switch_id: "{{ host_config.switch_id }}"
     host: "{{ host_config.host }}"
     url: "{{ host_config.url }}"
@@ -19,7 +19,7 @@
     temp_certificate_name: "{{ certificate_path | basename }}"
 
 - name: Verifying if "{{ ssl_certificate_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
   register: certificate_file_exists
 
@@ -37,16 +37,16 @@
   when: certificate_file_exists.stat.exists | bool and not new_certificate_info.expired
 
 - name: Verifying if "{{ privatekey_path }}" file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ privatekey_path }}"
   register: privatekey_file_exists
 
 - name: Creating the should_import_certificate variable
-  set_fact:
+  ansible.builtin.set_fact:
     should_import_certificate: "{{ certificate_file_exists.stat.exists | bool and not new_certificate_info.expired and privatekey_file_exists.stat.exists | bool and (current_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') != new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) }}"
 
 - name: Printing variables
-  debug:
+  ansible.builtin.debug:
     msg:
       - "should_import_certificate  : {{ should_import_certificate }}"
       - "host                       : {{ host }}"
@@ -64,8 +64,8 @@
   when: debug | bool
 
 - name: Starting TFTP Server
-  become: yes
-  command: "{{ command }}"
+  become: true
+  ansible.builtin.command: "{{ command }}"
   loop:
     - "launchctl start {{ tftp_app }}"
   loop_control:
@@ -73,15 +73,15 @@
   when: should_import_certificate | bool
 
 - name: Giving 777 permissions on the "{{ tftp_folder }}" folder so the switch can access it
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ tftp_folder }}"
     mode: "777"
-    recurse: yes
+    recurse: true
   when: should_import_certificate | bool
 
 - name: Copying the certificate and private key files to the TFTP folder
-  copy:
+  ansible.builtin.copy:
     src: "{{ file.src }}"
     dest: "{{ tftp_folder }}/{{ file.dest }}"
   loop:
@@ -92,7 +92,7 @@
   when: should_import_certificate | bool
 
 - name: Copying the certificate and private key file to the switch
-  shell: |
+  ansible.builtin.shell: |
     set timeout 5
     spawn ssh {{ ansible_user }}@{{ host }}
 
@@ -131,8 +131,8 @@
   when: should_import_certificate | bool
 
 - name: Stopping TFTP Server
-  become: yes
-  command: "{{ command }}"
+  become: true
+  ansible.builtin.command: "{{ command }}"
   loop:
     - "launchctl unload -F {{ tftp_app_plist }}"
   loop_control:
@@ -140,7 +140,7 @@
   when: should_import_certificate | bool
 
 - name: Deleting the certificate and private key files from the TFTP folder
-  file:
+  ansible.builtin.file:
     path: "{{ tftp_folder }}/{{ file }}"
     state: absent
   loop:
@@ -151,9 +151,9 @@
   when: should_import_certificate | bool
 
 - name: Giving back the proper (644) permissions on the "{{ tftp_folder }}" folder
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ tftp_folder }}"
     mode: "644"
-    recurse: yes
+    recurse: true
   when: should_import_certificate | bool

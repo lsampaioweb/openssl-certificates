@@ -25,11 +25,11 @@ csr_organizational_unit_name: "HomeLab"
 csr_common_name: ""
 csr_email_address: "bHNhbXBhaW93ZWJAZ21haWwuY29t" # String was encoded on base64 to avoid spammers.
 csr_subject_alt_name: []
-csr_basic_constraints_critical: True
+csr_basic_constraints_critical: true
 csr_basic_constraints: "CA:FALSE"
-csr_key_usage_critical: True
+csr_key_usage_critical: true
 csr_key_usage: ["digitalSignature", "keyEncipherment"]
-csr_extended_key_usage_critical: True
+csr_extended_key_usage_critical: true
 csr_extended_key_usage: ["serverAuth", "clientAuth"]
 
 # Variables that will be used for creating a certificate.
