@@ -4,4 +4,4 @@
   become: true
 
   roles:
-    - setup_control_machine
+    - control_machine

@@ -13,12 +13,12 @@ Run the command in the terminal:
     ansible-galaxy collection install community.general
 
 ## 2. Add the IP and URL of each host into the /etc/hosts file:
-    10.0.3.5 kvm-01.homelab kvm-01
-    10.0.3.6 kvm-02.homelab kvm-02
-    10.0.3.7 kvm-03.homelab kvm-03
-    10.0.3.8 kvm-04.homelab kvm-04
-    10.0.3.9 kvm-05.homelab kvm-05
-    10.0.3.10 kvm-06.homelab kvm-06
+    10.0.2.5 kvm-01.homelab kvm-01
+    10.0.2.6 kvm-02.homelab kvm-02
+    10.0.2.7 kvm-03.homelab kvm-03
+    10.0.2.8 kvm-04.homelab kvm-04
+    10.0.2.9 kvm-05.homelab kvm-05
+    10.0.2.10 kvm-06.homelab kvm-06
 
 ## 3. Add the fingerprint of each host into the ~/.ssh/known_hosts file:
     kvm-01.homelab ecdsa-sha2-nistp256 ...
