@@ -50,5 +50,6 @@
     line: "{{ secret_key }}={{ passphrase }}"
     state: "present"
     create: true
+    mode: "0640"
   no_log: true
   when: file_exists.stat.exists | bool

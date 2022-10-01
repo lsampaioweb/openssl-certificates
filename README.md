@@ -13,22 +13,22 @@ The Certificate Authority Server (CAS) must be a MAC OSX. If you want to use the
   ```
 
   ```bash
-  ansible-playbook 01-setup-control-machine.yml -K 
+  ansible-playbook setup_control_machine.yml -K 
   ```
   
   ```bash
-  ansible-playbook 02-create-private-key.yml
-  ansible-playbook 03-create-signing-request.yml
-  ansible-playbook 04-create-certificate.yml
-  ansible-playbook 05-create-pkcs12.yml
+  ansible-playbook create_private_key.yml
+  ansible-playbook create_signing_request.yml
+  ansible-playbook create_certificate.yml
+  ansible-playbook create_pkcs12.yml
   ```
 
   ```bash
-  ansible-playbook 06-verify-certificate.yml
+  ansible-playbook verify_certificate.yml
   ```  
   
   ```bash
-  ansible-playbook 07-import-certificate.yml --ask-pass -K
+  ansible-playbook import_certificate.yml --ask-pass -K
   ```
 
 # Variables:

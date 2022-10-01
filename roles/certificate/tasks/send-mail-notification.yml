@@ -5,6 +5,7 @@
     line: "{{ ansible_date_time.date }}"
     state: "present"
     create: true
+    mode: "0644"
   register: "notification_sent"
 
 - name: Sending the email notification
@@ -21,7 +22,7 @@
 
     subject: "{{ subject }}"
     subtype: "{{ mail_subtype }}"
-    body: "{{ lookup('template', '../templates/{{ body_file }}') }}"
+    body: "{{ lookup('template', '../templates/'{{ body_file }}) }}"
   vars:
     password_id: "{{ mail_smtp_password_id }}"
   when: notification_sent.changed

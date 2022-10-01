@@ -13,10 +13,10 @@
       [{'name': host_name, 'key': host_name_key}] }}"
   vars:
     host_ip: "{{ hostvars[item].ansible_host | default('') }}"
-    host_key: "{{ lookup('pipe', 'ssh-keyscan -t ecdsa {{ host_ip }}') if (host_ip != '') else '' }}"
+    host_key: "{{ lookup('pipe', 'ssh-keyscan -t ecdsa '{{ host_ip }}) if (host_ip != '') else '' }}"
 
     host_name: "{{ item | default('') }}"
-    host_name_key: "{{ lookup('pipe', 'ssh-keyscan -t ecdsa {{ host_name }}') if (host_name != '') else '' }}"
+    host_name_key: "{{ lookup('pipe', 'ssh-keyscan -t ecdsa '{{ host_name }}) if (host_name != '') else '' }}"
   loop: "{{ hosts }}"
 
 - name: Adding the fingerprints of all hosts into the know_hosts file

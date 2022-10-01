@@ -21,20 +21,20 @@
 - name: Verifying if "{{ ssl_certificate_path }}" file exists
   ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
-  register: certificate_file_exists
+  register: file_exists
 
 - name: Getting info about the certificate
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
   register: new_certificate_info
-  when: certificate_file_exists.stat.exists | bool
+  when: file_exists.stat.exists | bool
 
 - name: Getting the current (if any) certificate from url {{ url }}
   get_certificate:
     host: "{{ url }}"
     port: "{{ port }}"
   register: current_certificate_info
-  when: certificate_file_exists.stat.exists | bool and not new_certificate_info.expired
+  when: file_exists.stat.exists | bool and not new_certificate_info.expired
 
 - name: Verifying if "{{ privatekey_path }}" file exists
   ansible.builtin.stat:
@@ -43,7 +43,12 @@
 
 - name: Creating the should_import_certificate variable
   ansible.builtin.set_fact:
-    should_import_certificate: "{{ certificate_file_exists.stat.exists | bool and not new_certificate_info.expired and privatekey_file_exists.stat.exists | bool and (current_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') != new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) }}"
+    should_import_certificate: "{{ new_cert_exists_and_not_expired and privatekey_file_exists.stat.exists and expire_dates_are_different }}"
+  vars:
+    new_cert_exists_and_not_expired: "{{ file_exists.stat.exists and not new_certificate_info.expired }}"
+    new_cert_expire_day: "{{ new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
+    current_cert_expire_day: "{{ current_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
+    expire_dates_are_different: "{{ new_cert_expire_day != current_cert_expire_day }}"
 
 - name: Printing variables
   ansible.builtin.debug:
@@ -76,7 +81,7 @@
   become: true
   ansible.builtin.file:
     path: "{{ tftp_folder }}"
-    mode: "777"
+    mode: "0777"
     recurse: true
   when: should_import_certificate | bool
 
@@ -84,6 +89,7 @@
   ansible.builtin.copy:
     src: "{{ file.src }}"
     dest: "{{ tftp_folder }}/{{ file.dest }}"
+    mode: "preserve"
   loop:
     - { src: "{{ ssl_certificate_path }}", dest: "{{ ssl_certificate_name }}" }
     - { src: "{{ privatekey_path }}", dest: "{{ privatekey_name }}" }
@@ -154,6 +160,6 @@
   become: true
   ansible.builtin.file:
     path: "{{ tftp_folder }}"
-    mode: "644"
+    mode: "0644"
     recurse: true
   when: should_import_certificate | bool

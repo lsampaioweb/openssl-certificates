@@ -21,8 +21,8 @@ import_config:
   [
     debian_ca:
       [
-        { host: "DC-BR-SE-AJU-KVM-01" },
-        { host: "DC-BR-SE-AJU-KVM-02" },
+        { host: "kvm-01" },
+        { host: "kvm-02" },
         { host: "jump-server-core" },
       ],
     eclipse:
@@ -46,8 +46,8 @@ import_config:
     proxmox:
       [
         {
-          host: "DC-BR-SE-AJU-KVM-01",
-          url: "DC-BR-SE-AJU-KVM-01.homelab",
+          host: "kvm-01",
+          url: "kvm-01.homelab",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },

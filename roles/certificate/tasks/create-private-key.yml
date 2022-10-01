@@ -28,7 +28,7 @@
 
 - name: Creating a random password with {{ privatekey_passphrase_size }} characters
   ansible.builtin.set_fact:
-    passphrase: '{{ lookup(''pipe'', ''openssl rand -base64 {{ privatekey_passphrase_size }} | tr -d "=+/" | colrm {{ privatekey_passphrase_size + 1 }}'') }}'
+    passphrase: "{{ lookup('pipe', 'openssl rand -base64 '{{ privatekey_passphrase_size }}' | tr -d =+/ | colrm '{{privatekey_passphrase_size + 1 }}) }}"
   when: should_create_file and privatekey_passphrase == "?"
 
 - name: Setting the password as an empty string because found ""

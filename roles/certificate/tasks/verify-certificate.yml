@@ -29,9 +29,12 @@
     msg:
       - "Certificate path: {{ ssl_certificate_path }}"
       - "Expired: {{ certificate_info.expired }}"
-      - "Expire days: {{ ((certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).days }}"
+      - "Expire days: {{ (certificate_expire_date - today).days }}"
       - "Valid {{ certificate_days_for_yellow_situation }}: {{ certificate_info.valid_at.point_1 }}"
       - "Valid {{ certificate_days_for_red_situation }}: {{ certificate_info.valid_at.point_2 }}"
+  vars:
+    certificate_expire_date: "{{ certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
+    today: "{{ ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ') }}"
   when: debug | bool and file_exists.stat.exists | bool
 
 - name: Notifying team if necessary
