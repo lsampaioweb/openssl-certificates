@@ -13,21 +13,21 @@ kvm-07 ansible_host=192.168.0.17
 [ProxmoxDHCP:vars]
 ansible_python_interpreter=/usr/bin/python3.9
 
-[Proxmox]
-kvm-01 ansible_host=10.0.2.5
-kvm-02 ansible_host=10.0.2.6
-kvm-03 ansible_host=10.0.2.7
-kvm-04 ansible_host=10.0.2.8
-kvm-05 ansible_host=10.0.2.9
-kvm-06 ansible_host=10.0.2.10
-kvm-07 ansible_host=10.0.2.11
+#[Proxmox]
+#kvm-01 ansible_host=10.0.2.5
+#kvm-02 ansible_host=10.0.2.6
+#kvm-03 ansible_host=10.0.2.7
+#kvm-04 ansible_host=10.0.2.8
+#kvm-05 ansible_host=10.0.2.9
+#kvm-06 ansible_host=10.0.2.10
+#kvm-07 ansible_host=10.0.2.11
 
-[Proxmox:vars]
-ansible_python_interpreter=/usr/bin/python3.9
+#[Proxmox:vars]
+#ansible_python_interpreter=/usr/bin/python3.9
 
-[JumpServer]
-jumpserver ansible_host=10.0.100.4
-ansible_user=lsampaio
+#[JumpServer]
+#jumpserver ansible_host=10.0.100.4
+#ansible_user=lsampaio
 
 [MacBooks]
 MacBook-Pro-Luciano ansible_host=192.168.0.100

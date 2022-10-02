@@ -1,5 +1,5 @@
 ---
-- import_playbook: "setup_control_machine.yml"
+- import_playbook: "control_machine.yml"
 - import_playbook: "create_private_key.yml"
 - import_playbook: "create_signing_request.yml"
 - import_playbook: "create_certificate.yml"
