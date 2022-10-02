@@ -8,19 +8,14 @@
 
 - name: Retrieving the fingerprint of the hosts
   ansible.builtin.set_fact:
-    fingerprints: "{{ fingerprints | default([]) +
-      [{'name': host_ip, 'key': host_key}] +
-      [{'name': host_name, 'key': host_name_key}] }}"
+    fingerprints: "{{ fingerprints | default([]) + [{'name': host_ip, 'key': host_key}] }}"
   vars:
     host_ip: "{{ hostvars[item].ansible_host | default('') }}"
     host_key: "{{ lookup('pipe', 'ssh-keyscan -t ecdsa '{{ host_ip }}) if (host_ip != '') else '' }}"
-
-    host_name: "{{ item | default('') }}"
-    host_name_key: "{{ lookup('pipe', 'ssh-keyscan -t ecdsa '{{ host_name }}) if (host_name != '') else '' }}"
   loop: "{{ hosts }}"
 
 - name: Adding the fingerprints of all hosts into the know_hosts file
-  ansible.builtin.include_tasks: "roles/common/tasks/known_hosts/add.yml"
+  ansible.builtin.include_tasks: "{{ path_debian_known_hosts_add }}"
   vars:
     ansible_become: false
   loop: "{{ fingerprints }}"

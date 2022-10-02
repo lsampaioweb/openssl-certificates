@@ -1,0 +1,32 @@
+---
+- name: Upgrading full distro packages
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: "dist"
+
+- name: Installing required packages
+  ansible.builtin.include_tasks: "{{ path_packages_apt }}"
+  vars:
+    packages:
+      - {name: "pip"}
+      - {name: "sshpass"}
+      - {name: "libsecret-tools"}
+      - {name: "qemu-guest-agent"} # To enhance Proxmox integration with the VM.
+
+- name: Installing pip packages
+  ansible.builtin.include_tasks: "{{ path_packages_pip }}"
+  vars:
+    packages:
+      - {name: "pyOpenSSL==21.0.0"}
+      - {name: "cryptography==3.4.8"}
+      - {name: "setuptools"}
+      - {name: "idna"}
+      - {name: "jmespath"}
+      - {name: "pexpect"}
+
+- name: Installing all the required collections
+  community.general.ansible_galaxy_install:
+    type: "collection"
+    name: "{{ item }}"
+  loop:
+    - "community.crypto"
