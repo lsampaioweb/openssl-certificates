@@ -1,17 +1,17 @@
 ---
-- name: Creating variables
+- name: "Creating variables"
   ansible.builtin.set_fact:
     certificate_name: "{{ temp_certificate_name }}"
     pkcs12_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ pkcs12_extention }}"
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
-- name: Verifying if "{{ pkcs12_path }}" file exists
+- name: "Verifying if '{{ pkcs12_path }}' file exists"
   ansible.builtin.stat:
     path: "{{ pkcs12_path }}"
-  register: file_exists
+  register: "file_exists"
 
-- name: Creating the specific variables
+- name: "Creating the specific variables"
   ansible.builtin.set_fact:
     host: "{{ host_config.host }}"
     pkcs12_dest: "{{ host_config.pkcs12_dest }}"
@@ -23,7 +23,7 @@
     password_id: "{{ certificate_name }}"
   when: file_exists.stat.exists | bool
 
-- name: Printing variables
+- name: "Printing variables"
   ansible.builtin.debug:
     msg:
       - "host         : {{ host }}"
@@ -32,7 +32,7 @@
       - "secret_key   : {{ secret_key }}"
   when: debug | bool and file_exists.stat.exists | bool
 
-- name: Copying the PKCS#12 file to the specified destination
+- name: "Copying the PKCS#12 file to the specified destination"
   delegate_to: "{{ host }}"
   become: true
   ansible.builtin.copy:
@@ -41,7 +41,7 @@
     mode: "preserve"
   when: file_exists.stat.exists | bool
 
-- name: Updating the password in the secrets file
+- name: "Updating the password in the secrets file"
   delegate_to: "{{ host }}"
   become: true
   ansible.builtin.lineinfile:

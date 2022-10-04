@@ -1,5 +1,5 @@
 ---
-- name: Creating variables
+- name: "Creating variables"
   ansible.builtin.set_fact:
     host: "{{ host_config.host }}"
     keychain_path: "{{ host_config.keychain_path }}"
@@ -10,28 +10,28 @@
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
-- name: Verifying if "{{ ssl_certificate_path }}" file exists
+- name: "Verifying if '{{ ssl_certificate_path }}' file exists"
   ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
-  register: file_exists
+  register: "file_exists"
 
-- name: Getting info about the certificate
+- name: "Getting info about the certificate"
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
-  register: new_certificate_info
+  register: "new_certificate_info"
   when: file_exists.stat.exists | bool
 
-- name: Block of tasks to import certificate in a MacOSX
+- name: "Block of tasks to import certificate in a MacOSX"
   block:
-    - name: Checking if the certificate is already imported into the keychain
+    - name: "Checking if the certificate is already imported into the keychain"
       delegate_to: "{{ host }}"
       ansible.builtin.shell: "security find-certificate -c '{{ new_certificate_info.subject.commonName }}' -p | openssl x509 -text | grep 'Not After'"
-      register: current_certificate_info
+      register: "current_certificate_info"
       failed_when: false
       changed_when: false
       when: file_exists.stat.exists | bool and not new_certificate_info.expired
 
-    - name: Creating the should_import_certificate variable
+    - name: "Creating the should_import_certificate variable"
       ansible.builtin.set_fact:
         should_import_certificate:
           "{{ (new_cert_exists_and_not_expired) and (current_certificate_info.rc != 0 or (current_certificate_info.rc == 0 and expire_dates_are_different)) }}"
@@ -42,7 +42,7 @@
         expire_dates_are_different: "{{ new_cert_expire_day != current_cert_expire_day }}"
       when: file_exists.stat.exists | bool
 
-    - name: Printing variables
+    - name: "Printing variables"
       ansible.builtin.debug:
         msg:
           - "should_import_certificate : {{ should_import_certificate }}"
@@ -57,7 +57,7 @@
         current_cert_expire_day: "{{ current_certificate_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') }}"
       when: debug | bool and file_exists.stat.exists | bool and current_certificate_info.rc == 0
 
-    - name: Copying the certificate file to the specified destination
+    - name: "Copying the certificate file to the specified destination"
       delegate_to: "{{ host }}"
       ansible.builtin.copy:
         src: "{{ ssl_certificate_path }}"
@@ -65,26 +65,26 @@
         mode: "preserve"
       when: should_import_certificate | bool
 
-    - name: Allowing Ansible to write into the com.apple.trust-settings.admin settings
+    - name: "Allowing Ansible to write into the com.apple.trust-settings.admin settings"
       delegate_to: "{{ host }}"
       become: true
       ansible.builtin.command: "/usr/bin/security authorizationdb write com.apple.trust-settings.admin allow"
       when: should_import_certificate | bool
 
-    - name: Importing the certificate into the keychain
+    - name: "Importing the certificate into the keychain"
       delegate_to: "{{ host }}"
       become: true
       ansible.builtin.command: "/usr/bin/security add-trusted-cert -d -r trustRoot -k {{ keychain_path }} '{{ ssl_certificate_tmp_path }}'"
       register: "output"
       when: should_import_certificate | bool
 
-    - name: Denying Ansible to write into the com.apple.trust-settings.admin settings
+    - name: "Denying Ansible to write into the com.apple.trust-settings.admin settings"
       delegate_to: "{{ host }}"
       become: true
       ansible.builtin.command: "/usr/bin/security authorizationdb remove com.apple.trust-settings.admin"
       when: should_import_certificate | bool
 
-    - name: Deleting the certificate file that was copied to {{ host }}
+    - name: "Deleting the certificate file that was copied to {{ host }}"
       delegate_to: "{{ host }}"
       ansible.builtin.file:
         path: "{{ ssl_certificate_tmp_path }}"

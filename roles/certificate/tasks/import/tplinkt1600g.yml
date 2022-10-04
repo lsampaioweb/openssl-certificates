@@ -1,5 +1,5 @@
 ---
-- name: Creating variables
+- name: "Creating variables"
   ansible.builtin.set_fact:
     switch_id: "{{ host_config.switch_id }}"
     host: "{{ host_config.host }}"
@@ -18,30 +18,30 @@
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
-- name: Verifying if "{{ ssl_certificate_path }}" file exists
+- name: "Verifying if '{{ ssl_certificate_path }}' file exists"
   ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
-  register: file_exists
+  register: "file_exists"
 
-- name: Getting info about the certificate
+- name: "Getting info about the certificate"
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
-  register: new_certificate_info
+  register: "new_certificate_info"
   when: file_exists.stat.exists | bool
 
-- name: Getting the current (if any) certificate from url {{ url }}
+- name: "Getting the current (if any) certificate from url {{ url }}"
   get_certificate:
     host: "{{ url }}"
     port: "{{ port }}"
-  register: current_certificate_info
+  register: "current_certificate_info"
   when: file_exists.stat.exists | bool and not new_certificate_info.expired
 
-- name: Verifying if "{{ privatekey_path }}" file exists
+- name: "Verifying if '{{ privatekey_path }}' file exists"
   ansible.builtin.stat:
     path: "{{ privatekey_path }}"
-  register: privatekey_file_exists
+  register: "privatekey_file_exists"
 
-- name: Creating the should_import_certificate variable
+- name: "Creating the should_import_certificate variable"
   ansible.builtin.set_fact:
     should_import_certificate: "{{ new_cert_exists_and_not_expired and privatekey_file_exists.stat.exists and expire_dates_are_different }}"
   vars:
@@ -50,7 +50,7 @@
     current_cert_expire_day: "{{ current_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
     expire_dates_are_different: "{{ new_cert_expire_day != current_cert_expire_day }}"
 
-- name: Printing variables
+- name: "Printing variables"
   ansible.builtin.debug:
     msg:
       - "should_import_certificate  : {{ should_import_certificate }}"
@@ -68,16 +68,16 @@
       - "privatekey_name            : {{ privatekey_name }}"
   when: debug | bool
 
-- name: Starting TFTP Server
+- name: "Starting TFTP Server"
   become: true
   ansible.builtin.command: "{{ command }}"
   loop:
     - "launchctl start {{ tftp_app }}"
   loop_control:
-    loop_var: command
+    loop_var: "command"
   when: should_import_certificate | bool
 
-- name: Giving 777 permissions on the "{{ tftp_folder }}" folder so the switch can access it
+- name: "Giving 777 permissions on the '{{ tftp_folder }}' folder so the switch can access it"
   become: true
   ansible.builtin.file:
     path: "{{ tftp_folder }}"
@@ -85,7 +85,7 @@
     recurse: true
   when: should_import_certificate | bool
 
-- name: Copying the certificate and private key files to the TFTP folder
+- name: "Copying the certificate and private key files to the TFTP folder"
   ansible.builtin.copy:
     src: "{{ file.src }}"
     dest: "{{ tftp_folder }}/{{ file.dest }}"
@@ -94,10 +94,10 @@
     - { src: "{{ ssl_certificate_path }}", dest: "{{ ssl_certificate_name }}" }
     - { src: "{{ privatekey_path }}", dest: "{{ privatekey_name }}" }
   loop_control:
-    loop_var: file
+    loop_var: "file"
   when: should_import_certificate | bool
 
-- name: Copying the certificate and private key file to the switch
+- name: "Copying the certificate and private key file to the switch"
   ansible.builtin.shell: |
     set timeout 5
     spawn ssh {{ ansible_user }}@{{ host }}
@@ -132,31 +132,31 @@
     exit 0
   args:
     executable: "/usr/bin/expect"
-  register: output
+  register: "output"
   failed_when: (output.rc != 0) or 'Download SSL certificate OK' not in output.stdout or 'Download SSL key OK' not in output.stdout
   when: should_import_certificate | bool
 
-- name: Stopping TFTP Server
+- name: "Stopping TFTP Server"
   become: true
   ansible.builtin.command: "{{ command }}"
   loop:
     - "launchctl unload -F {{ tftp_app_plist }}"
   loop_control:
-    loop_var: command
+    loop_var: "command"
   when: should_import_certificate | bool
 
-- name: Deleting the certificate and private key files from the TFTP folder
+- name: "Deleting the certificate and private key files from the TFTP folder"
   ansible.builtin.file:
     path: "{{ tftp_folder }}/{{ file }}"
-    state: absent
+    state: "absent"
   loop:
     - "{{ ssl_certificate_name }}"
     - "{{ privatekey_name }}"
   loop_control:
-    loop_var: file
+    loop_var: "file"
   when: should_import_certificate | bool
 
-- name: Giving back the proper (644) permissions on the "{{ tftp_folder }}" folder
+- name: "Giving back the proper (644) permissions on the '{{ tftp_folder }}' folder"
   become: true
   ansible.builtin.file:
     path: "{{ tftp_folder }}"

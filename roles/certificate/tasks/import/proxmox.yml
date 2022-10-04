@@ -1,5 +1,5 @@
 ---
-- name: Creating variables
+- name: "Creating variables"
   ansible.builtin.set_fact:
     host: "{{ host_config.host }}"
     url: "{{ host_config.url }}"
@@ -14,30 +14,30 @@
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
-- name: Verifying if "{{ ssl_certificate_path }}" file exists
+- name: "Verifying if '{{ ssl_certificate_path }}' file exists"
   ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
-  register: file_exists
+  register: "file_exists"
 
-- name: Getting info about the certificate
+- name: "Getting info about the certificate"
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
-  register: new_certificate_info
+  register: "new_certificate_info"
   when: file_exists.stat.exists | bool
 
-- name: Getting the current (if any) certificate from url {{ url }}
+- name: "Getting the current (if any) certificate from url {{ url }}"
   get_certificate:
     host: "{{ url }}"
     port: "{{ port }}"
-  register: current_certificate_info
+  register: "current_certificate_info"
   when: file_exists.stat.exists | bool and not new_certificate_info.expired
 
-- name: Verifying if "{{ privatekey_path }}" file exists
+- name: "Verifying if '{{ privatekey_path }}' file exists"
   ansible.builtin.stat:
     path: "{{ privatekey_path }}"
-  register: privatekey_file_exists
+  register: "privatekey_file_exists"
 
-- name: Creating the should_import_certificate variable
+- name: "Creating the should_import_certificate variable"
   ansible.builtin.set_fact:
     should_import_certificate: "{{ new_cert_exists_and_not_expired and privatekey_file_exists.stat.exists and expire_dates_are_different }}"
   vars:
@@ -46,7 +46,7 @@
     current_cert_expire_day: "{{ current_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
     expire_dates_are_different: "{{ new_cert_expire_day != current_cert_expire_day }}"
 
-- name: Printing variables
+- name: "Printing variables"
   ansible.builtin.debug:
     msg:
       - "should_import_certificate  : {{ should_import_certificate }}"
@@ -62,7 +62,7 @@
       - "privatekey_name            : {{ privatekey_name }}"
   when: debug | bool
 
-- name: Copying certificate and private key to {{ host }}
+- name: "Copying certificate and private key to {{ host }}"
   delegate_to: "{{ host }}"
   ansible.builtin.copy:
     src: "{{ file.src }}"
@@ -72,24 +72,24 @@
     - { src: "{{ ssl_certificate_path }}", dest: "{{ ssl_certificate_name }}" }
     - { src: "{{ privatekey_path }}", dest: "{{ privatekey_name }}" }
   loop_control:
-    loop_var: file
+    loop_var: "file"
   when: should_import_certificate | bool
 
-- name: Importing the certificate and private key into {{ host }}
+- name: "Importing the certificate and private key into {{ host }}"
   delegate_to: "{{ host }}"
   become: true
   ansible.builtin.command: "pvenode cert set {{ tmp_folder }}/{{ ssl_certificate_name }} {{ tmp_folder }}/{{ privatekey_name }} --force --restart"
-  register: output
+  register: "output"
   when: should_import_certificate | bool
 
-- name: Deleting the certificate and private key files from {{ host }}
+- name: "Deleting the certificate and private key files from {{ host }}"
   delegate_to: "{{ host }}"
   ansible.builtin.file:
     path: "{{ tmp_folder }}/{{ file }}"
-    state: absent
+    state: "absent"
   loop:
     - "{{ ssl_certificate_name }}"
     - "{{ privatekey_name }}"
   loop_control:
-    loop_var: file
+    loop_var: "file"
   when: should_import_certificate | bool
