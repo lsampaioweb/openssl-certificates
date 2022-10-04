@@ -18,7 +18,7 @@
     secret_file: "{{ host_config.secret_file }}"
     secret_key: "{{ host_config.secret_key }}"
 
-    passphrase: "{{ lookup('template', '../../templates/get-password-from-secret-manager.j2') }}"
+    passphrase: "{{ lookup('template', 'get-password-from-secret-manager.j2') }}"
   vars:
     password_id: "{{ certificate_name }}"
   when: file_exists.stat.exists | bool

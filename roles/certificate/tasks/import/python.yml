@@ -38,7 +38,7 @@
   become: true
   ansible.builtin.blockinfile:
     path: "{{ certificate_dest }}"
-    block: "{{ lookup('file', '{{ ssl_certificate_path }}') }}"
+    block: "{{ lookup('file', ssl_certificate_path) }}"
     insertbefore: "BOF"
     state: "present"
   when: certificate_dest != "" and file_exists.stat.exists | bool

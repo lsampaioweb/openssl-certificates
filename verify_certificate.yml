@@ -1,12 +1,12 @@
 ---
-- name: Verify if the certificate is valid
-  hosts: CertificateAuthorityServer
+- name: "Verify if the certificate is valid"
+  hosts: "CertificateAuthorityServer"
 
   tasks:
-    - name: Getting the list of certificates
+    - name: "Getting the list of certificates"
       import_tasks: "roles/certificate/tasks/find-certificates-in-folder.yml"
 
-    - name: Including task to verify if the certificate is valid
+    - name: "Including task to verify if the certificate is valid"
       include_tasks: "roles/certificate/tasks/verify-certificate.yml"
       vars:
         certificate_path: "{{ item }}"

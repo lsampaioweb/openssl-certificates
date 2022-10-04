@@ -4,7 +4,18 @@ The playbook can verify if the certificate created by our own Certificate Author
 
 # Requirements:
 
-The Certificate Authority Server (CAS) must be a MAC OSX. If you want to use these playbooks on a Linux, you only have to change where you save the passwords. Here on the MAC I am using the Keychain. I know Ubuntu has the keyring. I don't know what to use on other distributions.
+The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
+
+# Credentials:
+1. Create a strong password for the smtp's user and store it in the secret manager. After you hit enter, a password will be asked.
+```bash
+    secret-tool store --label="ssl.certificate-smtp-password" password "ssl.certificate-smtp-password"
+```    
+
+2. Retrieve the smtp's user password.
+```bash
+    secret-tool lookup password "ssl.certificate-smtp-password"
+```
 
 # How to execute:
 

@@ -1,12 +1,12 @@
 ---
-- name: Creating variables
+- name: "Creating variables"
   ansible.builtin.set_fact:
     certificate_full_path: "{{ certificate_path }}/{{ certificate_path | basename }}"
     backup_path: "{{ certificate_path }}/{{ backup_folder }}/{{ today }}/"
   vars:
     today: "{{ ansible_date_time.date }}"
 
-- name: Preparing list of files that depend on the private key
+- name: "Preparing list of files that depend on the private key"
   ansible.builtin.set_fact:
     files_to_search:
       - "{{ certificate_full_path }}.{{ privatekey_extention }}"
@@ -15,7 +15,7 @@
       - "{{ certificate_full_path }}.{{ pkcs12_extention }}"
   when: "'privatekey' in depend_on"
 
-- name: Preparing list of files that depend on the certificate signing request
+- name: "Preparing list of files that depend on the certificate signing request"
   ansible.builtin.set_fact:
     files_to_search:
       - "{{ certificate_full_path }}.{{ csr_extention }}"
@@ -23,21 +23,21 @@
       - "{{ certificate_full_path }}.{{ pkcs12_extention }}"
   when: "'certificate-signing-request' in depend_on"
 
-- name: Preparing list of files that depend on the certificate
+- name: "Preparing list of files that depend on the certificate"
   ansible.builtin.set_fact:
     files_to_search:
       - "{{ certificate_full_path }}.{{ certificate_extention }}"
       - "{{ certificate_full_path }}.{{ pkcs12_extention }}"
   when: "'certificate' in depend_on"
 
-- name: Creating the backup folder "{{ backup_path }}"
+- name: "Creating the backup folder '{{ backup_path }}'"
   ansible.builtin.file:
     path: "{{ backup_path }}"
-    state: directory
+    state: "directory"
     recurse: true
   when: backup | bool
 
-- name: Copying certificate related (.key, .csr, .crt and .p12) files to the backup folder
+- name: "Copying certificate related (.key, .csr, .crt and .p12) files to the backup folder"
   ansible.builtin.copy:
     src: "{{ file }}"
     dest: "{{ backup_path }}"
@@ -45,13 +45,13 @@
   failed_when: false
   loop: "{{ files_to_search }}"
   loop_control:
-    loop_var: file
+    loop_var: "file"
   when: backup | bool
 
-- name: Deleting certificate related (.key, .csr, .crt and .p12) files
+- name: "Deleting certificate related (.key, .csr, .crt and .p12) files"
   ansible.builtin.file:
     path: "{{ file }}"
-    state: absent
+    state: "absent"
   loop: "{{ files_to_search }}"
   loop_control:
-    loop_var: file
+    loop_var: "file"

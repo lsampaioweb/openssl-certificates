@@ -1,17 +1,17 @@
 ---
-- name: Creating config variables
+- name: "Creating config variables"
   ansible.builtin.set_fact:
     global_config_path: "../files/{{ config_file }}"
     certificate_config_path: "{{ certificate_path }}/{{ config_file }}"
 
-- name: Including the global config file
+- name: "Including the global config file"
   ansible.builtin.include_vars: "{{ global_config_path }}"
 
-- name: Verifying if the "{{ certificate_config_path }}" file exists
+- name: "Verifying if the '{{ certificate_config_path }}' file exists"
   ansible.builtin.stat:
     path: "{{ certificate_config_path }}"
-  register: config_file_found
+  register: "config_file_found"
 
-- name: Including the certificate specific config file "{{ certificate_config_path }}"
+- name: "Including the certificate specific config file '{{ certificate_config_path }}'"
   ansible.builtin.include_vars: "{{ certificate_config_path }}"
   when: config_file_found.stat.exists

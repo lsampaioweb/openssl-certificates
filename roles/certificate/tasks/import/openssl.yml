@@ -31,12 +31,12 @@
       - "ssl_certificate_path : {{ ssl_certificate_path }}"
   when: debug | bool and file_exists.stat.exists | bool
 
-- name: Adding the certificate into the default (cert.pem) file
+- name: "Adding the certificate into the default (cert.pem) file"
   delegate_to: "{{ host }}"
   become: true
   ansible.builtin.blockinfile:
     path: "{{ certificate_dest }}"
-    block: "{{ lookup('file', '{{ ssl_certificate_path }}') }}"
+    block: "{{ lookup('file', ssl_certificate_path) }}"
     insertbefore: "BOF"
     state: "present"
   when: certificate_dest != "" and file_exists.stat.exists | bool

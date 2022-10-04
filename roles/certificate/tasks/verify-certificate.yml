@@ -1,35 +1,35 @@
 ---
-- name: Including config files for "{{ certificate_path | basename }}"
+- name: "Including config files for '{{ certificate_path | basename }}'"
   include_tasks: "include-config-files.yml"
   when: include_config_files
 
-- name: Creating variables
+- name: "Creating variables"
   ansible.builtin.set_fact:
     certificate_name: "{{ temp_certificate_name }}"
     ssl_certificate_path: "{{ certificate_path }}/{{ temp_certificate_name }}.{{ certificate_extention }}"
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
-- name: Verifying if "{{ ssl_certificate_path }}" file exists
+- name: "Verifying if '{{ ssl_certificate_path }}' file exists"
   ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
-  register: file_exists
+  register: "file_exists"
 
-- name: Verifying if the certificate is still valid
+- name: "Verifying if the certificate is still valid"
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
     valid_at:
       point_1: "{{ certificate_days_for_yellow_situation }}"
       point_2: "{{ certificate_days_for_red_situation }}"
-  register: certificate_info
+  register: "certificate_info"
   when: file_exists.stat.exists | bool
 
-- name: Printing variables
+- name: "Printing variables"
   ansible.builtin.debug:
     msg:
       - "Certificate path: {{ ssl_certificate_path }}"
       - "Expired: {{ certificate_info.expired }}"
-      - "Expire days: {{ (certificate_expire_date - today).days }}"
+      - "Expire days: {{ ((certificate_expire_date | to_datetime) - (today | to_datetime)).days }}"
       - "Valid {{ certificate_days_for_yellow_situation }}: {{ certificate_info.valid_at.point_1 }}"
       - "Valid {{ certificate_days_for_red_situation }}: {{ certificate_info.valid_at.point_2 }}"
   vars:
@@ -37,7 +37,7 @@
     today: "{{ ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ') }}"
   when: debug | bool and file_exists.stat.exists | bool
 
-- name: Notifying team if necessary
+- name: "Notifying team if necessary"
   include_tasks: "notify-team.yml"
   vars:
     expire_days: "{{ (( certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ')) ).days }}"

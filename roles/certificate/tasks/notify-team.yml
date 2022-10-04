@@ -1,23 +1,23 @@
 ---
-- name: Creating variables for yellow situation
+- name: "Creating variables for yellow situation"
   ansible.builtin.set_fact:
     subject: "[Attention] - Certificate expiring in {{ expire_days }} days"
     body_file: "notification-certificate-expiring.j2"
   when: certificate_situation_is_yellow
 
-- name: Creating variables for red situation
+- name: "Creating variables for red situation"
   ansible.builtin.set_fact:
     subject: "[ALERT] - Certificate expiring in {{ expire_days }} days"
     body_file: "notification-certificate-expiring.j2"
   when: certificate_situation_is_red
 
-- name: Creating variables for expired situation
+- name: "Creating variables for expired situation"
   ansible.builtin.set_fact:
     subject: "[URGENT] - Certificate expired - [URGENT]"
     body_file: "notification-certificate-expired.j2"
   when: certificate_situation_is_expired
 
-- name: Printing variables
+- name: "Printing variables"
   ansible.builtin.debug:
     msg:
       - "Contact from : {{ mail_from | b64decode }}"
@@ -25,6 +25,6 @@
       - "Contact cc   : {{ mail_cc | b64decode }}"
   when: debug | bool and (certificate_situation_is_yellow or certificate_situation_is_red or certificate_situation_is_expired)
 
-- name: Sending the notification
+- name: "Sending the notification"
   include_tasks: "send-mail-notification.yml"
   when: certificate_situation_is_yellow or certificate_situation_is_red or certificate_situation_is_expired
