@@ -1,9 +1,9 @@
 ---
-- name: Updating packages cache
+- name: "Updating packages cache"
   ansible.builtin.apt:
     update_cache: true
 
-- name: Installing required packages
+- name: "Installing required packages"
   ansible.builtin.include_tasks: "{{ path_packages_apt }}"
   vars:
     packages:
@@ -12,7 +12,7 @@
       - {name: "libsecret-tools"}
       - {name: "qemu-guest-agent"} # To enhance Proxmox integration with the VM.
 
-- name: Installing pip packages
+- name: "Installing pip packages"
   ansible.builtin.include_tasks: "{{ path_packages_pip }}"
   vars:
     packages:
@@ -23,7 +23,7 @@
       - {name: "jmespath"}
       - {name: "pexpect"}
 
-- name: Installing all the required collections
+- name: "Installing all the required collections"
   community.general.ansible_galaxy_install:
     type: "collection"
     name: "{{ item }}"

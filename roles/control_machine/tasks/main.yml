@@ -1,6 +1,6 @@
 ---
-- name: Creating the folder that will contain all OpenSSL Certificates
+- name: "Creating the folder that will contain all OpenSSL Certificates"
   import_tasks: "certificate_folder.yml"
 
-- name: Installing required packages
+- name: "Installing required packages"
   import_tasks: "packages.yml"
