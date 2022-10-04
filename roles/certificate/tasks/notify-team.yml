@@ -17,14 +17,6 @@
     body_file: "notification-certificate-expired.j2"
   when: certificate_situation_is_expired
 
-- name: "Printing variables"
-  ansible.builtin.debug:
-    msg:
-      - "Contact from : {{ mail_from | b64decode }}"
-      - "Contact to   : {{ mail_to | b64decode }}"
-      - "Contact cc   : {{ mail_cc | b64decode }}"
-  when: debug | bool and (certificate_situation_is_yellow or certificate_situation_is_red or certificate_situation_is_expired)
-
 - name: "Sending the notification"
   include_tasks: "send-mail-notification.yml"
   when: certificate_situation_is_yellow or certificate_situation_is_red or certificate_situation_is_expired
