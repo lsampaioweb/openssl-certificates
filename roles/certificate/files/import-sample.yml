@@ -28,7 +28,7 @@ import_config:
     eclipse:
       [
         {
-          host: "MacBook-Pro-Luciano.local",
+          host: "Lucianos-MacBook-Pro.local",
           pkcs12_dest: "/opt/certificates/localhost/localhost.p12",
           secret_file: "/Users/lsampaio/.config/SpringBoot/secret.properties",
           secret_key: "{{ eclipse_secret_key }}",
@@ -37,12 +37,12 @@ import_config:
     macoskeychain:
       [
         {
-          host: "MacBook-Pro-Luciano.local",
+          host: "Lucianos-MacBook-Pro.local",
           keychain_path: "{{ keychain_path }}",
           temp_folder: "{{ keychain_temp_folder }}",
         },
       ],
-    openssl: [{ host: "MacBook-Pro-Luciano.local" }],
+    openssl: [{ host: "Lucianos-MacBook-Pro.local" }],
     proxmox:
       [
         {
@@ -52,7 +52,7 @@ import_config:
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
       ],
-    python: [{ host: "MacBook-Pro-Luciano.local", version: "3" }],
+    python: [{ host: "Lucianos-MacBook-Pro.local", version: "3" }],
     tplinkt1600g:
       [
         {

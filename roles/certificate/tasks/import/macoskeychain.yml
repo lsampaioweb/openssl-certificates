@@ -10,6 +10,9 @@
   vars:
     temp_certificate_name: "{{ certificate_path | basename }}"
 
+- name: "Adding the fingerprint of the host into the known_hosts file"
+  ansible.builtin.include_tasks: "../known-hosts.yml"
+
 - name: "Verifying if '{{ ssl_certificate_path }}' file exists"
   ansible.builtin.stat:
     path: "{{ ssl_certificate_path }}"
@@ -27,9 +30,9 @@
       delegate_to: "{{ host }}"
       ansible.builtin.shell: "security find-certificate -c '{{ new_certificate_info.subject.commonName }}' -p | openssl x509 -text | grep 'Not After'"
       register: "current_certificate_info"
+      when: file_exists.stat.exists | bool and not new_certificate_info.expired
       failed_when: false
       changed_when: false
-      when: file_exists.stat.exists | bool and not new_certificate_info.expired
 
     - name: "Creating the should_import_certificate variable"
       ansible.builtin.set_fact:
@@ -37,8 +40,8 @@
           "{{ (new_cert_exists_and_not_expired) and (current_certificate_info.rc != 0 or (current_certificate_info.rc == 0 and expire_dates_are_different)) }}"
       vars:
         new_cert_exists_and_not_expired: "{{ file_exists.stat.exists and not new_certificate_info.expired }}"
-        new_cert_expire_day: "{{ new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
-        current_cert_expire_day: "{{ current_certificate_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') }}"
+        new_cert_expire_day: "{{ new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') if (current_certificate_info.rc == 0) else '' }}"
+        current_cert_expire_day: "{{ current_certificate_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') if (current_certificate_info.rc == 0) else '' }}"
         expire_dates_are_different: "{{ new_cert_expire_day != current_cert_expire_day }}"
       when: file_exists.stat.exists | bool
 
@@ -91,7 +94,9 @@
         state: "absent"
       when: should_import_certificate | bool
 
-  # ignore_unreachable: true
-  # ignore_errors: true
-  changed_when: output.rc != 0
-  # failed_when: output.rc != 0
+  rescue:
+    - name: "Print when errors"
+      ansible.builtin.debug:
+        msg: "Could not import the certificate in the host"
+
+  ignore_unreachable: true

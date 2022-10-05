@@ -1,0 +1,20 @@
+---
+- name: Creating .ssh directory
+  become: false
+  ansible.builtin.file:
+    path: "~/.ssh/"
+    state: "directory"
+    mode: "0700"
+
+- name: Retrieving the fingerprint of the host
+  ansible.builtin.set_fact:
+    fingerprints: "{{ {'name': host_ip, 'key': host_key} }}"
+  vars:
+    host_ip: "{{ host }}"
+    host_key: "{{ lookup('pipe', 'ssh-keyscan -t ecdsa ' + host_ip, errors='ignore') }}"
+
+- name: Adding the fingerprint of the host into the known_hosts file
+  ansible.builtin.include_tasks: "{{ path_debian_known_hosts_add }}"
+  vars:
+    ansible_become: false
+    host: "{{ fingerprints }}"
