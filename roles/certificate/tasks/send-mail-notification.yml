@@ -34,4 +34,4 @@
     body: "{{ lookup('template', '../templates/' + body_file) }}"
   vars:
     password_id: "{{ mail_smtp_password_id }}"
-  when: notification_sent.changed
+  when: notification_sent.changed and mail_to | length > 0
