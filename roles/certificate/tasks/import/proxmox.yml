@@ -22,15 +22,15 @@
 - name: "Getting info about the certificate"
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
-  register: "new_certificate_info"
+  register: "new_cert_info"
   when: file_exists.stat.exists | bool
 
 - name: "Getting the current (if any) certificate from url {{ url }}"
   get_certificate:
     host: "{{ url }}"
     port: "{{ port }}"
-  register: "current_certificate_info"
-  when: file_exists.stat.exists | bool and not new_certificate_info.expired
+  register: "current_cert_info"
+  when: file_exists.stat.exists | bool and not new_cert_info.expired
 
 - name: "Verifying if '{{ privatekey_path }}' file exists"
   ansible.builtin.stat:
@@ -41,9 +41,9 @@
   ansible.builtin.set_fact:
     should_import_certificate: "{{ new_cert_exists_and_not_expired and privatekey_file_exists.stat.exists and expire_dates_are_different }}"
   vars:
-    new_cert_exists_and_not_expired: "{{ file_exists.stat.exists and not new_certificate_info.expired }}"
-    new_cert_expire_day: "{{ new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
-    current_cert_expire_day: "{{ current_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
+    new_cert_exists_and_not_expired: "{{ file_exists.stat.exists and not new_cert_info.expired }}"
+    new_cert_expire_day: "{{ new_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
+    current_cert_expire_day: "{{ current_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
     expire_dates_are_different: "{{ new_cert_expire_day != current_cert_expire_day }}"
 
 - name: "Printing variables"
@@ -62,34 +62,43 @@
       - "privatekey_name            : {{ privatekey_name }}"
   when: debug | bool
 
-- name: "Copying certificate and private key to {{ host }}"
-  delegate_to: "{{ host }}"
-  ansible.builtin.copy:
-    src: "{{ file.src }}"
-    dest: "{{ tmp_folder }}/{{ file.dest }}"
-    mode: "0644"
-  loop:
-    - { src: "{{ ssl_certificate_path }}", dest: "{{ ssl_certificate_name }}" }
-    - { src: "{{ privatekey_path }}", dest: "{{ privatekey_name }}" }
-  loop_control:
-    loop_var: "file"
-  when: should_import_certificate | bool
+- name: "Block of tasks to import certificate in a Proxmox host"
+  block:
+    - name: "Copying certificate and private key to {{ host }}"
+      delegate_to: "{{ host }}"
+      ansible.builtin.copy:
+        src: "{{ file.src }}"
+        dest: "{{ tmp_folder }}/{{ file.dest }}"
+        mode: "0644"
+      loop:
+        - { src: "{{ ssl_certificate_path }}", dest: "{{ ssl_certificate_name }}" }
+        - { src: "{{ privatekey_path }}", dest: "{{ privatekey_name }}" }
+      loop_control:
+        loop_var: "file"
+      when: should_import_certificate | bool
 
-- name: "Importing the certificate and private key into {{ host }}"
-  delegate_to: "{{ host }}"
-  become: true
-  ansible.builtin.command: "pvenode cert set {{ tmp_folder }}/{{ ssl_certificate_name }} {{ tmp_folder }}/{{ privatekey_name }} --force --restart"
-  register: "output"
-  when: should_import_certificate | bool
+    - name: "Importing the certificate and private key into {{ host }}"
+      delegate_to: "{{ host }}"
+      become: true
+      ansible.builtin.command: "pvenode cert set {{ tmp_folder }}/{{ ssl_certificate_name }} {{ tmp_folder }}/{{ privatekey_name }} --force --restart"
+      register: "output"
+      when: should_import_certificate | bool
 
-- name: "Deleting the certificate and private key files from {{ host }}"
-  delegate_to: "{{ host }}"
-  ansible.builtin.file:
-    path: "{{ tmp_folder }}/{{ file }}"
-    state: "absent"
-  loop:
-    - "{{ ssl_certificate_name }}"
-    - "{{ privatekey_name }}"
-  loop_control:
-    loop_var: "file"
-  when: should_import_certificate | bool
+    - name: "Deleting the certificate and private key files from {{ host }}"
+      delegate_to: "{{ host }}"
+      ansible.builtin.file:
+        path: "{{ tmp_folder }}/{{ file }}"
+        state: "absent"
+      loop:
+        - "{{ ssl_certificate_name }}"
+        - "{{ privatekey_name }}"
+      loop_control:
+        loop_var: "file"
+      when: should_import_certificate | bool
+
+  rescue:
+    - name: "Print when errors"
+      ansible.builtin.debug:
+        msg: "Could not import the certificate in the host"
+
+  ignore_unreachable: true

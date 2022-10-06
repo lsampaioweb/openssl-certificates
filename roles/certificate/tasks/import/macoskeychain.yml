@@ -21,27 +21,27 @@
 - name: "Getting info about the certificate"
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
-  register: "new_certificate_info"
+  register: "new_cert_info"
   when: file_exists.stat.exists | bool
 
 - name: "Block of tasks to import certificate in a MacOSX"
   block:
     - name: "Checking if the certificate is already imported into the keychain"
       delegate_to: "{{ host }}"
-      ansible.builtin.shell: "security find-certificate -c '{{ new_certificate_info.subject.commonName }}' -p | openssl x509 -text | grep 'Not After'"
-      register: "current_certificate_info"
-      when: file_exists.stat.exists | bool and not new_certificate_info.expired
+      ansible.builtin.shell: "security find-certificate -c '{{ new_cert_info.subject.commonName }}' -p | openssl x509 -text | grep 'Not After'"
+      register: "current_cert_info"
+      when: file_exists.stat.exists | bool and not new_cert_info.expired
       failed_when: false
       changed_when: false
 
     - name: "Creating the should_import_certificate variable"
       ansible.builtin.set_fact:
         should_import_certificate:
-          "{{ (new_cert_exists_and_not_expired) and (current_certificate_info.rc != 0 or (current_certificate_info.rc == 0 and expire_dates_are_different)) }}"
+          "{{ (new_cert_exists_and_not_expired) and (current_cert_info.rc != 0 or (current_cert_info.rc == 0 and expire_dates_are_different)) }}"
       vars:
-        new_cert_exists_and_not_expired: "{{ file_exists.stat.exists and not new_certificate_info.expired }}"
-        new_cert_expire_day: "{{ new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') if (current_certificate_info.rc == 0) else '' }}"
-        current_cert_expire_day: "{{ current_certificate_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') if (current_certificate_info.rc == 0) else '' }}"
+        new_cert_exists_and_not_expired: "{{ file_exists.stat.exists and not new_cert_info.expired }}"
+        new_cert_expire_day: "{{ new_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') if (current_cert_info.rc == 0) else '' }}"
+        current_cert_expire_day: "{{ current_cert_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') if (current_cert_info.rc == 0) else '' }}"
         expire_dates_are_different: "{{ new_cert_expire_day != current_cert_expire_day }}"
       when: file_exists.stat.exists | bool
 
@@ -50,15 +50,15 @@
         msg:
           - "should_import_certificate : {{ should_import_certificate }}"
           - "Certificate path          : {{ ssl_certificate_tmp_path }}"
-          - "Common Name               : {{ new_certificate_info.subject.commonName }}"
-          - "Expired                   : {{ new_certificate_info.expired }}"
+          - "Common Name               : {{ new_cert_info.subject.commonName }}"
+          - "Expired                   : {{ new_cert_info.expired }}"
           - "Should import certificate : {{ should_import_certificate }}"
           - "Cert Info expired day     : {{ new_cert_expire_day }}"
           - "Imported cert expired day : {{ current_cert_expire_day }}"
       vars:
-        new_cert_expire_day: "{{ new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
-        current_cert_expire_day: "{{ current_certificate_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') }}"
-      when: debug | bool and file_exists.stat.exists | bool and current_certificate_info.rc == 0
+        new_cert_expire_day: "{{ new_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
+        current_cert_expire_day: "{{ current_cert_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') }}"
+      when: debug | bool and file_exists.stat.exists | bool and current_cert_info.rc == 0
 
     - name: "Copying the certificate file to the specified destination"
       delegate_to: "{{ host }}"

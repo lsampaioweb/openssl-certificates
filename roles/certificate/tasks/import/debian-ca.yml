@@ -17,12 +17,12 @@
 - name: "Getting info about the certificate"
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
-  register: "new_certificate_info"
+  register: "new_cert_info"
   when: new_certificate_file_exists.stat.exists | bool
 
 - name: "Creating the should_import_certificate variable"
   ansible.builtin.set_fact:
-    should_import_certificate: "{{ (new_certificate_file_exists.stat.exists | bool and not new_certificate_info.expired) }}"
+    should_import_certificate: "{{ (new_certificate_file_exists.stat.exists | bool and not new_cert_info.expired) }}"
 
 - name: "Printing variables"
   ansible.builtin.debug:
@@ -58,7 +58,9 @@
           - "output  : {{ output.stdout_lines }}"
       when: debug | bool and certificate_copy.changed | bool
 
-  # ignore_unreachable: true
-  # ignore_errors: true
-  changed_when: output.rc != 0
-  # failed_when: output.rc != 0
+  rescue:
+    - name: "Print when errors"
+      ansible.builtin.debug:
+        msg: "Could not import the certificate in the host"
+
+  ignore_unreachable: true

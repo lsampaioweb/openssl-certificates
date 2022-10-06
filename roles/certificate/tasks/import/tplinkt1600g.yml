@@ -26,15 +26,15 @@
 - name: "Getting info about the certificate"
   community.crypto.x509_certificate_info:
     path: "{{ ssl_certificate_path }}"
-  register: "new_certificate_info"
+  register: "new_cert_info"
   when: file_exists.stat.exists | bool
 
 - name: "Getting the current (if any) certificate from url {{ url }}"
   get_certificate:
     host: "{{ url }}"
     port: "{{ port }}"
-  register: "current_certificate_info"
-  when: file_exists.stat.exists | bool and not new_certificate_info.expired
+  register: "current_cert_info"
+  when: file_exists.stat.exists | bool and not new_cert_info.expired
 
 - name: "Verifying if '{{ privatekey_path }}' file exists"
   ansible.builtin.stat:
@@ -45,9 +45,9 @@
   ansible.builtin.set_fact:
     should_import_certificate: "{{ new_cert_exists_and_not_expired and privatekey_file_exists.stat.exists and expire_dates_are_different }}"
   vars:
-    new_cert_exists_and_not_expired: "{{ file_exists.stat.exists and not new_certificate_info.expired }}"
-    new_cert_expire_day: "{{ new_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
-    current_cert_expire_day: "{{ current_certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
+    new_cert_exists_and_not_expired: "{{ file_exists.stat.exists and not new_cert_info.expired }}"
+    new_cert_expire_day: "{{ new_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
+    current_cert_expire_day: "{{ current_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
     expire_dates_are_different: "{{ new_cert_expire_day != current_cert_expire_day }}"
 
 - name: "Printing variables"
