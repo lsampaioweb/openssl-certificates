@@ -33,6 +33,7 @@
     size: "{{ privatekey_passphrase_size | string }}"
     cut_size: "{{ (privatekey_passphrase_size + 1) | string }}"
   when: should_create_file and privatekey_passphrase == "?"
+  no_log: true
 
 - name: "Setting the password as an empty string because privatekey_passphrase is empty"
   ansible.builtin.set_fact:
