@@ -30,9 +30,13 @@
       delegate_to: "{{ host }}"
       ansible.builtin.shell: "security find-certificate -c '{{ new_cert_info.subject.commonName }}' -p | openssl x509 -text | grep 'Not After'"
       register: "current_cert_info"
-      when: file_exists.stat.exists | bool and not new_cert_info.expired
-      failed_when: false
+      when: file_exists.stat.exists | bool
       changed_when: false
+
+    - name: "Exiting because the host is unreachable"
+      ansible.builtin.fail:
+        msg: "{{ host }} is unreachable"
+      when: current_cert_info.unreachable
 
     - name: "Creating the should_import_certificate variable"
       ansible.builtin.set_fact:
@@ -40,7 +44,7 @@
           "{{ (new_cert_exists_and_not_expired) and (current_cert_info.rc != 0 or (current_cert_info.rc == 0 and expire_dates_are_different)) }}"
       vars:
         new_cert_exists_and_not_expired: "{{ file_exists.stat.exists and not new_cert_info.expired }}"
-        new_cert_expire_day: "{{ new_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') if (current_cert_info.rc == 0) else '' }}"
+        new_cert_expire_day: "{{ new_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') if (new_cert_info.rc == 0) else '' }}"
         current_cert_expire_day: "{{ current_cert_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') if (current_cert_info.rc == 0) else '' }}"
         expire_dates_are_different: "{{ new_cert_expire_day != current_cert_expire_day }}"
       when: file_exists.stat.exists | bool
@@ -58,7 +62,7 @@
       vars:
         new_cert_expire_day: "{{ new_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
         current_cert_expire_day: "{{ current_cert_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') }}"
-      when: debug | bool and file_exists.stat.exists | bool and current_cert_info.rc == 0
+      when: debug | bool
 
     - name: "Copying the certificate file to the specified destination"
       delegate_to: "{{ host }}"

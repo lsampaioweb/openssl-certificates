@@ -25,6 +25,14 @@
   register: "new_cert_info"
   when: file_exists.stat.exists | bool
 
+- name: "Adding the internal IP and name of all hosts into the 'hosts' file"
+  ansible.builtin.lineinfile:
+    path: "/etc/hosts"
+    line: "{{ hostvars[host].ansible_host }} {{ host }}.{{ domain }} {{ host }}"
+    insertbefore: '^\s*$' # Empty line
+    firstmatch: true
+    state: "present"
+
 - name: "Getting the current (if any) certificate from url {{ url }}"
   get_certificate:
     host: "{{ url }}"
@@ -64,6 +72,10 @@
 
 - name: "Block of tasks to import certificate in a Proxmox host"
   block:
+    - name: "Adding the fingerprint of the host into the known_hosts file"
+      ansible.builtin.include_tasks: "../known-hosts.yml"
+      when: should_import_certificate | bool
+
     - name: "Copying certificate and private key to {{ host }}"
       delegate_to: "{{ host }}"
       ansible.builtin.copy:

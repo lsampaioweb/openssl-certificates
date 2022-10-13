@@ -13,15 +13,15 @@ import_config:
           temp_folder: "{{ keychain_temp_folder }}",
         },
       ],
-    # debian_ca:
-    #   [
-    #     { host: "kvm-01" },
-    #     { host: "kvm-02" },
-    #     { host: "kvm-03" },
-    #     { host: "kvm-04" },
-    #     { host: "kvm-05" },
-    #     { host: "kvm-06" },
-    #     { host: "kvm-07" },
-    #     { host: "jumpserver" },
-    #   ],
+    debian_ca:
+      [
+        { host: "localhost" },
+        { host: "kvm-01" },
+        { host: "kvm-02" },
+        { host: "kvm-03" },
+        { host: "kvm-04" },
+        { host: "kvm-05" },
+        { host: "kvm-06" },
+        { host: "kvm-07" },
+      ],
   ]
