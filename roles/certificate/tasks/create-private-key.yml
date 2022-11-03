@@ -51,7 +51,7 @@
   when: debug | bool and should_create_file | bool
 
 - name: "Creating a private key"
-  openssl_privatekey:
+  community.crypto.openssl_privatekey:
     path: "{{ privatekey_path }}"
     type: "{{ privatekey_type }}"
     size: "{{ privatekey_size }}"

@@ -64,7 +64,7 @@
   when: debug | bool and should_create_file | bool
 
 - name: "Creating a certificate signing request (CSR)"
-  openssl_csr:
+  community.crypto.openssl_csr:
     path: "{{ csr_path }}"
 
     digest: "{{ csr_digest }}"
