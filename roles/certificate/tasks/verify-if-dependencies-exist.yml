@@ -1,18 +1,18 @@
 ---
 - name: "Including the dependence to create a private key"
-  include_tasks: "roles/certificate/tasks/create-private-key.yml"
+  ansible.builtin.include_tasks: "roles/certificate/tasks/create-private-key.yml"
   vars:
     include_config_files: false
   when: "'privatekey' in dependencies_list"
 
 - name: "Including the dependence to create a certificate signing request (CSR)"
-  include_tasks: "roles/certificate/tasks/create-signing-request.yml"
+  ansible.builtin.include_tasks: "roles/certificate/tasks/create-signing-request.yml"
   vars:
     include_config_files: false
   when: "'certificate-signing-request' in dependencies_list"
 
 - name: "Including the dependence to create a certificate"
-  include_tasks: "roles/certificate/tasks/create-certificate.yml"
+  ansible.builtin.include_tasks: "roles/certificate/tasks/create-certificate.yml"
   vars:
     include_config_files: false
   when: "'certificate' in dependencies_list"

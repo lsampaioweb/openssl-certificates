@@ -4,10 +4,10 @@
 
   tasks:
     - name: "Getting the list of certificates"
-      import_tasks: "roles/certificate/tasks/find-certificates-in-folder.yml"
+      ansible.builtin.import_tasks: "roles/certificate/tasks/find-certificates-in-folder.yml"
 
     - name: "Including task to create a certificate"
-      include_tasks: "roles/certificate/tasks/create-certificate.yml"
+      ansible.builtin.include_tasks: "roles/certificate/tasks/create-certificate.yml"
       vars:
         certificate_path: "{{ item }}"
         include_config_files: true

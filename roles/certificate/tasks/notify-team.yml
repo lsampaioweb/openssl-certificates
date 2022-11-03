@@ -18,5 +18,5 @@
   when: certificate_situation_is_expired
 
 - name: "Sending the notification"
-  include_tasks: "send-mail-notification.yml"
+  ansible.builtin.include_tasks: "send-mail-notification.yml"
   when: certificate_situation_is_yellow or certificate_situation_is_red or certificate_situation_is_expired

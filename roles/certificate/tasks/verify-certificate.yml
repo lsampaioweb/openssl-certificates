@@ -1,6 +1,6 @@
 ---
 - name: "Including config files for '{{ certificate_path | basename }}'"
-  include_tasks: "include-config-files.yml"
+  ansible.builtin.include_tasks: "include-config-files.yml"
   when: include_config_files
 
 - name: "Creating variables"
@@ -38,7 +38,7 @@
   when: debug | bool and file_exists.stat.exists | bool
 
 - name: "Notifying team if necessary"
-  include_tasks: "notify-team.yml"
+  ansible.builtin.include_tasks: "notify-team.yml"
   vars:
     expire_days: "{{ (( certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ')) ).days }}"
     certificate_situation_is_expired: "{{ expire_days | int < 0 }}"
