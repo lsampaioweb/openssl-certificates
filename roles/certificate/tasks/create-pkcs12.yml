@@ -47,7 +47,7 @@
   when: debug | bool and should_create_file | bool
 
 - name: "Creating a PKCS#12 file"
-  ansible.builtin.openssl_pkcs12:
+  community.crypto.openssl_pkcs12:
     action: "{{ pkcs12_action }}"
     path: "{{ pkcs12_path }}"
     friendly_name: "{{ pkcs12_friendly_name }}"

@@ -46,7 +46,7 @@
       - "Should create file : {{ should_create_file }}"
       - "Privatekey path    : {{ privatekey_path }}"
       - "Privatekey type    : {{ privatekey_type }}"
-      - "Privatekey size    : {{ privatekey_size }}"
+      - "Privatekey size    : {{ privatekey_size | default(omit, true) }}"
       - "Privatekey cipher  : {{ (passphrase != '') | ternary(privatekey_cipher, omit) }}"
   when: debug | bool and should_create_file | bool
 
@@ -54,7 +54,7 @@
   community.crypto.openssl_privatekey:
     path: "{{ privatekey_path }}"
     type: "{{ privatekey_type }}"
-    size: "{{ privatekey_size }}"
+    size: "{{ privatekey_size | default(omit, true) }}"
     passphrase: "{{ passphrase | default(omit, true) }}"
     cipher: "{{ (passphrase != '') | ternary(privatekey_cipher, omit) }}"
   register: "file_creation_output"
