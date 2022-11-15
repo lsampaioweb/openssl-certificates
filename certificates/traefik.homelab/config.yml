@@ -1,0 +1,10 @@
+---
+# Proxmox requires a private key with no password.
+# If the variable is "" (empty), no password will be created for the files.
+privatekey_passphrase: ""
+
+csr_common_name: "traefik.homelab"
+csr_subject_alt_name:
+  - "DNS:traefik.homelab"
+  - "DNS:traefik-01.homelab"
+  - "IP:192.168.0.28"
