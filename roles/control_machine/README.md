@@ -2,7 +2,7 @@
 
 Run the command in the terminal:
 ```bash
-  ansible-playbook control_machine.yml -K #(--ask-become-pass)
+  ansible-playbook control_machine.yml
 ```
 
 # Tasks:

@@ -1,8 +1,21 @@
 ---
-- import_playbook: "control_machine.yml"
-- import_playbook: "create_private_key.yml"
-- import_playbook: "create_signing_request.yml"
-- import_playbook: "create_certificate.yml"
-- import_playbook: "create_pkcs12.yml"
-- import_playbook: "verify_certificate.yml"
-- import_playbook: "import_certificate.yml"
+- name: "Setting up the control machine to run Ansible scripts"
+  import_playbook: "control_machine.yml"
+
+- name: "Create a private key"
+  import_playbook: "create_private_key.yml"
+
+- name: "Create a certificate signing request (CSR)"
+  import_playbook: "create_signing_request.yml"
+
+- name: "Create a certificate"
+  import_playbook: "create_certificate.yml"
+
+- name: "Create a PKCS#12 file"
+  import_playbook: "create_pkcs12.yml"
+
+- name: "Verify if the certificate is valid"
+  import_playbook: "verify_certificate.yml"
+
+# - name: "Import the certificates where they are used"
+#   import_playbook: "import_certificate.yml"

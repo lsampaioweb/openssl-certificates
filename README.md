@@ -20,11 +20,11 @@ The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
 # How to execute:
 
   ```bash
-  ansible-playbook site.yml -K 
+  ansible-playbook site.yml
   ```
 
   ```bash
-  ansible-playbook control_machine.yml -K
+  ansible-playbook control_machine.yml
   ```
   
   ```bash
@@ -39,7 +39,7 @@ The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
   ```  
   
   ```bash
-  ansible-playbook import_certificate.yml -K -k
+  ansible-playbook import_certificate.yml -k
   ```
 
 # Variables:

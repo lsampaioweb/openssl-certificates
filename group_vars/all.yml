@@ -3,7 +3,7 @@
 domain: "homelab"
 
 # Specify if more messages should be displayed during the executions.
-debug: true
+debug: false
 
 # The folder that will contain all OpenSSL Certificates.
 certificates_path: "/opt/certificates"
