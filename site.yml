@@ -2,15 +2,6 @@
 - name: "Setting up the control machine to run Ansible scripts"
   import_playbook: "control_machine.yml"
 
-- name: "Create a private key"
-  import_playbook: "create_private_key.yml"
-
-- name: "Create a certificate signing request (CSR)"
-  import_playbook: "create_signing_request.yml"
-
-- name: "Create a certificate"
-  import_playbook: "create_certificate.yml"
-
 - name: "Create a PKCS#12 file"
   import_playbook: "create_pkcs12.yml"
 
