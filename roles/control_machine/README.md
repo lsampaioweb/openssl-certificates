@@ -16,6 +16,9 @@ Run the command in the terminal:
   2. Install the community.general module
     ansible-galaxy collection install community.general
 
+  3. Download the git submodules.
+    git submodule update --init --recursive
+
 # Created by: 
 
 1. Luciano Sampaio.
