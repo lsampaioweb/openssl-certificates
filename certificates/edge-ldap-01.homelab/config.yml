@@ -1,0 +1,5 @@
+---
+csr_common_name: "edge-ldap.homelab"
+csr_subject_alt_name:
+  - "DNS:edge-ldap.homelab"
+  - "DNS:edge-ldap-01.homelab"

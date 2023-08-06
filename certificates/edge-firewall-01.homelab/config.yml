@@ -1,0 +1,5 @@
+---
+csr_common_name: "edge-firewall.homelab"
+csr_subject_alt_name:
+  - "DNS:edge-firewall.homelab"
+  - "DNS:edge-firewall-01.homelab"

@@ -1,0 +1,5 @@
+---
+csr_common_name: "edge-zabbix.homelab"
+csr_subject_alt_name:
+  - "DNS:edge-zabbix.homelab"
+  - "DNS:edge-zabbix-01.homelab"

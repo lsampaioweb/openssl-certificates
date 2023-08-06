@@ -1,0 +1,5 @@
+---
+csr_common_name: "edge-grafana.homelab"
+csr_subject_alt_name:
+  - "DNS:edge-grafana.homelab"
+  - "DNS:edge-grafana-01.homelab"

@@ -1,0 +1,5 @@
+---
+csr_common_name: "edge-esxi.homelab"
+csr_subject_alt_name:
+  - "DNS:edge-esxi.homelab"
+  - "DNS:edge-esxi-01.homelab"

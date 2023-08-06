@@ -17,11 +17,5 @@ import_config:
       [
         { host: "localhost" },
         { host: "kvm-01" },
-        { host: "kvm-02" },
-        { host: "kvm-03" },
-        { host: "kvm-04" },
-        { host: "kvm-05" },
-        { host: "kvm-06" },
-        { host: "kvm-07" },
       ],
   ]
