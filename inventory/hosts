@@ -3,7 +3,7 @@ localhost
 
 [CertificateAuthorityServer:vars]
 ansible_connection=local
-ansible_python_interpreter=/usr/local/bin/python3.11
+ansible_python_interpreter=/usr/bin/python3.10
 
 [MacBooks]
 Lucianos-MacBook-Pro.local
@@ -22,5 +22,5 @@ kvm-06 ansible_host=192.168.0.16
 kvm-07 ansible_host=192.168.0.17
 
 [ProxmoxDHCP:vars]
-ansible_python_interpreter=/usr/bin/python3.9
+ansible_python_interpreter=/usr/bin/python3.10
 ansible_user=root
