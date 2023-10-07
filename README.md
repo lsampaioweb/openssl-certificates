@@ -10,7 +10,7 @@ The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
 1. Create a strong password for the smtp's user and store it in the secret manager. After you hit enter, a password will be asked.
 ```bash
     secret-tool store --label="ssl.certificate-smtp-password" password "ssl.certificate-smtp-password"
-```    
+```
 
 2. Retrieve the smtp's user password.
 ```bash
@@ -26,7 +26,7 @@ The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
   ```bash
   ansible-playbook site.yml
   ```
-  
+
   ```bash
   ansible-playbook create_private_key.yml
   ansible-playbook create_signing_request.yml
@@ -36,10 +36,10 @@ The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
 
   ```bash
   ansible-playbook verify_certificate.yml
-  ```  
-  
+  ```
+
   ```bash
-  ansible-playbook import_certificate.yml -k
+  ansible-playbook import_certificate.yml -K -k
   ```
 
 # Variables:
@@ -98,6 +98,6 @@ See the import sample [file](roles/certificate/files/import-sample.yml "Import S
 
 [MIT](LICENSE "MIT License")
 
-# Created by: 
+# Created by:
 
 1. Luciano Sampaio.

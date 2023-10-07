@@ -16,6 +16,6 @@ import_config:
     debian_ca:
       [
         { host: "localhost" },
-        { host: "kvm-01" },
+        { host: "pve-01" },
       ],
   ]

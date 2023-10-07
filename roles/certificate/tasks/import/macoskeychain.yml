@@ -25,10 +25,13 @@
   when: file_exists.stat.exists | bool
 
 - name: "Block of tasks to import certificate in a MacOSX"
+  ignore_unreachable: true
   block:
     - name: "Checking if the certificate is already imported into the keychain"
       delegate_to: "{{ host }}"
-      ansible.builtin.shell: "security find-certificate -c '{{ new_cert_info.subject.commonName }}' -p | openssl x509 -text | grep 'Not After'"
+      ansible.builtin.shell: >-
+        set -o pipefail && \
+        security find-certificate -c '{{ new_cert_info.subject.commonName }}' -p | openssl x509 -text | grep 'Not After'
       register: "current_cert_info"
       when: file_exists.stat.exists | bool
       changed_when: false
@@ -76,6 +79,8 @@
       delegate_to: "{{ host }}"
       become: true
       ansible.builtin.command: "/usr/bin/security authorizationdb write com.apple.trust-settings.admin allow"
+      register: "output"
+      changed_when: output.rc == 0
       when: should_import_certificate | bool
 
     - name: "Importing the certificate into the keychain"
@@ -83,12 +88,15 @@
       become: true
       ansible.builtin.command: "/usr/bin/security add-trusted-cert -d -r trustRoot -k {{ keychain_path }} '{{ ssl_certificate_tmp_path }}'"
       register: "output"
+      changed_when: output.rc == 0
       when: should_import_certificate | bool
 
     - name: "Denying Ansible to write into the com.apple.trust-settings.admin settings"
       delegate_to: "{{ host }}"
       become: true
       ansible.builtin.command: "/usr/bin/security authorizationdb remove com.apple.trust-settings.admin"
+      register: "output"
+      changed_when: output.rc == 0
       when: should_import_certificate | bool
 
     - name: "Deleting the certificate file that was copied to {{ host }}"
@@ -102,5 +110,3 @@
     - name: "Print when errors"
       ansible.builtin.debug:
         msg: "Could not import the certificate in the host"
-
-  ignore_unreachable: true
