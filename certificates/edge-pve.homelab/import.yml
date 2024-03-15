@@ -1,0 +1,25 @@
+---
+# proxmox
+proxmox_port: 8006
+proxmox_tmp_folder: "/tmp"
+proxmox_prefix: "edge-pve"
+proxmox_domain: "homelab"
+
+import_config:
+  [
+    proxmox:
+      [
+        {
+          host: "{{ proxmox_prefix }}-01",
+          url: "{{ proxmox_prefix }}-01.{{ proxmox_domain }}",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        },
+        {
+          host: "{{ proxmox_prefix }}-02",
+          url: "{{ proxmox_prefix }}-02.{{ proxmox_domain }}",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        }
+      ]
+  ]

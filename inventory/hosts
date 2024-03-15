@@ -12,15 +12,16 @@ Lucianos-MacBook-Pro.local
 ansible_python_interpreter=/usr/local/bin/python3.11
 ansible_user=lsampaio
 
-[ProxmoxDHCP]
-pve-01
-pve-02
-pve-03
-pve-04
-pve-05
-pve-06
-pve-07
+[ProxmoxHome]
+edge-pve-[01:02]
 
-[ProxmoxDHCP:vars]
+[ProxmoxHome:vars]
+ansible_python_interpreter=/usr/bin/python3.11
+ansible_user=root
+
+[ProxmoxHomelab]
+pve-[01:07]
+
+[ProxmoxHomelab:vars]
 ansible_python_interpreter=/usr/bin/python3.11
 ansible_user=root
