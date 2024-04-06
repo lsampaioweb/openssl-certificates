@@ -5,8 +5,12 @@
 .LSOverride
 
 # Certificate files
+*.cer
 *.crt
 *.csr
 *.key
 *.p12
 *.pub
+*.pem
+
+.vscode

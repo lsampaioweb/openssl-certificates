@@ -1,0 +1,22 @@
+---
+# Proxmox requires a private key with no password.
+# If the variable is "" (empty), no password will be created for the files.
+privatekey_passphrase: ""
+
+csr_common_name: "pve.homelab"
+csr_subject_alt_name:
+  - "DNS:pve.homelab"
+  - "DNS:pve-01.homelab"
+  - "DNS:pve-02.homelab"
+  - "DNS:pve-03.homelab"
+  - "DNS:pve-04.homelab"
+  - "DNS:pve-05.homelab"
+  - "DNS:pve-06.homelab"
+  - "DNS:pve-07.homelab"
+  - "IP:172.16.10.3"
+  - "IP:172.16.10.4"
+  - "IP:172.16.10.5"
+  - "IP:172.16.10.6"
+  - "IP:172.16.10.7"
+  - "IP:172.16.10.8"
+  - "IP:172.16.10.9"
