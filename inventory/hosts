@@ -3,10 +3,7 @@ localhost
 
 [CertificateAuthorityServer:vars]
 ansible_connection=local
-; Ubuntu
-; ansible_python_interpreter=/usr/bin/python3.10
-; MacBook
-ansible_python_interpreter=/usr/local/bin/python3.12
+ansible_python_interpreter=/usr/bin/python3.10
 
 [MacBooks]
 Lucianos-MacBook-Pro.local
@@ -15,23 +12,16 @@ Lucianos-MacBook-Pro.local
 ansible_python_interpreter=/usr/local/bin/python3.12
 ansible_user=lsampaio
 
-[pveHomelab]
-pve-01 ansible_host=192.168.0.11
-pve-02 ansible_host=192.168.0.12
-pve-03 ansible_host=192.168.0.13
-pve-04 ansible_host=192.168.0.14
-pve-05 ansible_host=192.168.0.15
-pve-06 ansible_host=192.168.0.16
-pve-07 ansible_host=192.168.0.17
+[ProxmoxHome]
+edge-pve-[01:02]
 
-[pveHomelab:vars]
-ansible_python_interpreter=/usr/bin/python3.10
+[ProxmoxHome:vars]
+ansible_python_interpreter=/usr/bin/python3.11
 ansible_user=root
 
-[pveHome]
-edge-pve-01 ansible_host=192.168.3.2
-edge-pve-02 ansible_host=192.168.3.3
+[ProxmoxHomelab]
+pve-[01:07]
 
-[pveHome:vars]
-ansible_python_interpreter=/usr/bin/python3.10
+[ProxmoxHomelab:vars]
+ansible_python_interpreter=/usr/bin/python3.11
 ansible_user=root

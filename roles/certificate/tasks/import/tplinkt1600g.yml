@@ -30,7 +30,7 @@
   when: file_exists.stat.exists | bool
 
 - name: "Getting the current (if any) certificate from url {{ url }}"
-  get_certificate:
+  community.crypto.get_certificate:
     host: "{{ url }}"
     port: "{{ port }}"
   register: "current_cert_info"
@@ -71,6 +71,8 @@
 - name: "Starting TFTP Server"
   become: true
   ansible.builtin.command: "{{ command }}"
+  register: "output"
+  changed_when: output.rc == 0
   loop:
     - "launchctl start {{ tftp_app }}"
   loop_control:
@@ -90,6 +92,8 @@
     src: "{{ file.src }}"
     dest: "{{ tftp_folder }}/{{ file.dest }}"
     mode: "preserve"
+  register: "output"
+  changed_when: output.rc == 0
   loop:
     - { src: "{{ ssl_certificate_path }}", dest: "{{ ssl_certificate_name }}" }
     - { src: "{{ privatekey_path }}", dest: "{{ privatekey_name }}" }
@@ -133,12 +137,15 @@
   args:
     executable: "/usr/bin/expect"
   register: "output"
+  changed_when: output.rc == 0
   failed_when: (output.rc != 0) or 'Download SSL certificate OK' not in output.stdout or 'Download SSL key OK' not in output.stdout
   when: should_import_certificate | bool
 
 - name: "Stopping TFTP Server"
   become: true
   ansible.builtin.command: "{{ command }}"
+  register: "output"
+  changed_when: output.rc == 0
   loop:
     - "launchctl unload -F {{ tftp_app_plist }}"
   loop_control:

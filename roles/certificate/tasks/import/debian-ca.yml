@@ -36,6 +36,7 @@
   when: debug | bool
 
 - name: "Block of tasks to import certificate in a debian"
+  ignore_unreachable: true
   block:
     - name: "Copying certificate to {{ host }}"
       delegate_to: "{{ host }}"
@@ -50,7 +51,8 @@
       delegate_to: "{{ host }}"
       ansible.builtin.command: "update-ca-certificates"
       register: "output"
-      when: certificate_copy.changed | bool
+      changed_when: output.rc == 0
+      when: certificate_copy is defined and certificate_copy.changed | bool
 
     - name: "Printing output of the import certificate"
       ansible.builtin.debug:
@@ -62,5 +64,3 @@
     - name: "Print when errors"
       ansible.builtin.debug:
         msg: "Could not import the certificate in the host"
-
-  ignore_unreachable: true
