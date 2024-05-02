@@ -2,11 +2,13 @@
 
 The playbook can verify if the certificate created by our own Certificate Authority (CA) is still valid. Can also create a new one and import it into several different applications.
 
-# Requirements:
+#
+### Requirements:
 
 The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
 
-# Credentials:
+#
+### Credentials:
 1. Create a strong password for the smtp's user and store it in the secret manager. After you hit enter, a password will be asked.
 ```bash
     secret-tool store --label="ssl.certificate-smtp-password" password "ssl.certificate-smtp-password"
@@ -17,7 +19,8 @@ The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
     secret-tool lookup password "ssl.certificate-smtp-password"
 ```
 
-# How to execute:
+#
+### How to execute:
 
   ```bash
   ansible-playbook control_machine.yml -K
@@ -42,7 +45,8 @@ The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
   ansible-playbook import_certificate.yml -K -k
   ```
 
-# Variables:
+#
+### Variables:
 
 1. debug
 
@@ -70,7 +74,8 @@ If no value is passed, the default value **True** will be used.
   --extra-vars='{"backup":True}'
   ```
 
-# Exclude folders:
+#
+### Exclude folders:
 
 If you want to exclude one or more folders from the verification, you can add a **"_"** before the name.
 
@@ -79,11 +84,13 @@ If you want to exclude one or more folders from the verification, you can add a 
     domain.com.br -> _domain.com.br
   ```
 
-# Config File:
+#
+### Config File:
 
 In the config [file](roles/certificate/files/config.yml "Config File"), you will find all the **default** configurations that will be used to generate the certificate related files. You shouldn't change this file if the config will be used for only one certificate. If that's the case, you should create a specific config file inside the folder of the certificate, with only the configs you want to be different from the default ones.
 
-# Available Import Options:
+#
+### Available Import Options:
 
 1. Debian.
 2. Eclipse.
@@ -95,10 +102,12 @@ In the config [file](roles/certificate/files/config.yml "Config File"), you will
 
 See the import sample [file](roles/certificate/files/import-sample.yml "Import Sample File").
 
-# License:
+#
+### License:
 
 [MIT](LICENSE "MIT License")
 
-# Created by:
+#
+### Created by:
 
 1. Luciano Sampaio.
