@@ -20,4 +20,4 @@
 - name: "Printing variables"
   ansible.builtin.debug:
     var: "certificates_list"
-  when: debug | bool
+  tags: "debug"

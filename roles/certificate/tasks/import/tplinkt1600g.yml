@@ -66,7 +66,7 @@
 
       - "ssl_certificate_name       : {{ ssl_certificate_name }}"
       - "privatekey_name            : {{ privatekey_name }}"
-  when: debug | bool
+  tags: "debug"
 
 - name: "Starting TFTP Server"
   become: true

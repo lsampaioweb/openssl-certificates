@@ -30,7 +30,8 @@
       - "pkcs12_dest  : {{ pkcs12_dest }}"
       - "secret_file  : {{ secret_file }}"
       - "secret_key   : {{ secret_key }}"
-  when: debug | bool and file_exists.stat.exists | bool
+  when: file_exists.stat.exists | bool
+  tags: "debug"
 
 - name: "Copying the PKCS#12 file to the specified destination"
   delegate_to: "{{ host }}"

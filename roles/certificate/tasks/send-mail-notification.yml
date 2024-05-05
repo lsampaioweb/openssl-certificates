@@ -14,7 +14,7 @@
       - "Contact from : {{ mail_from | b64decode }}"
       - "Contact to   : {{ mail_to | b64decode }}"
       - "Contact cc   : {{ (mail_cc | length > 0) | ternary(mail_cc | b64decode, omit) }}"
-  when: debug | bool
+  tags: "debug"
 
 - name: "Sending the email notification"
   community.general.mail:

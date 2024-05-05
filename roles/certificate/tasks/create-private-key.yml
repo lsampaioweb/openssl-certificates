@@ -48,7 +48,7 @@
       - "Privatekey type    : {{ privatekey_type }}"
       - "Privatekey size    : {{ privatekey_size | default(omit, true) }}"
       - "Privatekey cipher  : {{ (passphrase != '') | ternary(privatekey_cipher, omit) }}"
-  when: debug | bool and should_create_file | bool
+  tags: "debug"
 
 - name: "Creating a private key"
   community.crypto.openssl_privatekey:

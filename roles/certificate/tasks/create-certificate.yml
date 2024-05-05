@@ -76,7 +76,7 @@
 
       - "selfsigned digest      : {{ selfsigned_certificate_digest | default(omit, true) }}"
       - "selfsigned not after   : {{ selfsigned_certificate_not_after | default(omit, true) }}"
-  when: debug | bool and should_create_file | bool
+  tags: "debug"
 
 - name: "Creating a certificate"
   community.crypto.x509_certificate:

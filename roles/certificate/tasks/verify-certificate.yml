@@ -35,12 +35,13 @@
   vars:
     certificate_expire_date: "{{ certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
     today: "{{ ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ') }}"
-  when: debug | bool and file_exists.stat.exists | bool
+  when: file_exists.stat.exists | bool
+  tags: "debug"
 
 - name: "Notifying team if necessary"
   ansible.builtin.include_tasks: "notify-team.yml"
   vars:
-    expire_days: "{{ (( certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ')) ).days }}"
+    expire_days: "{{ ((certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).days }}"
     certificate_situation_is_expired: "{{ expire_days | int < 0 }}"
     certificate_situation_is_yellow: "{{ not certificate_info.valid_at.point_1 }}"
     certificate_situation_is_red: "{{ not certificate_info.valid_at.point_2 }}"

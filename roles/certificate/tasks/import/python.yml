@@ -31,7 +31,8 @@
       - "version              : {{ version }}"
       - "certificate_dest     : {{ certificate_dest }}"
       - "ssl_certificate_path : {{ ssl_certificate_path }}"
-  when: debug | bool and file_exists.stat.exists | bool
+  when: file_exists.stat.exists | bool
+  tags: "debug"
 
 - name: "Adding the certificate into the default (cert.pem) file"
   delegate_to: "{{ host }}"

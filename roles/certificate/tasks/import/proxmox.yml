@@ -70,7 +70,7 @@
 
       - "ssl_certificate_name       : {{ ssl_certificate_name }}"
       - "privatekey_name            : {{ privatekey_name }}"
-  when: debug | bool
+  tags: "debug"
 
 - name: "Block of tasks to import certificate in a Proxmox host"
   ignore_unreachable: true

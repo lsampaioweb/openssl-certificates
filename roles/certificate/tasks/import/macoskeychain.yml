@@ -65,7 +65,7 @@
       vars:
         new_cert_expire_day: "{{ new_cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
         current_cert_expire_day: "{{ current_cert_info.stdout[24:49] | to_datetime('%b %d %H:%M:%S %Y %Z') }}"
-      when: debug | bool
+      tags: "debug"
 
     - name: "Copying the certificate file to the specified destination"
       delegate_to: "{{ host }}"

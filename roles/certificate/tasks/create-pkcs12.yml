@@ -44,7 +44,7 @@
       - "Path               : {{ pkcs12_path }}"
       - "Certificate path   : {{ ssl_certificate_path }}"
       - "Privatekey path    : {{ privatekey_path }}"
-  when: debug | bool and should_create_file | bool
+  tags: "debug"
 
 - name: "Creating a PKCS#12 file"
   community.crypto.openssl_pkcs12:

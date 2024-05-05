@@ -61,7 +61,7 @@
       - "Extended key usage critical  : {{ csr_extended_key_usage_critical | default(omit, true) }}"
       - "Extended key usage           : {{ csr_extended_key_usage | default(omit, true) }}"
       - "Privatekey path              : {{ privatekey_path }}"
-  when: debug | bool and should_create_file | bool
+  tags: "debug"
 
 - name: "Creating a certificate signing request (CSR)"
   community.crypto.openssl_csr:
