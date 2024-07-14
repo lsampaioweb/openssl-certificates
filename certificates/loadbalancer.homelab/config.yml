@@ -1,5 +1,4 @@
 ---
-# Proxmox requires a private key with no password.
 # If the variable is "" (empty), no password will be created for the files.
 privatekey_passphrase: ""
 
