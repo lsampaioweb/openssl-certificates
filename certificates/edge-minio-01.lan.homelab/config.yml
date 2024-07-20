@@ -1,0 +1,12 @@
+---
+# If the variable is "" (empty), no password will be created for the files.
+privatekey_passphrase: ""
+
+csr_common_name: "edge-minio.lan.homelab"
+csr_subject_alt_name:
+  - "DNS:edge-minio.lan.homelab"
+  - "DNS:edge-minio-01.lan.homelab"
+  - "DNS:edge-minio-02.lan.homelab"
+  - "DNS:api.edge-minio.lan.homelab"
+  - "DNS:api.edge-minio-01.lan.homelab"
+  - "DNS:api.edge-minio-02.lan.homelab"

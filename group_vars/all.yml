@@ -1,6 +1,6 @@
 ---
 # The domain name of the HomeLab.
-domain: "homelab"
+domain: "lan.homelab"
 
 # Specify if more messages should be displayed during the executions.
 debug: false

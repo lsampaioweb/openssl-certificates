@@ -10,8 +10,8 @@ import_config:
       [
         {
           switch_id: "T1600G-28TS",
-          host: "switch.homelab",
-          url: "switch.homelab",
+          host: "switch.lan.homelab",
+          url: "switch.lan.homelab",
           port: "{{ tplink_port }}",
           tftp_folder: "{{ tplink_tftp_folder }}",
           tftp_app: "{{ tplink_tftp_app }}",

@@ -1,0 +1,8 @@
+---
+# If the variable is "" (empty), no password will be created for the files.
+privatekey_passphrase: ""
+
+csr_common_name: "edge-ldap.lan.homelab"
+csr_subject_alt_name:
+  - "DNS:edge-ldap.lan.homelab"
+  - "DNS:edge-ldap-01.lan.homelab"

@@ -47,7 +47,7 @@ import_config:
       [
         {
           host: "pve-01",
-          url: "pve-01.homelab",
+          url: "pve-01.lan.homelab",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
         },
@@ -58,7 +58,7 @@ import_config:
         {
           switch_id: "T1600G-28TS",
           host: "switch",
-          url: "switch.homelab",
+          url: "switch.lan.homelab",
           port: "{{ tplink_port }}",
           tftp_folder: "{{ tplink_tftp_folder }}",
           tftp_app: "{{ tplink_tftp_app }}",

@@ -3,7 +3,7 @@
 # If the variable is "" (empty), no password will be created for the files.
 privatekey_passphrase: ""
 
-csr_common_name: "switch.homelab"
+csr_common_name: "switch.lan.homelab"
 csr_subject_alt_name:
-  - "DNS:switch.homelab"
-  - "DNS:switch-01.homelab"
+  - "DNS:switch.lan.homelab"
+  - "DNS:switch-01.lan.homelab"

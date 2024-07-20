@@ -3,10 +3,10 @@
 # If the variable is "" (empty), no password will be created for the files.
 privatekey_passphrase: ""
 
-csr_common_name: "edge-pve.homelab"
+csr_common_name: "edge-pve.lan.homelab"
 csr_subject_alt_name:
-  - "DNS:edge-pve.homelab"
-  - "DNS:edge-pve-01.homelab"
-  - "DNS:edge-pve-02.homelab"
+  - "DNS:edge-pve.lan.homelab"
+  - "DNS:edge-pve-01.lan.homelab"
+  - "DNS:edge-pve-02.lan.homelab"
   - "IP:192.168.3.2"
   - "IP:192.168.3.3"

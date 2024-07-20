@@ -2,7 +2,6 @@
 # If the variable is "" (empty), no password will be created for the files.
 privatekey_passphrase: ""
 
-csr_common_name: "edge-zabbix.homelab"
+csr_common_name: "*.lan.homelab"
 csr_subject_alt_name:
-  - "DNS:edge-zabbix.homelab"
-  - "DNS:edge-zabbix-01.homelab"
+  - "DNS:*.lan.homelab"

@@ -1,6 +1,0 @@
----
-csr_common_name: "jump-server.homelab"
-csr_subject_alt_name:
-  - "DNS:jump-server.homelab"
-  - "DNS:jump-server-01.homelab"
-  - "IP:192.168.101.2"
