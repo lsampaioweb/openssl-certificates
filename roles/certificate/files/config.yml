@@ -41,7 +41,7 @@ certificate_provider: "ownca"
 certificate_digest: "sha256"
 certificate_not_after: "+365d"
 
-certificate_authority_name: "certificate.authority"
+certificate_authority_name: "ca.lan.homelab"
 certificate_authority_path: "{{ certificates_path }}/{{ certificate_authority_name }}"
 
 # Variables that will be used for creating a PKCS#12 file.
