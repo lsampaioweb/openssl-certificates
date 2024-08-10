@@ -5,6 +5,7 @@
 .LSOverride
 
 # Certificate files
+ca_host_key
 *.cer
 *.crt
 *.csr

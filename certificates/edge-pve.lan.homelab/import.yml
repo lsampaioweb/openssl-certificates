@@ -3,7 +3,7 @@
 proxmox_port: 8006
 proxmox_tmp_folder: "/tmp"
 proxmox_prefix: "edge-pve"
-proxmox_domain: "homelab"
+proxmox_domain: "lan.homelab"
 
 import_config:
   [
