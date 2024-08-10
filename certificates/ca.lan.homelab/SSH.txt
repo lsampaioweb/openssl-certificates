@@ -1,6 +1,6 @@
 # Generate an SSH key for the Certificate Authority (CA) with 100 rounds of key derivation, using the ed25519 algorithm, and label it "Homelab Certificate Authority".
 # Save the key in the specified directory.
-ssh-keygen -o -a 100 -t ed25519 -C "Homelab Certificate Authority" -f /opt/certificates/certificate-authority.lan.homelab/ca_host_key
+ssh-keygen -o -a 100 -t ed25519 -C "Homelab Certificate Authority" -f /opt/certificates/ca.lan.homelab/ca_host_key
 
 # Sign the SSH host keys of the servers with the CA key.
 # -s specifies the CA private key used for signing.
@@ -9,7 +9,7 @@ ssh-keygen -o -a 100 -t ed25519 -C "Homelab Certificate Authority" -f /opt/certi
 # -V specifies the validity period, from 5 minutes ago to 520 weeks in the future.
 # -h indicates that the certificate is for a host.
 # Followed by the paths to the host public keys to be signed.
-ssh-keygen -s /opt/certificates/certificate-authority.lan.homelab/ca_host_key \
+ssh-keygen -s /opt/certificates/ca.lan.homelab/ca_host_key \
 -I "$(hostname)" \
 -n "$(hostname),$(hostname -I | tr ' ' ',')$(hostname).homelab" \
 -V -5m:+520w \
@@ -20,7 +20,7 @@ ssh-keygen -s /opt/certificates/certificate-authority.lan.homelab/ca_host_key \
 # On the client machine:
 
 # System-wide (preferred way):
-echo "@cert-authority *.lan.homelab $(cat /opt/certificates/certificate-authority.lan.homelab/ca_host_key.pub)" >> /etc/ssh/ssh_known_hosts
+echo "@cert-authority *.lan.homelab $(cat /opt/certificates/ca.lan.homelab/ca_host_key.pub)" >> /etc/ssh/ssh_known_hosts
 
 # Per user (if not set system-wide):
-echo "@cert-authority *.lan.homelab $(cat /opt/certificates/certificate-authority.lan.homelab/ca_host_key.pub)" >> ~/.ssh/known_hosts
+echo "@cert-authority *.lan.homelab $(cat /opt/certificates/ca.lan.homelab/ca_host_key.pub)" >> ~/.ssh/known_hosts

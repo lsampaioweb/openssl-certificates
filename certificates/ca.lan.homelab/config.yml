@@ -1,6 +1,6 @@
 ---
 csr_organization_name: "Certificate Authority Homelab"
-csr_common_name: "certificate-authority.lan.homelab"
+csr_common_name: "ca.lan.homelab"
 
 csr_basic_constraints: "CA:TRUE"
 csr_key_usage: ["digitalSignature", "keyEncipherment", "keyCertSign"]
