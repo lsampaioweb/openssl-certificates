@@ -15,13 +15,11 @@
   ansible.builtin.include_tasks: "{{ path_packages_pip }}"
   vars:
     packages:
-      # - {name: "pyOpenSSL==21.0.0"}
-      # - {name: "cryptography==3.4.8"}
       - {name: "pyOpenSSL"}
       - {name: "cryptography"}
       - {name: "setuptools"}
       - {name: "idna"}
-      - {name: "jmespath"}
+      - {name: "jmespath"} # pipx inject ansible jmespath
       - {name: "pexpect"}
 
 - name: "Installing all the required collections"
