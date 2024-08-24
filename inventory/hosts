@@ -3,25 +3,25 @@ localhost
 
 [CertificateAuthorityServer:vars]
 ansible_connection=local
-ansible_python_interpreter=/usr/bin/python3.10
+ansible_python_interpreter=/usr/bin/python3
 
 [MacBooks]
 Lucianos-MacBook-Pro.local
 
 [MacBooks:vars]
-ansible_python_interpreter=/usr/local/bin/python3.12
+ansible_python_interpreter=/usr/local/bin/python3
 ansible_user=lsampaio
 
 [ProxmoxHome]
 edge-pve-[01:02]
 
 [ProxmoxHome:vars]
-ansible_python_interpreter=/usr/bin/python3.11
+ansible_python_interpreter=/usr/bin/python3
 ansible_user=root
 
 [ProxmoxHomelab]
 pve-[01:07]
 
 [ProxmoxHomelab:vars]
-ansible_python_interpreter=/usr/bin/python3.11
+ansible_python_interpreter=/usr/bin/python3
 ansible_user=root
