@@ -7,24 +7,20 @@
   ansible.builtin.include_tasks: "{{ path_packages_apt }}"
   vars:
     packages:
-      - {name: "pip"}
       - {name: "sshpass"}
       - {name: "libsecret-tools"}
+      - {name: "python-is-python3"}
+      - {name: "pipx"} # A tool for installing and managing Python packages.
+      - {name: "python3-passlib"} # Required to use bcrypt.
+      - {name: "python3-jmespath"} # Required to use bcrypt.
+      - {name: "python3-pexpect"} # To enable ansible scripts that use the
+      - {name: "python3-openssl"}
+      - {name: "python3-cryptography"}
+      - {name: "python3-setuptools"}
+      - {name: "python3-idna"}
 
-- name: "Installing pip packages"
-  ansible.builtin.include_tasks: "{{ path_packages_pip }}"
+- name: "Ensure Ansible Galaxy collections are installed"
+  ansible.builtin.include_tasks: "{{ path_packages_ansible_galaxy }}"
   vars:
     packages:
-      - {name: "pyOpenSSL"}
-      - {name: "cryptography"}
-      - {name: "setuptools"}
-      - {name: "idna"}
-      - {name: "jmespath"} # pipx inject ansible jmespath
-      - {name: "pexpect"}
-
-- name: "Installing all the required collections"
-  community.general.ansible_galaxy_install:
-    type: "collection"
-    name: "{{ item }}"
-  loop:
-    - "community.crypto"
+      - {name: "community.crypto"}
