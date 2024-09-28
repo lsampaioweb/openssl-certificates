@@ -19,6 +19,13 @@
       - {name: "python3-setuptools"}
       - {name: "python3-idna"}
 
+- name: "Injecting passlib in Ansible environment"
+  ansible.builtin.include_tasks: "{{ path_packages_pipx }}"
+  vars:
+    packages:
+      - {state: "inject", inject_packages: "passlib", name: "ansible"}
+      - {state: "inject", inject_packages: "jmespath", name: "ansible"}
+
 - name: "Ensure Ansible Galaxy collections are installed"
   ansible.builtin.include_tasks: "{{ path_packages_ansible_galaxy }}"
   vars:
