@@ -125,4 +125,4 @@ This project is licensed under the [MIT License](LICENSE).
 #
 ### Created by
 
-- **Luciano Sampaio**
+1. Luciano Sampaio.
