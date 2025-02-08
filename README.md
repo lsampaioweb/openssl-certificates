@@ -1,113 +1,128 @@
-# Create, Verify and Import OpenSSL Certificates
+# Create, Verify, and Import OpenSSL Certificates
 
-The playbook can verify if the certificate created by our own Certificate Authority (CA) is still valid. Can also create a new one and import it into several different applications.
-
-#
-### Requirements:
-
-The Certificate Authority Server (CAS) must be a MAC OSX or a Ubuntu Linux.
+This playbook automates the process of **creating, verifying, and importing OpenSSL certificates**. It ensures that certificates signed by a **custom Certificate Authority (CA)** remain valid, generates new ones when needed, and imports them into various applications.
 
 #
-### Credentials:
-1. Create a strong password for the smtp's user and store it in the secret manager. After you hit enter, a password will be asked.
+### Credentials
+
+Before running the playbook, store the SMTP user password securely in the **secret manager**. This will be used to send email notifications.
+
+1. **Store the SMTP password** (you will be prompted to enter it):
+   ```bash
+   secret-tool store --label="ssl.certificate-smtp-password" password "ssl.certificate-smtp-password"
+   ```
+
+2. **Retrieve the stored SMTP password**:
+   ```bash
+   secret-tool lookup password "ssl.certificate-smtp-password"
+   ```
+
+#
+### How to Execute
+
+Run the following **Ansible playbooks** as needed:
+
+### Control Machine Setup
+**Explanation of Flags:**
+- `-K` - Prompts for the **sudo password** to execute tasks as root.
+
 ```bash
-    secret-tool store --label="ssl.certificate-smtp-password" password "ssl.certificate-smtp-password"
+ansible-playbook control_machine.yml -K
 ```
 
-2. Retrieve the smtp's user password.
+### Main Execution
 ```bash
-    secret-tool lookup password "ssl.certificate-smtp-password"
+ansible-playbook site.yml
+```
+
+### Certificate Management
+```bash
+ansible-playbook create_private_key.yml
+ansible-playbook create_signing_request.yml
+ansible-playbook create_certificate.yml
+ansible-playbook create_pkcs12.yml
+```
+
+### Certificate Verification
+```bash
+ansible-playbook verify_certificate.yml
+```
+
+### Certificate Import
+**Explanation of Flags:**
+- `-k` - Prompts for the **SSH password** when connecting to remote hosts.
+- `-K` - Prompts for the **sudo password** to execute tasks as root.
+
+```bash
+ansible-playbook import_certificate.yml -k -K
 ```
 
 #
-### How to execute:
+### Variables
 
-  ```bash
-  ansible-playbook control_machine.yml -K
-  ```
+Customize the execution using the following **extra variables**:
 
-  ```bash
-  ansible-playbook site.yml
-  ```
+### 1. Debug Mode
+Enables detailed logging. The default value is **True** if not specified.
 
-  ```bash
-  ansible-playbook create_private_key.yml
-  ansible-playbook create_signing_request.yml
-  ansible-playbook create_certificate.yml
-  ansible-playbook create_pkcs12.yml
-  ```
+```json
+--extra-vars='{"debug":True}'
+```
 
-  ```bash
-  ansible-playbook verify_certificate.yml
-  ```
+### 2. Certificates
+Specifies which certificates to verify (or create, if needed). By default, all certificates are verified.
 
-  ```bash
-  ansible-playbook import_certificate.yml -K -k
-  ```
+```json
+--extra-vars='{"certificates":["domain.com"]}'
+--extra-vars='{"certificates":["domain.com", "otherdomain.com.br"]}'
+```
 
-#
-### Variables:
+### 3. Backup Mode
+Determines whether old certificates should be moved to the **backup folder** when generating new ones. The default value is **True**.
 
-1. debug
-
-Specify if more messages should be displayed during the executions.
-If no value is passed, the default value **True** will be used.
-
-  ```json
-  --extra-vars='{"debug":True}'
-  ```
-
-2. certificates
-
-Specify which certificates will be verified and, if requested, created.
-If no value is passed, all certificates will be verified.
-  ```json
-  --extra-vars='{"certificates":["domain.com"]}'
-  --extra-vars='{"certificates":["domain.com", "otherdomain.com.br"]}'
-  ```
-
-3. backup
-
-Specify if when creating new certificates the old ones should be moved to the backup folder.
-If no value is passed, the default value **True** will be used.
-  ```json
-  --extra-vars='{"backup":True}'
-  ```
+```json
+--extra-vars='{"backup":True}'
+```
 
 #
-### Exclude folders:
+### Exclude Folders
 
-If you want to exclude one or more folders from the verification, you can add a **"_"** before the name.
+To exclude specific folders from verification, prefix their names with an **underscore (`_`)**.
 
-  ```
-  Rename the folder:
-    domain.com.br -> _domain.com.br
-  ```
-
-#
-### Config File:
-
-In the config [file](roles/certificate/files/config.yml "Config File"), you will find all the **default** configurations that will be used to generate the certificate related files. You shouldn't change this file if the config will be used for only one certificate. If that's the case, you should create a specific config file inside the folder of the certificate, with only the configs you want to be different from the default ones.
+Example:
+```bash
+# Rename the folder to exclude it:
+domain.com.br -> _domain.com.br
+```
 
 #
-### Available Import Options:
+### Config File
 
-1. Debian.
-2. Eclipse.
-3. MacOSX Keychain.
-4. OpenSSL.
-5. Proxmox.
-6. Python.
-7. Switch Tplink T1600G-28TS-SG2424.
-
-See the import sample [file](roles/certificate/files/import-sample.yml "Import Sample File").
+The **default configuration** used to generate certificates is stored in the [config file](roles/certificate/files/config.yml "Config File").
+- Do **not** modify this file for a single certificate.
+- Instead, create a **custom config file** inside the specific certificate’s folder and override only the required settings.
 
 #
-### License:
+### Available Import Options
 
-[MIT](LICENSE "MIT License")
+This playbook supports importing certificates into the following platforms:
+
+1. **Debian**
+2. **Eclipse**
+3. **macOS Keychain**
+4. **OpenSSL**
+5. **Proxmox**
+6. **Python**
+7. **TP-Link Switch (T1600G-28TS-SG2424)**
+
+See the import sample [file](roles/certificate/files/import-sample.yml "Import Sample File") for details.
 
 #
-### Created by:
+### License
 
-1. Luciano Sampaio.
+This project is licensed under the [MIT License](LICENSE).
+
+#
+### Created by
+
+- **Luciano Sampaio**
