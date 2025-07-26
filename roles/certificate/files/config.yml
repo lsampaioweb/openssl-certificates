@@ -30,7 +30,10 @@ csr_basic_constraints: "CA:FALSE"
 csr_key_usage_critical: true
 csr_key_usage: ["digitalSignature", "keyEncipherment"]
 csr_extended_key_usage_critical: true
-csr_extended_key_usage: ["serverAuth", "clientAuth"]
+# Use "serverAuth" for server certificates.
+csr_extended_key_usage: ["serverAuth"]
+# Use "clientAuth" for client certificates.
+# csr_extended_key_usage: ["clientAuth"]
 
 # Variables that will be used for creating a certificate.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
