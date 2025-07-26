@@ -84,6 +84,16 @@ Determines whether old certificates should be moved to the **backup folder** whe
 --extra-vars='{"backup":True}'
 ```
 
+### 4. Examples
+
+```json
+ansible-playbook create_pkcs12.yml
+ansible-playbook create_pkcs12.yml --extra-vars='{"certificates":["homelab"]}'
+ansible-playbook create_pkcs12.yml --extra-vars='{"certificates":["wildcard.lan.homelab"], "backup":False}'
+ansible-playbook create_pkcs12.yml --extra-vars='{"certificates":["edge-pve.lan.homelab", "edge-firewall-01.lan.homelab", "edge-vault.lan.homelab"], "backup":True}'
+ansible-playbook import_certificate.yml -k -K --extra-vars='{"certificates":["edge-pve.lan.homelab"]}'
+```
+
 #
 ### Exclude Folders
 
