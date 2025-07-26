@@ -47,7 +47,7 @@
       - "Privatekey path    : {{ privatekey_path }}"
       - "Privatekey type    : {{ privatekey_type }}"
       - "Privatekey size    : {{ privatekey_size | default(omit, true) }}"
-      - "Privatekey cipher  : {{ (passphrase != '') | ternary(privatekey_cipher, omit) }}"
+      - "Privatekey cipher  : {{ (passphrase is defined and passphrase != '') | ternary(privatekey_cipher, omit) }}"
   tags: "debug"
 
 - name: "Creating a private key"
@@ -56,7 +56,7 @@
     type: "{{ privatekey_type }}"
     size: "{{ privatekey_size | default(omit, true) }}"
     passphrase: "{{ passphrase | default(omit, true) }}"
-    cipher: "{{ (passphrase != '') | ternary(privatekey_cipher, omit) }}"
+    cipher: "{{ (passphrase is defined and passphrase != '') | ternary(privatekey_cipher, omit) }}"
   register: "file_creation_output"
   when: should_create_file
 
