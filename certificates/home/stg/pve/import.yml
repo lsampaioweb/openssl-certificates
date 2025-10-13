@@ -1,0 +1,55 @@
+---
+# proxmox
+proxmox_port: 8006
+proxmox_tmp_folder: "/tmp"
+proxmox_prefix: "pve"
+proxmox_domain: "homelab"
+
+import_config:
+  [
+    proxmox:
+      [
+        {
+          host: "{{ proxmox_prefix }}-01",
+          url: "{{ proxmox_prefix }}-01.{{ proxmox_domain }}",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        },
+        {
+          host: "{{ proxmox_prefix }}-02",
+          url: "{{ proxmox_prefix }}-02.{{ proxmox_domain }}",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        },
+        {
+          host: "{{ proxmox_prefix }}-03",
+          url: "{{ proxmox_prefix }}-03.{{ proxmox_domain }}",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        },
+        {
+          host: "{{ proxmox_prefix }}-04",
+          url: "{{ proxmox_prefix }}-04.{{ proxmox_domain }}",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        },
+        {
+          host: "{{ proxmox_prefix }}-05",
+          url: "{{ proxmox_prefix }}-05.{{ proxmox_domain }}",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        },
+        {
+          host: "{{ proxmox_prefix }}-06",
+          url: "{{ proxmox_prefix }}-06.{{ proxmox_domain }}",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        },
+        {
+          host: "{{ proxmox_prefix }}-07",
+          url: "{{ proxmox_prefix }}-07.{{ proxmox_domain }}",
+          port: "{{ proxmox_port }}",
+          tmp_folder: "{{ proxmox_tmp_folder }}",
+        },
+      ],
+  ]
