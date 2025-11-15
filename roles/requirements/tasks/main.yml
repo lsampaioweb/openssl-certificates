@@ -1,4 +1,7 @@
 ---
+- name: "Creating the folder that will contain all SSL Certificates"
+  ansible.builtin.import_tasks: "certificate_folder.yml"
+
 - name: "Displaying OS family fact for debugging"
   ansible.builtin.debug:
     msg:

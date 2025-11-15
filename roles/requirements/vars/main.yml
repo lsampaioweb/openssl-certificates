@@ -1,4 +1,10 @@
 ---
+# The path to the folder that contains all SSL Certificates in the repository.
+certificates_path_in_repository: "{{ playbook_dir }}/certificates"
+
+# The path to the folder that will contain all SSL Certificates in the target system.
+certificates_path: "/opt/certificates"
+
 # List of all Ansible Galaxy collections required by this project.
 ansible_galaxy_collections:
   - {name: community.general} # General purpose Ansible roles and collections.
