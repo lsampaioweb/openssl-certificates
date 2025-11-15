@@ -1,0 +1,7 @@
+---
+- name: "Prepare Ansible Controller"
+  hosts: "AnsibleController"
+  become: true
+
+  roles:
+    - "requirements"

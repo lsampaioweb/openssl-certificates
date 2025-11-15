@@ -1,0 +1,3 @@
+---
+- name: "Importing collections installation tasks"
+  ansible.builtin.import_tasks: "collections.yml"

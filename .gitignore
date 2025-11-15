@@ -3,17 +3,16 @@
 .DS_Store
 .AppleDouble
 .LSOverride
+.vscode
+.ansible
 
 # Certificate files.
 ca_host_key
+*.key
+*.csr
 *.cer
 *.crt
-*.csr
-*.key
+*.pem
 *.p12
 *.pub
-*.pem
 **/notifications.log
-
-.vscode
-.ansible

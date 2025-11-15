@@ -1,3 +1,0 @@
----
-# The path where all config and import files are stored.
-certificates_path_in_repository: "{{ playbook_dir }}/certificates"

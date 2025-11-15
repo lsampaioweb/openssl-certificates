@@ -1,0 +1,7 @@
+---
+- name: "Installing Ansible Galaxy collections"
+  ansible.builtin.import_role:
+    name: "common"
+    tasks_from: "debian/packages/ansible-galaxy"
+  vars:
+    packages: "{{ ansible_galaxy_collections }}"
