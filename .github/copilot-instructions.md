@@ -31,9 +31,7 @@ ansible-playbook create_certificate.yml
 ansible-playbook create_pkcs12.yml
 
 # Playbooks that calls all steps in sequence (preferred).
-ansible-playbook create_certificate.yml
-ansible-playbook create_certificate_vault_sign.yml
-ansible-playbook create_certificate_vault_issue.yml
+ansible-playbook create_all.yml
 ```
 
 **Daily Verification Process**: A cronjob runs `verify.yml` daily to check certificate expiration.
@@ -52,9 +50,9 @@ export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
 ```
 
 **Variable Usage**: Prefer existing variables from `vars/config.yml`. Common required variables:
-- `certificate_signing_method: "vault"` (recommended default).
 - `certificate_domain`: Target domain from approved list.
-- `certificate_environment`: "hg" | "pd" only.
+- `certificate_environment`: "stg" | "prd" only.
+- `certificate_signing_method:` "vault" (recommended default).
 - `certificates`: Array for specific processing, `[]` for all.
 
 **File Organization**: Use personal config files as `extra-vars-{username}.yml`. Avoid modifying shared configuration files directly.
@@ -76,7 +74,7 @@ export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
 - name: "Task description in gerund form"
   when: condition_here
   ansible.builtin.module_name:
-    parameter: value
+    parameter: "value"
   vars:
     variable_name: "value"
   register: "output_variable"
@@ -106,16 +104,16 @@ loop_control:
 **Sensitive Data**: For tasks handling passwords or secrets, use conditional no-log:
 ```yaml
 - name: "Creating password variable"
+  no_log: "{{ not debug | default(true) }}"
   ansible.builtin.set_fact:
     passphrase: "{{ generated_password }}"
-  no_log: "{{ not debug | default(true) }}"
 ```
 
 ## Critical Patterns
 
 **Role Inclusion Logic**: The `roles/pki/tasks/steps.yml` dynamically includes roles based on `roles_to_include` variable, defaulting to the complete PKI pipeline.
 
-**Vault PKI Paths**: Vault operations use dynamic paths like `{vault_pki_name}/issue/{vault_pki_role}` where PKI engines and roles are environment-specific (e.g., "icp-banese-cert-sub/issue/server-sign").
+**Vault PKI Paths**: Vault operations use dynamic paths like `{vault_pki_name}/issue/{vault_pki_role}` where PKI engines and roles are environment-specific (e.g., "icp-cert-sub/issue/server-sign").
 
 **Certificate Exclusions**: Folders prefixed with `_` are automatically excluded from processing. Backup paths and incomplete directory structures are filtered out in the main processing loop.
 

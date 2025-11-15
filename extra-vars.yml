@@ -1,0 +1,29 @@
+---
+# Enable debug output.
+debug: true
+
+# Domain for certificates.
+# domain_context: "home"
+# domain_context: "homelab"
+
+# Environment - options: stg, prd.
+# certificate_environment: "stg"
+# certificate_environment: "prd"
+
+# List of certificates to process.
+# Leave empty [] to process all certificates.
+certificates:
+  - "root-ca"
+  # - "sub-ca"
+  # - "firewall"
+  # - "switch"
+  # - "virtualizer"
+  # - "load-balancer"
+  # - "registry"
+  # - "ldap"
+  # - "secrets"
+  # - "metrics"
+  # - "dashboard"
+  # - "build"
+  # - "qa"
+  # - "automation-ui"

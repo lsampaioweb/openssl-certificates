@@ -8,14 +8,14 @@ context_file: "context.yml"
 # The file with the variables that will be used to create a certificate.
 config_file: "config.yml"
 
-# The context of the company, which determines which configuration file to load.
-company_context: "{{ company_context | default('home') }}"
+# The context of the domain (home and homelab), which determines which configuration file to load.
+domain_context: "{{ domain_context | default('home') }}"
 
-# The global context file that will be loaded, using company context specific settings.
-company_context_file: "context-{{ company_context }}.yml"
+# The global context file that will be loaded, using domain context specific settings.
+domain_context_file: "context-{{ domain_context }}.yml"
 
 # The global config file that will be loaded, using certificate specific settings.
-company_config_file: "config-{{ company_context }}.yml"
+domain_config_file: "config-{{ domain_context }}.yml"
 
 # The default roles that should be executed if the the user does not provide any.
 default_roles_map:
