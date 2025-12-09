@@ -25,6 +25,7 @@ This is an Ansible-based certificate management system for automated SSL/TLS cer
 **Certificate Lifecycle Pipeline**:
 ```bash
 # Individual steps (only when needed for debugging).
+ansible-playbook verify.yml
 ansible-playbook create_private_key.yml
 ansible-playbook create_csr.yml
 ansible-playbook create_certificate.yml
@@ -64,6 +65,8 @@ export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
 **Import Templates**: Application-specific import configurations in `roles/import/templates/` for `SpringBoot`, `Tomcat`, `Wildfly`, etc. Each template defines service paths, permissions, and restart procedures.
 
 ## Code Standards
+
+**No Python Code**: This is a pure Ansible project. Do not suggest Python filters, plugins, or scripts. All solutions must use native Ansible features (Jinja2 templates, filters, lookups, modules).
 
 **Language**: All code must be in English - variable names, comments, task names, file names, and documentation.
 
