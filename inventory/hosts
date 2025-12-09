@@ -3,11 +3,13 @@ localhost
 
 [AnsibleController:vars]
 ansible_connection=local
-ansible_python_interpreter=/usr/bin/python3
+# ansible_python_interpreter=/usr/local/bin/python3
+# ansible_python_interpreter=auto
 
 [CertificateAuthorityServer]
 localhost
 
 [CertificateAuthorityServer:vars]
 ansible_connection=local
-ansible_python_interpreter=/usr/bin/python3
+# ansible_python_interpreter=/usr/local/bin/python3
+# ansible_python_interpreter=auto
