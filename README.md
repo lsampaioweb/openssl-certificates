@@ -94,12 +94,30 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 
     Choose the inventory file, the default is `inventory/hosts`:
     ```bash
-    ansible-playbook prepare_host.yml -i inventory/hosts
+    ansible-playbook prepare_controller.yml -i inventory/hosts
     ```
 
     Specify the server name in the `--limit` parameter to prepare only that host, or omit it to prepare all hosts in the inventory:
     ```bash
-    ansible-playbook prepare_host.yml --limit "server-name"
+    ansible-playbook prepare_controller.yml --limit "server-name"
+    ```
+
+    To run the playbook with specific tags, use the `--tags` option. For example, to run only untagged tasks and dev_environment tasks:
+    ```bash
+    ansible-playbook prepare_controller.yml --tags "untagged,dev_environment"
+    ```
+
+1. Set environment variables for HashiCorp Vault access:
+
+    ```bash
+    nano ~/.bashrc
+
+    export ANSIBLE_HASHI_VAULT_ADDR="https://vault.lan.homelab"
+    export ANSIBLE_HASHI_VAULT_AUTH_METHOD="ldap"
+    export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
+    export ANSIBLE_HASHI_VAULT_PASSWORD="$(secret-tool lookup secret 'ansible_hashi_vault_password')"
+
+    source ~/.bashrc
     ```
 
 1. Generate all components of a certificate:
