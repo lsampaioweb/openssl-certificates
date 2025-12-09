@@ -1,1 +1,50 @@
 ---
+# The domain for the certificates.
+certificate_domain: "lan.home"
+
+# The directory that will contain all SSL Certificates in the target system.
+certificates_base_path: "/opt/certificates"
+
+# The regex that will be used to search for folders. If a folder starts with "_", it will be ignored.
+certificates_patterns:
+  - '^[^_](.)+$'
+
+# Exclude patterns for the find module to ignore certain directories.
+# These regex patterns are applied to the basename of each directory found.
+certificate_excludes:
+  - '^\..*'                    # Excludes all hidden directories (e.g., ".ansible").
+  - '^_.+'                     # Excludes all directories starting with an underscore (e.g., "_template", "_garbage").
+  - '^pipeline$'               # Excludes the PKI pipeline directory.
+  - '^collections$'            # Excludes the Ansible collections directory.
+  - '^modules$'                # Excludes the Ansible modules directory.
+  - '^roles$'                  # Excludes the Ansible roles directory.
+  - '(?i)(^|.*[-_\.])backup$'  # Excludes directories ending with "backup" at start or after delimiter(s).
+  - '(?i)(^|.*[-_\.])bkp$'     # Excludes directories ending with "bkp" at start or after delimiter(s).
+  - '(?i)(^|.*[-_\.])old$'     # Excludes directories ending with "old" at start or after delimiter(s).
+
+# The file with the variables that will be used to create a certificate.
+config_file: "config.yml"
+
+# The directory that will contain backup files.
+backup_directory: "backup"
+
+# The directory that will contain old and expired certificates.
+backup_base_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.backup_directory }}"
+
+# Number of config.yml backup files to keep per certificate.
+backup_config_files_to_keep: 5
+
+# The datetime format to use in backup filenames for config files.
+backup_config_datetime_format: "+%Y-%m-%d-%H-%M-%S"
+
+# The default roles that should be executed if the the user does not provide any.
+default_roles_map:
+  - "backup"
+  - "private_key"
+  - "csr"
+  - "certificate"
+  - "pkcs12"
+  - "verify"
+
+# The file with the instructions to import a certificate.
+import_file: "import.yml"

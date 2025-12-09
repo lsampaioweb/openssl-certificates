@@ -1,0 +1,31 @@
+---
+- name: "Comparing scalar value '{{ section.key }}'"
+  when:
+    - section.value is not mapping
+    - section.key not in reference_config_vars or section.value != reference_config_vars[section.key]
+  ansible.builtin.set_fact:
+    config_overrides: "{{ config_overrides | combine({section.key: section.value}) }}"
+
+- name: "Comparing mapping section '{{ section.key }}'"
+  when: section.value is mapping
+  block:
+    - name: "Initializing section overrides for '{{ section.key }}'"
+      ansible.builtin.set_fact:
+        section_overrides: {}
+
+    - name: "Comparing each key in '{{ section.key }}' section"
+      when:
+        - config_key.value is not none
+        - config_key.key not in reference_config_vars.get(section.key, {}) or config_key.value != reference_config_vars[section.key][config_key.key]
+      ansible.builtin.set_fact:
+        section_overrides: "{{ section_overrides | combine({config_key.key: config_key.value}) }}"
+      loop: "{{ (section.value | dict2items) if (section.value is mapping) else [] }}"
+      loop_control:
+        loop_var: "config_key"
+        label: "{{ section.key }}.{{ config_key.key }}"
+
+    - name: "Adding '{{ section.key }}' section to config_overrides if it has differences"
+      when:
+        - section_overrides | length > 0
+      ansible.builtin.set_fact:
+        config_overrides: "{{ config_overrides | combine({section.key: section_overrides}) }}"

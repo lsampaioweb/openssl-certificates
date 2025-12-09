@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  author: "Luciano Sampaio"
+  description: "Ansible Role to manage Public Key Infrastructure (PKI) using OpenSSL or HCP Vault."
+  license: "MIT"
+
+  min_ansible_version: "2.15"
+
+dependencies:
+  - role: "common"

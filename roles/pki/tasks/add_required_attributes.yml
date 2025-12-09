@@ -1,0 +1,33 @@
+---
+- name: "Adding 'version' to config_overrides"
+  ansible.builtin.set_fact:
+    config_overrides: "{{ config_overrides | combine(required_overrides, recursive=True) }}"
+  vars:
+    required_overrides:
+      version: "{{ reference_config_vars.version }}"
+
+- name: "Adding 'csr' section to config_overrides if it doesn't exist"
+  when: "'csr' not in config_overrides"
+  ansible.builtin.set_fact:
+    config_overrides: "{{ config_overrides | combine(required_overrides, recursive=True) }}"
+  vars:
+    required_overrides:
+      csr: {}
+
+- name: "Adding 'common_name' to csr if it doesn't exist"
+  when: "'common_name' not in config_overrides.csr"
+  ansible.builtin.set_fact:
+    config_overrides: "{{ config_overrides | combine(required_overrides, recursive=True) }}"
+  vars:
+    required_overrides:
+      csr:
+        common_name: "{{ certificate_name }}"
+
+- name: "Adding 'subject_alt_name' to csr if it doesn't exist"
+  when: "'subject_alt_name' not in config_overrides.csr"
+  ansible.builtin.set_fact:
+    config_overrides: "{{ config_overrides | combine(required_overrides, recursive=True) }}"
+  vars:
+    required_overrides:
+      csr:
+        subject_alt_name: "{{ ['DNS:' + certificate_name] }}"

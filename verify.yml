@@ -1,0 +1,9 @@
+---
+- name: "Verify if the certificate is valid"
+  hosts: "CertificateAuthorityServer"
+
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "verify"

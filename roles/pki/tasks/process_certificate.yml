@@ -1,0 +1,30 @@
+---
+- name: "Processing certificate: {{ certificate_name }}"
+  block:
+    - name: "Printing certificate data"
+      when: debug | bool
+      ansible.builtin.debug:
+        msg:
+          - "certificate_path: {{ certificate_path }}"
+          - "certificate_domain: {{ certificate_domain }}"
+          - "certificate_environment: {{ certificate_environment }}"
+          - "certificate_name: {{ certificate_name }}"
+
+    # - name: "Setting certificate_process_mode to 'verifying' at the beginning of the process for each certificate"
+    #   ansible.builtin.set_fact:
+    #     certificate_process_mode: "verifying"
+
+    - name: "Loading config files"
+      ansible.builtin.import_tasks: "load_config_files.yml"
+
+    - name: "Including the role(s) for each certificate"
+      ansible.builtin.include_role:
+        name: "{{ role }}"
+      loop: "{{ roles_to_include | default(default_roles_map, true) }}"
+      loop_control:
+        loop_var: "role"
+
+  rescue:
+    - name: "Handling error during processing of certificate: {{ certificate_name }}"
+      ansible.builtin.debug:
+        msg: "An error occurred while processing the certificate: {{ certificate_name }}"

@@ -1,0 +1,56 @@
+---
+- name: "Converting certificate config from older version to current version"
+  ansible.builtin.set_fact:
+    certificate_config_vars: "{{ converted_config }}"
+  vars:
+    converted_config:
+      version: "{{ reference_config_vars.version }}"
+      certificate_signing_method: "{{ certificate_config_vars.certificate_signing_method | default(omit) }}"
+      passphrase_random_marker: "{{ certificate_config_vars.passphrase_random_marker | default(omit) }}"
+      privatekey:
+        extension: "{{ certificate_config_vars.privatekey_extension | default(omit) }}"
+        format: "{{ certificate_config_vars.privatekey_format | default(omit) }}"
+        type: "{{ certificate_config_vars.privatekey_type | default(omit) }}"
+        curve: "{{ certificate_config_vars.privatekey_curve | default(omit) }}"
+        cipher: "{{ certificate_config_vars.privatekey_cipher | default(omit) }}"
+        passphrase: "{{ certificate_config_vars.privatekey_passphrase | default(omit) }}"
+        passphrase_size: "{{ certificate_config_vars.privatekey_passphrase_size | default(omit) }}"
+      csr:
+        extension: "{{ certificate_config_vars.csr_extension | default(omit) }}"
+        digest: "{{ certificate_config_vars.csr_digest | default(omit) }}"
+        country_name: "{{ certificate_config_vars.csr_country_name | default(omit) }}"
+        state_or_province_name: "{{ certificate_config_vars.csr_state_or_province_name | default(omit) }}"
+        locality_name: "{{ certificate_config_vars.csr_locality_name | default(omit) }}"
+        organization_name: "{{ certificate_config_vars.csr_organization_name | default(omit) }}"
+        organizational_unit_name: "{{ certificate_config_vars.csr_organizational_unit_name | default(omit) }}"
+        email_address: "{{ certificate_config_vars.csr_email_address | default(omit) }}"
+        common_name: "{{ certificate_config_vars.csr_common_name | default(omit) }}"
+        subject_alt_name: "{{ certificate_config_vars.csr_subject_alt_name | default(omit) }}"
+        basic_constraints: "{{ certificate_config_vars.csr_basic_constraints | default(omit) }}"
+        basic_constraints_critical: "{{ certificate_config_vars.csr_basic_constraints_critical | default(omit) }}"
+        key_usage: "{{ certificate_config_vars.csr_key_usage | default(omit) }}"
+        key_usage_critical: "{{ certificate_config_vars.csr_key_usage_critical | default(omit) }}"
+        extended_key_usage: "{{ certificate_config_vars.csr_extended_key_usage | default(omit) }}"
+        extended_key_usage_critical: "{{ certificate_config_vars.csr_extended_key_usage_critical | default(omit) }}"
+      certificate:
+        extension: "{{ certificate_config_vars.certificate_extension | default(omit) }}"
+        digest: "{{ certificate_config_vars.certificate_digest | default(omit) }}"
+        not_after: "{{ certificate_config_vars.certificate_not_after | default(omit) }}"
+      pkcs12:
+        extension: "{{ certificate_config_vars.pkcs12_extension | default(omit) }}"
+        encryption: "{{ certificate_config_vars.pkcs12_encryption | default(omit) }}"
+        action: "{{ certificate_config_vars.pkcs12_action | default(omit) }}"
+      auto_renewal:
+        enabled: "{{ certificate_config_vars.auto_renewal_enabled | default(omit) }}"
+        days_before_expiration: "{{ certificate_config_vars.auto_renewal_days_before_expiration | default(omit) }}"
+        certificate_pki_pipeline_window: "{{ certificate_config_vars.certificate_pki_pipeline_window | default(omit) }}"
+      notification_mail:
+        host: "{{ certificate_config_vars.mail_host | default(omit) }}"
+        port: "{{ certificate_config_vars.mail_port | default(omit) }}"
+        secure: "{{ certificate_config_vars.mail_secure | default(omit) }}"
+        smtp_username: "{{ certificate_config_vars.mail_username | default(omit) }}"
+        smtp_password_id: "{{ certificate_config_vars.mail_password_id | default(omit) }}"
+        from: "{{ certificate_config_vars.mail_from | default(omit) }}"
+        to: "{{ certificate_config_vars.mail_to | default(omit) }}"
+        cc: "{{ certificate_config_vars.mail_cc | default(omit) }}"
+        subtype: "{{ certificate_config_vars.mail_subtype | default(omit) }}"

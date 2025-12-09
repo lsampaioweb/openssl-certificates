@@ -1,32 +1,24 @@
 ---
-# Specify if more messages should be displayed during the executions.
+# Specify if more messages should be displayed during the executions. Defaults to false if not specified.
 debug: false
+
+# Domain for certificates. Options: home, homelab. Defaults to home if not specified.
+domain_context: "home"
+
+# Environment of the execution. Options: stg, prd. Defaults to prd if not specified.
+execution_environment: "prd"
+
+# # The user for Ansible to connect to other servers.
+# ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
+
+# # The password for the Ansible user to connect to other servers.
+# ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"
 
 # The file with all the default variables shared by all companies.
 context_file: "context.yml"
-
-# The file with the variables that will be used to create a certificate.
-config_file: "config.yml"
-
-# The context of the domain (home and homelab), which determines which configuration file to load.
-domain_context: "{{ domain_context | default('home') }}"
 
 # The global context file that will be loaded, using domain context specific settings.
 domain_context_file: "context-{{ domain_context }}.yml"
 
 # The global config file that will be loaded, using certificate specific settings.
 domain_config_file: "config-{{ domain_context }}.yml"
-
-# The default roles that should be executed if the the user does not provide any.
-default_roles_map:
-  - "backup"
-  - "private_key"
-  - "csr"
-  - "certificate"
-  - "pkcs12"
-  - "verify"
-
-# # Role: Requirements:
-# # Path where the certificate authority (CA) certificates are stored.
-# debian_ca_certificates_path: "/usr/local/share/ca-certificates"
-# redhat_ca_certificates_path: "/etc/pki/ca-trust/source/anchors"

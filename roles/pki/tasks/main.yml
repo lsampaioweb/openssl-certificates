@@ -1,0 +1,76 @@
+---
+- name: "Loading context files"
+  ansible.builtin.import_tasks: "load_context_files.yml"
+
+- name: "Constructing certificate path based on provided variables"
+  when: path is not defined
+  ansible.builtin.set_fact:
+    path: "{{ path_parts | reject('equalto', '') | join('/') }}"
+  vars:
+    path_parts:
+      - "{{ context_vars.certificates_base_path }}"
+      - "{{ ansible_facts.date_time.year }}"
+      - "{{ context_vars.certificate_domain }}"
+      - "{{ execution_environment }}"
+
+- name: "Getting the list of certificates"
+  ansible.builtin.import_tasks: "find_certificates_in_folder.yml"
+
+- name: "Iterating over each certificate"
+  loop: "{{ certificates_list | default([]) }}"
+  when:
+    # /opt/certificates/2025 will be ignored.
+    - (certificate_path != (context_vars.certificates_base_path ~ '/' ~ certificate_year))
+    # /opt/certificates/2025/lan.home will be ignored.
+    - (certificate_path != (context_vars.certificates_base_path ~ '/' ~ certificate_year ~ '/' ~ certificate_domain))
+    # /opt/certificates/2025/lan.home/prd will be ignored.
+    - (certificate_path != (context_vars.certificates_base_path ~ '/' ~ certificate_year ~ '/' ~ certificate_domain ~ '/' ~ certificate_environment))
+    # /opt/certificates/backup/??? will be ignored.
+    - not (certificate_path is search("^" ~ context_vars.backup_base_path))
+    # Other exclusions (_*, .ansible, etc.) are handled by the excludes parameter in find_certificates_in_folder.yml.
+  ansible.builtin.include_tasks: "process_certificate.yml"
+  vars:
+    # Current certificate path from the loop iteration.
+    certificate_path: "{{ item }}"
+
+    # Define regex patterns for extracting domain and environment from the certificate path.
+    # These patterns use the extracted year for consistency.
+
+    # Extract the year from the certificate path for dynamic year handling.
+    # Logic:
+    #   - Split the certificate path by '/'.
+    #   - The year is expected to be the fourth segment (index 3) after the base path (e.g., /opt/certificates/2025/...).
+    #   - Check that the path has at least 4 segments and that the fourth segment is a 4-digit number (valid year).
+    #   - If these conditions are met, use that segment as the year; otherwise, set to an empty string.
+    # This ensures only valid year directories are processed and avoids errors for unexpected paths.
+    certificate_year: >-
+      {{
+        certificate_path.split('/')[3]
+        if (
+          certificate_path.split('/') | length >= 4
+          and (certificate_path.split('/')[3] | regex_search('^[0-9]{4}$'))
+        )
+        else ''
+      }}
+
+    # Regex pattern to capture the domain following the extracted year in the path.
+    certificate_regex: "^{{ context_vars.certificates_base_path }}/{{ certificate_year }}/([^/]+)"
+
+    # Regex pattern to capture the environment following the domain in the path.
+    environment_regex: "^{{ context_vars.certificates_base_path }}/{{ certificate_year }}/([^/]+)/([^/]+)"
+
+    # Extract the domain from the certificate path using the regex.
+    # Default to an empty string if no match.
+    certificate_domain: "{{ (certificate_path | regex_search(certificate_regex, '\\1') | default([], true) | first | default('', true)) }}"
+
+    # Extract the environment from the certificate path using the regex.
+    # Default to an empty string if no match.
+    certificate_environment: "{{ (certificate_path | regex_search(environment_regex, '\\2') | default([], true) | first | default('', true)) }}"
+
+    # Construct the certificate name based on the file or folder in the path.
+    # - Use `basename` to get the last segment of the path.
+    # - Append the domain to the basename if the domain is not present in the basename.
+    certificate_name: >-
+      {{ certificate_path | basename }}{{
+        (certificate_path | basename) is search(certificate_domain) | ternary('', '.' + certificate_domain)
+      }}

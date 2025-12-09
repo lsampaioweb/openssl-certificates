@@ -1,29 +1,95 @@
 ---
-# Enable debug output.
+# Specify if more messages should be displayed during the executions. Defaults to false if not specified.
 debug: true
 
-# Domain for certificates.
-# domain_context: "home"
+# Domain for certificates. Options: home, homelab. Defaults to home if not specified.
+domain_context: "home"
 # domain_context: "homelab"
 
-# Environment - options: stg, prd.
-# certificate_environment: "stg"
-# certificate_environment: "prd"
+# Environment of the execution. Options: stg, prd. Defaults to prd if not specified.
+# execution_environment: "stg"
+execution_environment: "prd"
+
+# Path to search for certificates.
+# path: "/opt/certificates"
 
 # List of certificates to process.
 # Leave empty [] to process all certificates.
 certificates:
-  - "root-ca"
-  # - "sub-ca"
-  # - "firewall"
-  # - "switch"
-  # - "virtualizer"
-  # - "load-balancer"
-  # - "registry"
-  # - "ldap"
-  # - "secrets"
-  # - "metrics"
-  # - "dashboard"
-  # - "build"
-  # - "qa"
-  # - "automation-ui"
+  - "edge-firewall"
+  # - "edge-grafana"
+  # - "edge-jump-server"
+  # - "edge-ldap"
+  # - "edge-load-balancer"
+  # - "edge-pve"
+  # - "edge-root-ca"
+  # - "edge-sub-ca"
+  # - "edge-switch"
+  # - "edge-vault"
+  # - "edge-zabbix"
+  # - "wildcard"
+
+# extra_config_vars: {}
+# extra_config_vars:
+  # version: "2.0"
+  # certificate_signing_method: "vault"
+  # passphrase_random_marker: "?"
+  # privatekey:
+  #   extension: "key"
+  #   format: "pkcs8"
+  #   type: "ECC"
+  #   curve: "secp256r1"
+  #   cipher: "auto"
+  #   passphrase: "{{ base_config_vars.passphrase_random_marker }}"
+  #   passphrase_size: 30
+
+  # csr:
+  #   extension: "csr"
+  #   digest: "sha256"
+  #   country_name: "BR"
+  #   state_or_province_name: "Sergipe"
+  #   locality_name: "Aracaju"
+  #   organization_name: "TheCodeMaster"
+  #   organizational_unit_name: "Home"
+  #   email_address: "lsampaioweb+home@gmail.com"
+  #   common_name: ""
+  #   subject_alt_name: []
+  #   basic_constraints: "CA:FALSE"
+  #   basic_constraints_critical: true
+  #   key_usage:
+  #     - "digitalSignature"
+  #     - "keyEncipherment"
+  #   key_usage_critical: true
+  #   extended_key_usage:
+  #     - "serverAuth"
+  #   extended_key_usage_critical: true
+
+  # certificate:
+  #   extension: "cer"
+  #   digest: "sha256"
+  #   not_after: "+300d"
+
+  # pkcs12:
+  #   extension: "pfx"
+  #   encryption: "auto"
+  #   action: "export"
+  #   friendly_name: "Home"
+
+  # auto_renewal:
+  #   enabled: true
+  #   days_for_yellow_alert: 15
+  #   days_for_red_alert: 5
+  #   days_before_expiration: 5
+  #   certificate_pki_pipeline_window: []
+
+  # notification_mail:
+  #   host: "smtp.gmail.com"
+  #   port: 587
+  #   secure: "starttls"
+  #   smtp_username: "lsampaioweb@gmail.com"
+  #   smtp_password_id: "certificate-smtp-password"
+  #   from: "lsampaioweb+home@gmail.com"
+  #   to:
+  #     - "lsampaioweb+home@gmail.com"
+  #   cc: []
+  #   subtype: "html"

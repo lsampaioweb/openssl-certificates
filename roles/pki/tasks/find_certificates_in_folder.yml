@@ -1,0 +1,44 @@
+---
+- name: "Joining certificate elements into a comma-separated string"
+  when: certificates is defined and certificates | length > 0
+  ansible.builtin.set_fact:
+    certificates_to_find_patterns: "{{ certificates | join(',') }}"
+
+# - name: "Preparing the mount directory"
+#   ansible.builtin.import_tasks: "mount_remote_disk.yml"
+
+- name: "Getting the list of certificates in the specified folder(s): '{{ path }}'"
+  ansible.builtin.find:
+    path: "{{ path }}"
+    file_type: "{{ file_type | default('directory') }}"
+    use_regex: "{{ use_regex | default(true) }}"
+    patterns: "{{ certificates_to_find_patterns | default(context_vars.certificates_patterns, true) }}"
+    recurse: "{{ recurse | default(true) }}"
+    follow: "{{ follow | default(true) }}"
+    hidden: "{{ hidden | default(false) }}"
+    excludes: "{{ context_vars.certificate_excludes | default([]) }}"
+  register: "folders_found"
+
+- name: "Filtering and sorting the list of found certificates"
+  ansible.builtin.set_fact:
+    certificates_list: "{{ folders_found | json_query('files[*].path') | sort }}"
+
+- name: "Filtering the list to only include parent directories if searching for files"
+  when: file_type is defined and file_type == "file"
+  ansible.builtin.set_fact:
+    certificates_list: "{{ certificates_list | map('dirname') | list | sort }}"
+
+- name: "Manually constructing the list of certificates if none were found and specific certificates were provided"
+  when:
+    - certificates_list | length == 0
+    - certificates is defined
+  ansible.builtin.set_fact:
+    # The 'map' function applies 'regex_replace' to each item in 'certificates'.
+    # It adds the 'path' as a prefix to each certificate by replacing the beginning (^) of each string.
+    # The 'list' filter converts the result back into a list after applying 'map'.
+    certificates_list: "{{ certificates | map('regex_replace', '^', path ~ '/') | list | sort }}"
+
+- name: "Printing variables"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg: "{{ certificates_list }}"
