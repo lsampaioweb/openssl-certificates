@@ -1,8 +1,6 @@
 ---
-- name: "Creating the folder that will contain all SSL Certificates"
-  ansible.builtin.import_tasks: "certificate_folder.yml"
-
 - name: "Displaying OS family fact for debugging"
+  when: debug | bool
   ansible.builtin.debug:
     msg:
       - "ansible_facts - os_family : {{ ansible_facts['os_family'] }}"
@@ -12,3 +10,7 @@
     ansible_facts["os_family"] == "Debian" or
     ansible_facts["os_family"] == "Darwin"
   ansible.builtin.include_tasks: "{{ ansible_facts['os_family'] | lower }}/main.yml"
+
+- name: "Creating the folder that will contain all SSL Certificates"
+  tags: "dev_environment"
+  ansible.builtin.import_tasks: "certificate_folder.yml"

@@ -1,0 +1,5 @@
+---
+pipx_packages:
+  - { name: "ansible", install_deps: true, global: true }
+  - { name: "ansible-lint", global: true }
+  - { name: "ansible", state: "inject", inject_packages: ["cryptography", "hvac"], include_injected: true, global: true }
