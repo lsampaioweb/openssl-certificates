@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: "Luciano Sampaio"
-  description: "Role to verify if the SSL certificates are valid, close to expiration or already expired, in case of the last two, notify the responsible team."
+  description: "Role to verify if the SSL certificates are valid, close to or already expired, in case of the last two, notify the responsible team."
   license: "MIT"
 
   min_ansible_version: "2.15"
