@@ -1,0 +1,36 @@
+---
+galaxy_info:
+  namespace: "lsampaioweb"
+  role_name: "pkcs12"
+  author: "Luciano Sampaio"
+  description: "Creates PKCS#12 keystores bundling private keys and certificates for application deployment and compatibility with legacy systems."
+  license: "MIT"
+  company: "Homelab"
+
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: "Debian"
+      versions:
+        - "bullseye"
+        - "bookworm"
+    - name: "Ubuntu"
+      versions:
+        - "focal"
+        - "jammy"
+    - name: "MacOSX"
+      versions:
+        - "all"
+
+  galaxy_tags:
+    - "ssl"
+    - "tls"
+    - "certificate"
+    - "pki"
+    - "pkcs12"
+    - "keystore"
+    - "crypto"
+    - "security"
+
+dependencies:
+  - role: "common"

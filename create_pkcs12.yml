@@ -1,0 +1,9 @@
+---
+- name: "Create PKCS#12 Keystores"
+  hosts: "CertificateAuthorityServer"
+
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "pkcs12"
