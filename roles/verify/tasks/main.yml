@@ -1,0 +1,13 @@
+---
+- name: "Creating the basic variables"
+  ansible.builtin.set_fact:
+    ssl_certificate_path: "{{ certificate_path ~ '/' ~ certificate_name ~ '.' ~ config_vars.certificate.extension }}"
+
+- name: "Verifying if {{ ssl_certificate_path }} file exists"
+  ansible.builtin.stat:
+    path: "{{ ssl_certificate_path }}"
+  register: "file_exists"
+
+- name: "Checking certificate file and its validity"
+  when: file_exists.stat.exists | bool
+  ansible.builtin.include_tasks: "verify.yml"

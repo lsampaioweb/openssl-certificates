@@ -1,0 +1,25 @@
+---
+- name: "Preparing the notification"
+  ansible.builtin.include_tasks: "prepare_notification.yml"
+
+# - name: "Sending the notification email"
+#   when:
+#     - mail_subject is defined
+#     - mail_to | length > 0 or mail_cc | length > 0
+#   block:
+#     - name: "Retrieving secret from Vault"
+#       ansible.builtin.include_role:
+#         name: "common"
+#         tasks_from: "vault/get.yml"
+#       vars:
+#         vault:
+#           kv_version: "{{ vault_usr_kv_version }}"
+#           engine_mount_point: "{{ vault_usr_engine_mount_point }}"
+#           path: "{{ vault_usr_ansible_path }}"
+
+#     - name: "Sending email for certificate {{ certificate_common_name }} status"
+#       ansible.builtin.import_tasks: "roles/common/tasks/mail/send.yml"
+#       vars:
+#         cert_info: "{{ certificate_info }}"
+#         mail_password: "{{ vault_response.secret.email }}"
+#         mail_body_file: "mail-certificate.j2"

@@ -1,0 +1,61 @@
+---
+- name: "Verifying if the certificate is still valid"
+  community.crypto.x509_certificate_info:
+    path: "{{ ssl_certificate_path }}"
+    valid_at:
+      point_1: "+{{ config_vars.auto_renewal.days_for_yellow_alert }}d"
+      point_2: "+{{ config_vars.auto_renewal.days_for_red_alert }}d"
+  register: "certificate_info"
+
+- name: "Defining certificate values"
+  ansible.builtin.set_fact:
+    certificate_common_name: "{{ certificate_info.subject.commonName }}"
+    certificate_alert_is_yellow: "{{ not certificate_info.valid_at.point_1 }}"
+    certificate_alert_is_red: "{{ not certificate_info.valid_at.point_2 }}"
+    certificate_days_to_expire: "{{
+      ((certificate_info.not_after | to_datetime(config_vars.certificate_datetime_format)) -
+        (ansible_facts['date_time']['iso8601'] | to_datetime(config_vars.ansible_datetime_format))).days }}"
+
+- name: "Printing variables for certificate"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Certificate path: {{ ssl_certificate_path }}"
+      - "Common Name: {{ certificate_common_name }}"
+      - "Certificate Not Before (UTC): {{ (certificate_info.not_before | to_datetime(config_vars.certificate_datetime_format)) }}"
+      - "Certificate Not After  (UTC): {{ (certificate_info.not_after | to_datetime(config_vars.certificate_datetime_format)) }}"
+      - "Not Valid in {{ config_vars.auto_renewal.days_for_yellow_alert }} days: {{ certificate_alert_is_yellow }}"
+      - "Not Valid in {{ config_vars.auto_renewal.days_for_red_alert }} days: {{ certificate_alert_is_red }}"
+      - "Expire days: {{ certificate_days_to_expire }}"
+      - "Expired: {{ certificate_info.expired }}"
+      # - "Certificate Full Info: {{ certificate_info }}"
+
+- name: "Updating files"
+  when: certificate_alert_is_yellow or certificate_alert_is_red
+  block:
+    - name: "Updating the notification file with today's date"
+      ansible.builtin.lineinfile:
+        path: "{{ certificate_path ~ '/' ~ context_vars.notification_file }}"
+        line: "{{ ansible_facts['date_time']['date'] }}"
+        state: "present"
+        create: true
+        mode: "0644"
+      register: "should_send_notification"
+
+#     - name: "Adding the certificate to the pipeline file"
+#       when: config_vars.certificate_pki_pipeline is defined and config_vars.certificate_pki_pipeline | bool
+#       ansible.builtin.include_tasks: "add_certificate_to_pipeline_file.yml"
+
+- name: "Sending the notification"
+  when: should_send_notification.changed
+    # or certificate_process_mode == "creating"
+    # or certificate_process_mode == "importing"
+  ansible.builtin.include_tasks: "send_notification.yml"
+
+# - name: "Moving the expired certificate files to the backup folder"
+#   when: certificate_info.expired
+#   ansible.builtin.include_role:
+#     name: "pki_backup"
+#     tasks_from: "main.yml"
+#   vars:
+#     backup_mode: "expired"
