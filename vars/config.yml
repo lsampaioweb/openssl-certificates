@@ -11,6 +11,12 @@ certificate_signing_method: "vault"
 # Marker to trigger random passphrase generation.
 passphrase_random_marker: "?"
 
+# Date format strings.
+certificate_datetime_format: "%Y%m%d%H%M%SZ"
+
+# DateTime format for ISO 8601 standard used in Ansible.
+ansible_datetime_format: "%Y-%m-%dT%H:%M:%SZ"
+
 # Variables that will be used for creating a private key.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
 privatekey:
