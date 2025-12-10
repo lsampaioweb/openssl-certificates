@@ -158,13 +158,13 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 1. Verify a certificate:
 
     ```bash
-    ansible-playbook verify.yml -e @extra-vars.yml
+    ansible-playbook verify_certificate.yml -e @extra-vars.yml
     ```
 
 1. Import existing certificates:
 
     ```bash
-    ansible-playbook import.yml -e @extra-vars.yml
+    ansible-playbook import_certificate.yml -e @extra-vars.yml
     ```
 
 ## Check the Created Files
@@ -173,30 +173,30 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 
     If the private key is not password-protected, use the following command:
     ```bash
-    openssl rsa -in certificate.cer -check
+    openssl rsa -in *.key -check
     ```
 
     If the private key is password-protected, provide the password using the `-passin` option.
     ```bash
-    openssl rsa -in certificate.cer -check -passin pass:<private_key_password>
+    openssl rsa -in *.key -check -passin pass:<private_key_password>
     ```
 
 1. Check a Certificate Signing Request (CSR)
 
     ```bash
-    openssl req -text -noout -verify -in certificate.csr
+    openssl req -text -noout -verify -in *.csr
     ```
 
 1. Check a Certificate
 
     ```bash
-    openssl x509 -text -noout -in certificate.cer
+    openssl x509 -text -noout -in *.cer
     ```
 
 1. Check a PKCS#12 File (.pfx or .p12)
 
     ```bash
-    openssl pkcs12 -info -in certificate.pfx -passin pass:<pfx_password>
+    openssl pkcs12 -info -in *.pfx -passin pass:<pfx_password>
     ```
 
 **Created by:**
