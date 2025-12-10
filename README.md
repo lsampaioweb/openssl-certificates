@@ -155,11 +155,6 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
         ansible-playbook create_all.yml -e @extra-vars.yml
         ```
 
-        Or using inline extra-vars:
-        ```bash
-        ansible-playbook create_all.yml --extra-vars='{ "debug":true, "domain_context":"home", "certificate_environment":"prd", "certificates":["proxmox"] }' -i inventory/hosts
-        ```
-
 1. Verify a certificate:
 
     ```bash
@@ -170,12 +165,6 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 
     ```bash
     ansible-playbook import.yml -e @extra-vars.yml
-    ```
-
-1. Install the Root CA on servers:
-
-    ```bash
-    ansible-playbook install_ca.yml --limit "server"
     ```
 
 ## Check the Created Files
