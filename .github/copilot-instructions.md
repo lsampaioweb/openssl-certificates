@@ -14,9 +14,13 @@ This is an Ansible-based certificate management system for automated SSL/TLS cer
 
 ## Architecture Overview
 
-**Modular PKI System**: Each PKI operation is handled by dedicated roles (`private_key`, `csr`, `certificate_vault`, `pkcs12`, `verify`, `import`). Consider whether new tasks can be integrated into existing roles.
+**Modular PKI System**: Each PKI operation is handled by dedicated roles (`private_key`, `csr`, `certificate`, `pkcs12`, `verify`, `import`). Consider whether new tasks can be integrated into existing roles.
 
 **Vault PKI Integration**: Uses HashiCorp Vault PKI engine exclusively for certificate issuance. All certificate operations should go through Vault APIs unless there's a specific technical requirement.
+
+**Centralized Certificate Management**: The CertificateAuthorityServer acts as a centralized certificate repository storing certificates for all managed servers. All certificate lifecycle operations (creation, verification, storage) execute on this server. Only the import role deploys certificates to target servers.
+
+**Certificate Verification Approach**: The `verify` role validates certificate files directly (expiration dates, validity periods) rather than performing HTTP/HTTPS endpoint checks. It verifies the certificate artifacts themselves, not deployed service endpoints.
 
 **Dynamic Path Resolution**: Certificate paths are dynamically resolved using regex patterns in `roles/pki/tasks/main.yml`. Avoid hardcoding paths when possible.
 
@@ -25,17 +29,20 @@ This is an Ansible-based certificate management system for automated SSL/TLS cer
 **Certificate Lifecycle Pipeline**:
 ```bash
 # Individual steps (only when needed for debugging).
-ansible-playbook verify.yml
+ansible-playbook verify_certificate.yml
 ansible-playbook create_private_key.yml
 ansible-playbook create_csr.yml
 ansible-playbook create_certificate.yml
 ansible-playbook create_pkcs12.yml
 
-# Playbooks that calls all steps in sequence (preferred).
+# Complete pipeline (preferred).
 ansible-playbook create_all.yml
+
+# Import to target servers.
+ansible-playbook import_certificate.yml
 ```
 
-**Daily Verification Process**: A cronjob runs `verify.yml` daily to check certificate expiration.
+**Daily Verification Process**: A cronjob runs `verify_certificate.yml` daily to check certificate expiration on stored certificate files.
 
 **Configuration Management**: Each certificate uses `{certificate_path}/config.yml`. System auto-generates from `roles/pki/templates/config-vault.j2` when missing. Consider whether existing config patterns can meet new requirements.
 
