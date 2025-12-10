@@ -1,0 +1,9 @@
+---
+- name: "Create a private key"
+  hosts: "CertificateAuthorityServer"
+
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "private_key"

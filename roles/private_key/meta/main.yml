@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  author: "Luciano Sampaio"
+  description: "Ansible role to manage private keys for SSL certificates."
+  license: "MIT"
+
+  min_ansible_version: "2.15"
+
+dependencies:
+  - role: "common"
