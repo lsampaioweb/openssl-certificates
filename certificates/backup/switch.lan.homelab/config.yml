@@ -1,0 +1,8 @@
+---
+# Switch T1600G-28TS 3.0 requires a private key with no password.
+# If the variable is "" (empty), no password will be created for the files.
+privatekey_passphrase: ""
+
+csr_common_name: "switch.lan.homelab"
+csr_subject_alt_name:
+  - "DNS:switch.lan.homelab"

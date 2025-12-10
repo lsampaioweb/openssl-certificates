@@ -1,0 +1,21 @@
+---
+# macoskeychain
+keychain_path: "/Library/Keychains/System.keychain"
+keychain_temp_folder: "/tmp"
+
+import_config:
+  [
+    macoskeychain:
+      [
+        {
+          host: "Lucianos-MacBook-Pro.local",
+          keychain_path: "{{ keychain_path }}",
+          temp_folder: "{{ keychain_temp_folder }}",
+        },
+      ],
+    debian_ca:
+      [
+        { host: "localhost" },
+        { host: "pve-01" },
+      ],
+  ]

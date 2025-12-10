@@ -1,0 +1,20 @@
+---
+# tplinkt1600g
+tplink_port: 443
+tplink_tftp_folder: "/srv/tftp"
+tplink_tftp_app: "tftpd-hpa"
+
+import_config:
+  [
+    tplinkt1600g:
+      [
+        {
+          switch_id: "T1600G-28TS",
+          host: "switch.lan.homelab",
+          url: "switch.lan.homelab",
+          port: "{{ tplink_port }}",
+          tftp_folder: "{{ tplink_tftp_folder }}",
+          tftp_app: "{{ tplink_tftp_app }}",
+        },
+      ],
+  ]

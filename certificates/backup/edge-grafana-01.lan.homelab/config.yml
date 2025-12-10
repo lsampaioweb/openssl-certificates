@@ -1,0 +1,8 @@
+---
+# If the variable is "" (empty), no password will be created for the files.
+privatekey_passphrase: ""
+
+csr_common_name: "edge-grafana.lan.homelab"
+csr_subject_alt_name:
+  - "DNS:edge-grafana.lan.homelab"
+  - "DNS:edge-grafana-01.lan.homelab"
