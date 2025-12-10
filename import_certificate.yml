@@ -1,0 +1,10 @@
+---
+- name: "Import Certificates to Target Servers"
+  hosts: "CertificateAuthorityServer"
+
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "import"
+      - "verify"
