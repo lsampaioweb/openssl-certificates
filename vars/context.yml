@@ -46,5 +46,8 @@ default_roles_map:
   - "pkcs12"
   - "verify"
 
+# The file that will contain the dates of every notification that was sent about a certificate that is expiring soon.
+notification_file: "notifications.log"
+
 # The file with the instructions to import a certificate.
 import_file: "import.yml"
