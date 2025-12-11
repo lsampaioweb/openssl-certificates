@@ -10,7 +10,7 @@ certificate_signing_method: "vault"
 
 # Variables that will be used for creating a private key.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
-privatekey:
+private_key:
   # Extension for the private key file.
   # Common extensions include 'key' or 'pem'.
   extension: "key"

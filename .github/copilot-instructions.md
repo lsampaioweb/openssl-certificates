@@ -91,7 +91,7 @@ export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
   notify: "handler name"
 ```
 
-**Variable Naming**: Use snake_case with descriptive prefixes that indicate scope (e.g., `certificate_path`, `vault_response`, `privatekey_passphrase`).
+**Variable Naming**: Use snake_case with descriptive prefixes that indicate scope (e.g., `certificate_path`, `vault_response`, `private_key_passphrase`).
 
 **File Paths**: Use double quotes for all file paths and string values. Use absolute paths when referencing files across roles.
 

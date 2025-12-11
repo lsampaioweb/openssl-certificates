@@ -4,7 +4,7 @@ version: "2.0"
 
 # Variables that will be used for creating a private key.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
-privatekey:
+private_key:
   # Passphrase for the private key file.
   # - An empty string ("") means no passphrase will be used for the private key (default).
   # - A question mark ("?") triggers the automatic generation of a random passphrase.
