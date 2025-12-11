@@ -9,11 +9,6 @@ version: "{{ config_overrides.version }}"
 # - "vault": Use HashiCorp Vault to sign the certificate (default).
 certificate_signing_method: "{{ config_overrides.certificate_signing_method }}"
 {% endif %}
-{% if 'passphrase_random_marker' in config_overrides %}
-
-# Marker to trigger random passphrase generation.
-passphrase_random_marker: "{{ config_overrides.passphrase_random_marker }}"
-{% endif %}
 {% if 'privatekey' in config_overrides %}
 
 # Variables that will be used for creating a private key.

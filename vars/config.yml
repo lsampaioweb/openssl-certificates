@@ -8,15 +8,6 @@ version: "2.0"
 # - "vault": Use HashiCorp Vault to sign the certificate (default).
 certificate_signing_method: "vault"
 
-# Marker to trigger random passphrase generation.
-passphrase_random_marker: "?"
-
-# Date format strings.
-certificate_datetime_format: "%Y%m%d%H%M%SZ"
-
-# DateTime format for ISO 8601 standard used in Ansible.
-ansible_datetime_format: "%Y-%m-%dT%H:%M:%SZ"
-
 # Variables that will be used for creating a private key.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
 privatekey:
@@ -69,7 +60,7 @@ privatekey:
   # - An empty string ("") means no passphrase will be used for the private key (default).
   # - A question mark ("?") triggers the automatic generation of a random passphrase.
   # - Any other string (e.g., "SuperSecretPassword") will be used as the explicit passphrase.
-  passphrase: "{{ base_config_vars.passphrase_random_marker }}"
+  passphrase: "{{ context_vars.passphrase_random_marker }}"
 
   # Length of the random passphrase if 'passphrase' is set to "?".
   # A size of 30 characters provides strong security for the passphrase.

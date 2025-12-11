@@ -25,6 +25,24 @@ certificate_excludes:
 # The file with the variables that will be used to create a certificate.
 config_file: "config.yml"
 
+# The default roles that should be executed if the the user does not provide any.
+default_roles_map:
+  - "backup"
+  - "private_key"
+  - "csr"
+  - "certificate"
+  - "pkcs12"
+  - "verify"
+
+# Marker to trigger random passphrase generation.
+passphrase_random_marker: "?"
+
+# Date format strings.
+certificate_datetime_format: "%Y%m%d%H%M%SZ"
+
+# DateTime format for ISO 8601 standard used in Ansible.
+ansible_datetime_format: "%Y-%m-%dT%H:%M:%SZ"
+
 # The directory that will contain backup files.
 backup_directory: "backup"
 
@@ -36,15 +54,6 @@ backup_config_files_to_keep: 5
 
 # The datetime format to use in backup filenames for config files.
 backup_config_datetime_format: "+%Y-%m-%d-%H-%M-%S"
-
-# The default roles that should be executed if the the user does not provide any.
-default_roles_map:
-  - "backup"
-  - "private_key"
-  - "csr"
-  - "certificate"
-  - "pkcs12"
-  - "verify"
 
 # The file that will contain the dates of every notification that was sent about a certificate that is expiring soon.
 notification_file: "notifications.log"
