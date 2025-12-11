@@ -25,6 +25,24 @@
         loop_var: "role"
 
   rescue:
-    - name: "Handling error during processing of certificate: {{ certificate_name }}"
+    - name: "Capturing error details for certificate: {{ certificate_name }}"
+      ansible.builtin.set_fact:
+        certificate_error:
+          certificate: "{{ certificate_name }}"
+          path: "{{ certificate_path }}"
+          domain: "{{ certificate_domain }}"
+          environment: "{{ certificate_environment }}"
+          error: "{{ ansible_failed_result | default('Unknown error') }}"
+          timestamp: "{{ ansible_facts['date_time']['iso8601'] }}"
+
+    - name: "Logging error to failure list"
+      ansible.builtin.set_fact:
+        failed_certificates: "{{ failed_certificates | default([]) + [certificate_error] }}"
+
+    - name: "Printing error details for certificate: {{ certificate_name }}"
       ansible.builtin.debug:
-        msg: "An error occurred while processing the certificate: {{ certificate_name }}"
+        msg:
+          - "ERROR: Failed to process certificate '{{ certificate_name }}'"
+          - "Path: {{ certificate_path }}"
+          - "Error details: {{ ansible_failed_result.msg | default('Unknown error') }}"
+          - "Continuing to next certificate..."
