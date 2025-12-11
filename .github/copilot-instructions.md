@@ -75,6 +75,8 @@ export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
 
 **No Python Code**: This is a pure Ansible project. Do not suggest Python filters, plugins, or scripts. All solutions must use native Ansible features (Jinja2 templates, filters, lookups, modules).
 
+**No Shell Commands**: NEVER use `ansible.builtin.shell` or `ansible.builtin.command` modules. These violate project standards. Use native Ansible modules from `ansible.builtin.*` or community collections only. The `command` module is only acceptable in exceptional cases with explicit justification.
+
 **Language**: All code must be in English - variable names, comments, task names, file names, and documentation.
 
 **Task Naming**: Use gerund form for task names (e.g., "Copying config file", "Creating certificate directory") rather than imperative form ("Copy config file", "Create certificate directory").
@@ -127,7 +129,7 @@ loop_control:
 
 **Certificate Exclusions**: Folders prefixed with `_` are automatically excluded from processing. Backup paths and incomplete directory structures are filtered out in the main processing loop.
 
-**Password Handling**: Private key passphrases use marker `"?"` for auto-generation, empty string for no password, or explicit values. Generated passwords are automatically stored in Vault.
+**Password Handling**: Private key passphrases use marker `"?"` for auto-generation, empty string for no password, or explicit values. ALL generated and user-provided passwords are stored in the secret manager, EXCEPT empty strings. When passphrase is `"?"`, new keys are generated on every run (non-idempotent by design) to allow forced regeneration.
 
 **Legacy Compatibility**: PKCS12 files support legacy encryption via `pkcs12_encryption: "compatibility2022"` for older systems compatibility.
 
