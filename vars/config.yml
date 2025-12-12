@@ -2,11 +2,18 @@
 # The version of the configuration file format.
 version: "2.0"
 
-# Specifies the method used to sign the certificate.
+# Specifies the provider that will be used to sign the certificates.
 # Options:
-# - "openssl": Use the local OpenSSL tool to sign the certificate.
-# - "vault": Use HashiCorp Vault to sign the certificate (default).
-certificate_signing_method: "vault"
+#   "vault": HashiCorp Vault PKI Engine (default).
+#   "openssl": The local OpenSSL tool.
+certificate_signing_provider: "vault"
+
+# Secret storage provider for passwords and sensitive data.
+# Options:
+#   "vault": HashiCorp Vault Secret Engine (default).
+#   "keyring" (Ubuntu).
+#   "keychain" (MacOS).
+secrets_provider: "vault"
 
 # Variables that will be used for creating a private key.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html

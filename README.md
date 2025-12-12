@@ -65,7 +65,7 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 
 ## Config Variables
 
-1. Signing Method (certificate_signing_method):
+1. Signing Method (certificate_signing_provider):
 
     Specifies the method used to sign the certificate.
 

@@ -10,7 +10,7 @@
 #     mail_subject: "[SSL] The certificate: {{ certificate_common_name }} was created"
 #     mail_main_message: >
 #       The certificate '<strong>{{ certificate_common_name }}</strong>' was created
-#       using <strong>{{ config_vars.certificate_ca_name | default(config_vars.certificate_signing_method) }}</strong>.
+#       using <strong>{{ config_vars.certificate_ca_name | default(config_vars.certificate_signing_provider) }}</strong>.
 
 # - name: "Setting email subject for importing certificate"
 #   when: certificate_process_mode == "importing"

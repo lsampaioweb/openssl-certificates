@@ -60,7 +60,7 @@ export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
 **Variable Usage**: Prefer existing variables from `vars/config.yml`. Common required variables:
 - `certificate_domain`: Target domain from approved list.
 - `certificate_environment`: "stg" | "prd" only.
-- `certificate_signing_method:` "vault" (recommended default).
+- `certificate_signing_provider:` "vault" (recommended default).
 - `certificates`: Array for specific processing, `[]` for all.
 
 **File Organization**: Use personal config files as `extra-vars-{username}.yml`. Avoid modifying shared configuration files directly.

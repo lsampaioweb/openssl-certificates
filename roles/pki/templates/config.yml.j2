@@ -1,13 +1,22 @@
 ---
 # The version of the configuration file format.
 version: "{{ config_overrides.version }}"
-{% if 'certificate_signing_method' in config_overrides %}
+{% if 'certificate_signing_provider' in config_overrides %}
 
-# Specifies the method used to sign the certificate.
+# Specifies the provider that will be used to sign the certificates.
 # Options:
-# - "openssl": Use the local OpenSSL tool to sign the certificate.
-# - "vault": Use HashiCorp Vault to sign the certificate (default).
-certificate_signing_method: "{{ config_overrides.certificate_signing_method }}"
+#   "vault": HashiCorp Vault PKI Engine (default).
+#   "openssl": The local OpenSSL tool.
+certificate_signing_provider: "{{ config_overrides.certificate_signing_provider }}"
+{% endif %}
+{% if 'secrets_provider' in config_overrides %}
+
+# Secret storage provider for passwords and sensitive data.
+# Options:
+#   "vault": HashiCorp Vault Secret Engine (default).
+#   "keyring" (Ubuntu).
+#   "keychain" (MacOS).
+secrets_provider: "{{ config_overrides.secrets_provider }}"
 {% endif %}
 {% if 'private_key' in config_overrides %}
 
