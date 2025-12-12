@@ -7,7 +7,7 @@ certificates_path: "/opt/certificates"
 
 # List of all Ansible Galaxy collections required by this project.
 ansible_galaxy_collections:
-  - {name: community.general} # General purpose Ansible roles and collections.
-  - {name: community.hashi_vault} # HashiCorp Vault.
-  - {name: community.crypto} # Cryptography and HashiCorp Vault.
-  - {name: ansible.posix} # POSIX utilities.
+  - {name: ansible.posix, state: "latest"} # POSIX utilities.
+  - {name: community.general, state: "latest"} # General purpose Ansible roles and collections.
+  - {name: community.hashi_vault, state: "latest"} # HashiCorp Vault.
+  - {name: community.crypto, state: "latest"} # Cryptography and HashiCorp Vault.
