@@ -1,0 +1,81 @@
+---
+- name: "Creating the basic variables"
+  ansible.builtin.set_fact:
+    private_key_passphrase: ""
+    csr_creation_output: {}
+    csr_path: "{{ certificate_path_and_name ~ config_vars.csr.extension }}"
+    private_key_path: "{{ certificate_path_and_name ~ config_vars.private_key.extension }}"
+  vars:
+    certificate_path_and_name: "{{ certificate_path ~ '/' ~ certificate_name ~ '.' }}"
+
+- name: "Retrieving Private Key passphrase from secret storage if required"
+  when: config_vars.private_key.passphrase != ''
+  block:
+    - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.secret_provider }}'"
+      ansible.builtin.include_role:
+        name: "common"
+        tasks_from: "secrets/{{ config_vars.secret_provider }}/read.yml"
+      vars:
+        secret_key: "{{ certificate_domain ~ '/' ~ execution_environment ~ '/' ~ certificate_name }}"
+
+    - name: "Setting the Private Key passphrase variable 'private_key_passphrase'"
+      no_log: "{{ not debug | default(true) }}"
+      ansible.builtin.set_fact:
+        # If secret_value is not defined, it will use an empty string.
+        private_key_passphrase: "{{ secret_value | default('', true) }}"
+
+- name: "Printing input variables for Certificate Signing Request (CSR) creation"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "CSR path: {{ csr_path }}"
+      - "Digest: {{ config_vars.csr.digest }}"
+      - "Country name: {{ config_vars.csr.country_name }}"
+      - "State or province name: {{ config_vars.csr.state_or_province_name }}"
+      - "Locality name: {{ config_vars.csr.locality_name }}"
+      - "Organization name: {{ config_vars.csr.organization_name }}"
+      - "Organizational unit name: {{ config_vars.csr.organizational_unit_name }}"
+      - "Common name: {{ config_vars.csr.common_name | default(certificate_name, true) }}"
+      - "Email address: {{ config_vars.csr.email_address }}"
+      - "Subject alt name: {{ config_vars.csr.subject_alt_name | default(['DNS:' ~ certificate_name], true) }}"
+      - "Basic constraints: {{ config_vars.csr.basic_constraints }}"
+      - "Basic constraints critical: {{ config_vars.csr.basic_constraints_critical }}"
+      - "Key usage: {{ config_vars.csr.key_usage }}"
+      - "Key usage critical: {{ config_vars.csr.key_usage_critical }}"
+      - "Extended key usage: {{ config_vars.csr.extended_key_usage }}"
+      - "Extended key usage critical: {{ config_vars.csr.extended_key_usage_critical }}"
+      - "Private Key path: {{ private_key_path }}"
+
+- name: "Creating a Certificate Signing Request (CSR)"
+  no_log: "{{ not debug | default(true) }}"
+  # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/openssl_csr_module.html
+  community.crypto.openssl_csr:
+    path: "{{ csr_path }}"
+    digest: "{{ config_vars.csr.digest }}"
+    country_name: "{{ config_vars.csr.country_name }}"
+    state_or_province_name: "{{ config_vars.csr.state_or_province_name }}"
+    locality_name: "{{ config_vars.csr.locality_name }}"
+    organization_name: "{{ config_vars.csr.organization_name }}"
+    organizational_unit_name: "{{ config_vars.csr.organizational_unit_name }}"
+    common_name: "{{ config_vars.csr.common_name | default(certificate_name, true) }}"
+    email_address: "{{ config_vars.csr.email_address }}"
+    subject_alt_name: "{{ config_vars.csr.subject_alt_name | default(['DNS:' ~ certificate_name], true) }}"
+    basic_constraints: "{{ config_vars.csr.basic_constraints }}"
+    basic_constraints_critical: "{{ config_vars.csr.basic_constraints_critical }}"
+    key_usage: "{{ config_vars.csr.key_usage }}"
+    key_usage_critical: "{{ config_vars.csr.key_usage_critical }}"
+    extended_key_usage: "{{ config_vars.csr.extended_key_usage }}"
+    extended_key_usage_critical: "{{ config_vars.csr.extended_key_usage_critical }}"
+
+    # Private Key parameters.
+    privatekey_path: "{{ private_key_path }}"
+    privatekey_passphrase: "{{ private_key_passphrase | default(omit, true) }}"
+
+    mode: "0644"
+  register: "csr_creation_output"
+
+- name: "Printing Certificate Signing Request (CSR) creation result"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ csr_creation_output }}"

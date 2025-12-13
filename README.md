@@ -6,40 +6,6 @@ This set of playbooks can verify if the certificate created by our own Certifica
 
 - The Ansible server must be running a Linux-based OS (tested on Oracle Linux and Ubuntu).
 
-## Extra Variables from the command line
-
-1. Debug:
-
-    Enables or disables additional debug messages. Defaults to **false**.
-
-    ```json
-    --extra-vars='{ "debug":true }'
-    ```
-
-1. Domain:
-
-    Specifies the domain context for the certificate (e.g., `home` or `homelab`). Defaults to **home**.
-
-    ```json
-    --extra-vars='{ "domain_context":"home" }'
-    ```
-
-1. Environment:
-
-    Specifies the environment for the certificate (e.g., `stg` for Staging or `prd` for Production). Defaults to **prd**.
-
-    ```json
-    --extra-vars='{ "certificate_environment":"prd" }'
-    ```
-
-1. Certificates:
-
-    Defines which certificates should be verified, created, or imported. If no value is provided, all certificates will be processed. Defaults to `[]` to process all certificates found in the folder structure.
-
-    ```json
-    --extra-vars='{ "certificates":["gitea", "minio"] }'
-    ```
-
 ## Extra Variables from a file
 
 You can also provide extra variables using a YAML file. For example, to create a file named `extra-vars.yml` with the following content:
@@ -92,20 +58,20 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 
 1. Install the required roles and collections on the `Ansible Controller` server:
 
-    Choose the inventory file, the default is `inventory/hosts`:
-    ```bash
-    ansible-playbook prepare_controller.yml -i inventory/hosts
-    ```
+    - Choose the inventory file, the default is `inventory/hosts`:
+      ```bash
+      ansible-playbook prepare_controller.yml -i inventory/hosts
+      ```
 
-    Specify the server name in the `--limit` parameter to prepare only that host, or omit it to prepare all hosts in the inventory:
-    ```bash
-    ansible-playbook prepare_controller.yml --limit "server-name"
-    ```
+    - Specify the server name in the `--limit` parameter to prepare only that host, or omit it to prepare all hosts in the inventory:
+      ```bash
+      ansible-playbook prepare_controller.yml --limit "server-name"
+      ```
 
-    To run the playbook with specific tags, use the `--tags` option. For example, to run only untagged tasks and dev_environment tasks:
-    ```bash
-    ansible-playbook prepare_controller.yml --tags "untagged,dev_environment"
-    ```
+    - To run the playbook with specific tags, use the `--tags` option. For example, to run only untagged tasks and dev_environment tasks:
+      ```bash
+      ansible-playbook prepare_controller.yml --tags "untagged,dev_environment"
+      ```
 
 1. Set environment variables for HashiCorp Vault access:
 
@@ -128,32 +94,32 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 
     1. Generate individual components of a certificate:
 
-        Create the private key:
-        ```bash
-        ansible-playbook create_private_key.yml -e @extra-vars.yml
-        ```
+        - Create the private key:
+          ```bash
+          ansible-playbook create_private_key.yml -e @extra-vars.yml
+          ```
 
-        Create the Certificate Signing Request (CSR):
-        ```bash
-        ansible-playbook create_csr.yml -e @extra-vars.yml
-        ```
+        - Create the Certificate Signing Request (CSR):
+          ```bash
+          ansible-playbook create_csr.yml -e @extra-vars.yml
+          ```
 
-        Create the certificate:
-        ```bash
-        ansible-playbook create_certificate.yml -e @extra-vars.yml
-        ```
+        - Create the certificate:
+          ```bash
+          ansible-playbook create_certificate.yml -e @extra-vars.yml
+          ```
 
-        Create the PKCS#12 file:
-        ```bash
-        ansible-playbook create_pkcs12.yml -e @extra-vars.yml
-        ```
+        - Create the PKCS#12 file:
+          ```bash
+          ansible-playbook create_pkcs12.yml -e @extra-vars.yml
+          ```
 
     1. Generate all components of a certificate in one step:
 
-        Create all files using `OpenSSL` or `HCP Vault` (default):
-        ```bash
-        ansible-playbook create_all.yml -e @extra-vars.yml
-        ```
+        - Create all files using `OpenSSL` or `HCP Vault` (default):
+          ```bash
+          ansible-playbook create_all.yml -e @extra-vars.yml
+          ```
 
 1. Verify a certificate:
 
@@ -172,14 +138,26 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 1. Check a Private Key
 
     If the private key is not password-protected, use the following command:
-    ```bash
-    openssl rsa -in *.key -check
-    ```
 
-    If the private key is password-protected, provide the password using the `-passin` option.
-    ```bash
-    openssl rsa -in *.key -check -passin pass:<private_key_password>
-    ```
+    - Works for `RSA` keys.
+      ```bash
+      openssl rsa -in *.key -check
+      ```
+
+    - Works for `ECC` keys.
+      ```bash
+      openssl ec -in *.key -check
+      ```
+
+    - Works for both `RSA` and `ECC` keys in PKCS#8 format.
+      ```bash
+      openssl pkcs8 -in *.key
+      ```
+
+    - If the private key is password-protected, provide the password using the `-passin` option.
+      ```bash
+      openssl rsa -in *.key -check -passin pass:<private_key_password>
+      ```
 
 1. Check a Certificate Signing Request (CSR)
 

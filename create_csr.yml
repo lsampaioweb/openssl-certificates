@@ -1,5 +1,5 @@
 ---
-- name: "Create Certificate Signing Requests"
+- name: "Create Certificate Signing Requests (CSR)"
   hosts: "CertificateAuthorityServer"
 
   roles:
