@@ -36,10 +36,13 @@ private_key:
   # Type of the private key to be generated.
   # Determines the algorithm used for generating the private key.
   # Common options include:
-  # - 'RSA': Widely used and supports various key lengths (e.g., 2048, 4096 bits).
   # - 'DSA': Less commonly used, mainly for compatibility with older systems.
   # - 'ECC': Uses elliptic curve cryptography for smaller key sizes and faster performance.
   # - 'Ed25519': A modern elliptic curve algorithm known for its speed and security.
+  # - 'Ed448': A variant of Ed25519 with a larger key size for enhanced security.
+  # - 'RSA': Widely used and supports various key lengths (e.g., 2048, 4096 bits).
+  # - 'X25519': Primarily used for key exchange in secure communications.
+  # - 'X448': A variant of X25519 with a larger key size for enhanced security.
   type: "ECC"
 
   # The size of the private key in bits.
@@ -168,7 +171,7 @@ certificate:
 
   # Sets the expiration date of the certificate.
   # Can be set using relative times (e.g., "365 days") or a specific date (e.g., "2024-12-31"). If empty, it uses a default duration of the role.
-  not_after: "+300d"
+  not_after: "+90d"
 
 # Variables that will be used for creating a PKCS12 file.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
@@ -197,15 +200,15 @@ auto_renewal:
   # When enabled, certificates nearing expiration will be automatically renewed based on the defined criteria.
   enabled: true
 
+  # Number of days before expiration to trigger auto-renewal.
+  # If the certificate is set to expire within this number of days, it will be automatically renewed.
+  days_before_expiration: 5
+
   # Number of days before expiration to trigger yellow/warning status.
   days_for_yellow_alert: 15
 
   # Number of days before expiration to trigger red/critical status.
   days_for_red_alert: 5
-
-  # Number of days before expiration to trigger auto-renewal.
-  # If the certificate is set to expire within this number of days, it will be automatically renewed.
-  days_before_expiration: 5
 
   # Maintenance windows for certificate import operations.
   # Each window defines when certificate imports are allowed.

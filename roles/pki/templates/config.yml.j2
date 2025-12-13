@@ -262,6 +262,14 @@ auto_renewal:
   # If the certificate is set to expire within this number of days, it will be automatically renewed.
   days_before_expiration: {{ config_overrides.auto_renewal.days_before_expiration }}
 {% endif %}
+{% if 'days_for_yellow_alert' in config_overrides.auto_renewal %}
+  # Number of days before expiration to trigger yellow/warning status.
+  days_for_yellow_alert: {{ config_overrides.auto_renewal.days_for_yellow_alert }}
+{% endif %}
+{% if 'days_for_red_alert' in config_overrides.auto_renewal %}
+  # Number of days before expiration to trigger red/critical status.
+  days_for_red_alert: {{ config_overrides.auto_renewal.days_for_red_alert }}
+{% endif %}
 {% if 'certificate_pki_pipeline_window' in config_overrides.auto_renewal %}
   # Maintenance windows for certificate import operations.
   # Each window defines when certificate imports are allowed.
