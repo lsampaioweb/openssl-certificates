@@ -75,7 +75,11 @@ export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
 
 **No Python Code**: This is a pure Ansible project. Do not suggest Python filters, plugins, or scripts. All solutions must use native Ansible features (Jinja2 templates, filters, lookups, modules).
 
-**No Shell Commands**: NEVER use `ansible.builtin.shell` or `ansible.builtin.command` modules. These violate project standards. Use native Ansible modules from `ansible.builtin.*` or community collections only. The `command` module is only acceptable in exceptional cases with explicit justification.
+**No Shell Commands**: NEVER use `ansible.builtin.shell` or `ansible.builtin.command` modules. These violate project standards. Use native Ansible modules from `ansible.builtin.*` or community collections only.
+
+**Approved Exceptions for `command` Module**:
+- macOS Keychain operations (`security` command) - No native Ansible module exists
+- Other cases require explicit justification and documentation
 
 **Language**: All code must be in English - variable names, comments, task names, file names, and documentation.
 
