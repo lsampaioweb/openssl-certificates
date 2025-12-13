@@ -13,7 +13,7 @@ certificate_signing_provider: "vault"
 #   "vault": HashiCorp Vault Secret Engine (default).
 #   "keyring" (Ubuntu).
 #   "keychain" (MacOS).
-secrets_provider: "vault"
+secret_provider: "vault"
 
 # Variables that will be used for creating a private key.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html

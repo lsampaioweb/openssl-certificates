@@ -6,7 +6,7 @@
     converted_config:
       version: "{{ reference_config_vars.version }}"
       certificate_signing_provider: "{{ certificate_config_vars.certificate_signing_method | default(omit) }}"
-      secrets_provider: "{{ certificate_config_vars.secrets_provider | default(omit) }}"
+      secret_provider: "{{ certificate_config_vars.secret_provider | default(omit) }}"
       private_key:
         extension: "{{ certificate_config_vars.privatekey_extension | default(omit) }}"
         format: "{{ certificate_config_vars.privatekey_format | default(omit) }}"

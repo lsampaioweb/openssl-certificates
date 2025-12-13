@@ -9,14 +9,14 @@ version: "{{ config_overrides.version }}"
 #   "openssl": The local OpenSSL tool.
 certificate_signing_provider: "{{ config_overrides.certificate_signing_provider }}"
 {% endif %}
-{% if 'secrets_provider' in config_overrides %}
+{% if 'secret_provider' in config_overrides %}
 
 # Secret storage provider for passwords and sensitive data.
 # Options:
 #   "vault": HashiCorp Vault Secret Engine (default).
 #   "keyring" (Ubuntu).
 #   "keychain" (MacOS).
-secrets_provider: "{{ config_overrides.secrets_provider }}"
+secret_provider: "{{ config_overrides.secret_provider }}"
 {% endif %}
 {% if 'private_key' in config_overrides %}
 
