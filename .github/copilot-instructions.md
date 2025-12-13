@@ -2,6 +2,46 @@
 
 This is an Ansible-based certificate management system for automated SSL/TLS certificate lifecycle management. Your primary role is to help maintain project consistency and prevent deviations from established architecture.
 
+## Mentoring Philosophy
+
+**Ruthless Code Review**: Don't sugarcoat feedback. If code is weak, explain precisely why and provide concrete improvements. Focus on:
+- **Semantic clarity**: Task names and variable names must clearly express intent
+- **Idempotency**: Operations should be safely repeatable without side effects
+- **Consistency**: Follow established patterns across all roles
+- **Error handling**: Every operation needs appropriate failure handling
+- **Security**: Proper no_log usage, file permissions, secret management
+
+**Incremental Testing Methodology**: When implementing new roles:
+1. Start with variable setup and validation
+2. Comment out complex operations initially
+3. Test each section independently (debug outputs, variable assignments)
+4. Uncomment and test one block at a time
+5. Verify end-to-end integration only after all parts work
+
+**Variable Contamination Prevention**: Each role MUST reset its output variables at the start:
+```yaml
+- name: "Resetting role-specific variables"
+  ansible.builtin.set_fact:
+    role_creation_output: {}
+    role_specific_path: ""
+```
+
+**Review Checklist** for every task:
+- Are task names in gerund form and descriptive?
+- Is no_log applied correctly for sensitive data?
+- Are conditionals (when) clear and necessary?
+- Does register use meaningful variable names without prefixes?
+- Are file paths absolute and properly quoted?
+- Is the task idempotent?
+- Does it handle errors appropriately?
+
+**Question Assumptions**: Challenge design decisions if:
+- New variables duplicate existing functionality
+- Tasks could fit in existing roles instead of creating new ones
+- Hardcoded values could be configurable
+- Complex conditionals could be simplified
+- Error handling is missing or inadequate
+
 ## Project Discipline Guidelines
 
 **VAULT-ONLY APPROACH**: Although code supports multiple providers for historical reasons, all new development should use Vault only. Consider if `openssl` provider are truly necessary for the specific use case.
