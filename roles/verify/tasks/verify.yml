@@ -1,7 +1,7 @@
 ---
 - name: "Verifying if the certificate is still valid"
   community.crypto.x509_certificate_info:
-    path: "{{ ssl_certificate_path }}"
+    path: "{{ certificate_file }}"
     valid_at:
       point_1: "+{{ config_vars.auto_renewal.days_for_yellow_alert }}d"
       point_2: "+{{ config_vars.auto_renewal.days_for_red_alert }}d"
@@ -20,7 +20,7 @@
   when: debug | bool
   ansible.builtin.debug:
     msg:
-      - "Certificate path: {{ ssl_certificate_path }}"
+      - "Certificate file: {{ certificate_file }}"
       - "Common Name: {{ certificate_common_name }}"
       - "Certificate Not Before (UTC): {{ (certificate_info.not_before | to_datetime(context_vars.certificate_datetime_format)) }}"
       - "Certificate Not After  (UTC): {{ (certificate_info.not_after | to_datetime(context_vars.certificate_datetime_format)) }}"

@@ -67,10 +67,13 @@
     # Default to an empty string if no match.
     certificate_environment: "{{ (certificate_path | regex_search(environment_regex, '\\2') | default([], true) | first | default('', true)) }}"
 
-    # Construct the certificate name based on the file or folder in the path.
+    # The certificate name based on the file or folder in the path.
     # - Use `basename` to get the last segment of the path.
     # - Append the domain to the basename if the domain is not present in the basename.
     certificate_name: >-
       {{ certificate_path | basename }}{{
         (certificate_path | basename) is search(certificate_domain) | ternary('', '.' + certificate_domain)
       }}
+
+    # The base path and name for the certificate files.
+    certificate_path_and_name: "{{ certificate_path ~ '/' ~ certificate_name }}"

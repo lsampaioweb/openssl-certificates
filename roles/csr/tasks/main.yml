@@ -3,10 +3,8 @@
   ansible.builtin.set_fact:
     private_key_passphrase: ""
     csr_creation_output: {}
-    csr_path: "{{ certificate_path_and_name ~ config_vars.csr.extension }}"
-    private_key_path: "{{ certificate_path_and_name ~ config_vars.private_key.extension }}"
-  vars:
-    certificate_path_and_name: "{{ certificate_path ~ '/' ~ certificate_name ~ '.' }}"
+    private_key_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.private_key.extension }}"
+    csr_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.csr.extension }}"
 
 - name: "Retrieving Private Key passphrase from secret storage if required"
   when: config_vars.private_key.passphrase != ''
@@ -28,7 +26,9 @@
   when: debug | bool
   ansible.builtin.debug:
     msg:
-      - "CSR path: {{ csr_path }}"
+      - "Private Key file: {{ private_key_file }}"
+
+      - "CSR file: {{ csr_file }}"
       - "Digest: {{ config_vars.csr.digest }}"
       - "Country name: {{ config_vars.csr.country_name }}"
       - "State or province name: {{ config_vars.csr.state_or_province_name }}"
@@ -44,13 +44,16 @@
       - "Key usage critical: {{ config_vars.csr.key_usage_critical }}"
       - "Extended key usage: {{ config_vars.csr.extended_key_usage }}"
       - "Extended key usage critical: {{ config_vars.csr.extended_key_usage_critical }}"
-      - "Private Key path: {{ private_key_path }}"
 
 - name: "Creating a Certificate Signing Request (CSR)"
   no_log: "{{ not debug | default(true) }}"
   # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/openssl_csr_module.html
   community.crypto.openssl_csr:
-    path: "{{ csr_path }}"
+    # Private Key parameters.
+    privatekey_path: "{{ private_key_file }}"
+    privatekey_passphrase: "{{ private_key_passphrase | default(omit, true) }}"
+
+    path: "{{ csr_file }}"
     digest: "{{ config_vars.csr.digest }}"
     country_name: "{{ config_vars.csr.country_name }}"
     state_or_province_name: "{{ config_vars.csr.state_or_province_name }}"
@@ -66,11 +69,6 @@
     key_usage_critical: "{{ config_vars.csr.key_usage_critical }}"
     extended_key_usage: "{{ config_vars.csr.extended_key_usage }}"
     extended_key_usage_critical: "{{ config_vars.csr.extended_key_usage_critical }}"
-
-    # Private Key parameters.
-    privatekey_path: "{{ private_key_path }}"
-    privatekey_passphrase: "{{ private_key_passphrase | default(omit, true) }}"
-
     mode: "0644"
   register: "csr_creation_output"
 
