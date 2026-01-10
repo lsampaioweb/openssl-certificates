@@ -51,6 +51,17 @@ csr:
     - "digitalSignature"
     - "keyCertSign"
     - "cRLSign"
+  # Extended key usage extensions to be included in the CSR.
+  # This further refines the specific purposes of the key in different contexts.
+  # extended_key_usage:
+    # - "serverAuth"      # For SSL/TLS server authentication.
+    # - "clientAuth"      # For SSL/TLS client authentication.
+    # - "emailProtection" # For securing email communications.
+    # - "codeSigning"     # For signing executable code to ensure authenticity.
+    # - "timeStamping"    # For creating secure timestamps.
+  extended_key_usage: []
+  # Indicates whether the extended key usage extension is critical.
+  extended_key_usage_critical: false
 
 # Variables that will be used for creating a certificate.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
