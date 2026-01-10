@@ -1,11 +1,11 @@
 ---
-- name: "Loading base context file"
+- name: "Loading base context file: '{{ context_file }}'"
   ansible.builtin.include_vars:
     file: "{{ context_file }}"
     name: "base_context_vars"
 
 
-- name: "Loading domain-specific context file"
+- name: "Loading domain-specific context file: '{{ domain_context_file }}'"
   ansible.builtin.include_vars:
     file: "{{ domain_context_file }}"
     name: "domain_context_vars"

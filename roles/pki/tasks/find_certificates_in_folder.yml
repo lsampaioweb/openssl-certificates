@@ -2,7 +2,7 @@
 - name: "Joining certificate elements into a comma-separated string"
   when: certificates is defined and certificates | length > 0
   ansible.builtin.set_fact:
-    certificates_to_find_patterns: "{{ certificates | join(',') }}"
+    certificates_to_find_patterns: "{{ certificates | unique | join(',') }}"
 
 # - name: "Preparing the mount directory"
 #   ansible.builtin.import_tasks: "mount_remote_disk.yml"
@@ -19,14 +19,14 @@
     excludes: "{{ context_vars.certificate_excludes | default([]) }}"
   register: "folders_found"
 
-- name: "Filtering and sorting the list of found certificates"
+- name: "Filtering the list of found certificates"
   ansible.builtin.set_fact:
-    certificates_list: "{{ folders_found | json_query('files[*].path') | sort }}"
+    certificates_list: "{{ folders_found | json_query('files[*].path') }}"
 
 - name: "Filtering the list to only include parent directories if searching for files"
   when: file_type is defined and file_type == "file"
   ansible.builtin.set_fact:
-    certificates_list: "{{ certificates_list | map('dirname') | list | sort }}"
+    certificates_list: "{{ certificates_list | map('dirname') | list }}"
 
 - name: "Manually constructing the list of certificates if none were found and specific certificates were provided"
   when:
@@ -36,7 +36,7 @@
     # The 'map' function applies 'regex_replace' to each item in 'certificates'.
     # It adds the 'path' as a prefix to each certificate by replacing the beginning (^) of each string.
     # The 'list' filter converts the result back into a list after applying 'map'.
-    certificates_list: "{{ certificates | map('regex_replace', '^', path ~ '/') | list | sort }}"
+    certificates_list: "{{ certificates | map('regex_replace', '^', path ~ '/') | list }}"
 
 - name: "Printing variables"
   when: debug | bool

@@ -124,6 +124,8 @@ csr:
 
   # Basic constraints to be included in the CSR.
   # 'CA:TRUE' indicates that this certificate can be used to sign other certificates.
+  #   ,pathlen:1 means this Root CA can sign intermediate CAs (1 level down), but not end-entity certificates.
+  #   ,pathlen:0 means this Sub CA can sign end-entity certificates, but cannot sign other CAs.
   # 'CA:FALSE' indicates that this certificate cannot be used to sign other certificates.
   basic_constraints: "CA:FALSE"
 
@@ -133,11 +135,17 @@ csr:
 
   # Key usage extensions to be included in the CSR (Certificate Signing Request).
   # This defines the allowed cryptographic operations for the key.
+  # key_usage:
+    # - "digitalSignature" # Sign data for authentication, integrity, TLS handshakes, CRLs, OCSP responses.
+    # - "keyEncipherment"  # Encrypt symmetric keys for transfer (RSA key exchange).
+    # - "keyAgreement"     # Establish symmetric keys via key agreement (ECDHE/DHE) - recommended for modern TLS.
+    # - "nonRepudiation"   # Prevents signing entity from denying an action (legal/audit contexts).
+    # - "dataEncipherment" # Encrypt/decrypt actual application data (rarely used).
+    # - "keyCertSign"      # Sign certificates - CA certificates ONLY (Root CA signs Sub CAs, Sub CA signs end-entity certs).
+    # - "cRLSign"          # Sign certificate revocation lists (CRLs) - CA certificates ONLY.
   key_usage:
-    - "digitalSignature" # Allows the key to sign data, often for authentication or integrity.
-    - "keyEncipherment"  # Allows the key to encrypt keys for secure communication.
-    # - "keyCertSign"      # Allows the key to sign other certificates (typically for CA certificates).
-    # - "nonRepudiation"   # Ensures that a key cannot be denied as having signed a document.
+    - "digitalSignature"
+    - "keyEncipherment"
 
   # Indicates whether the key usage extension is critical.
   key_usage_critical: true
@@ -161,17 +169,38 @@ certificate:
   # Common extensions include 'cer', 'crt', or 'pem'.
   extension: "cer"
 
-  # Digest algorithm to be used for signing self-signed certificates.
-  # Determines the hashing algorithm for self-signed certificates.
+  # Digest algorithm to be used for signing certificates.
+  # Determines the hashing algorithm used for certificate signing.
   # Common options include:
   # - 'sha256': A secure and standard choice for most modern systems.
   # - 'sha512': A stronger alternative for higher security requirements.
-  # - If empty, it may default to the system's default digest algorithm.
   digest: "sha256"
 
   # Sets the expiration date of the certificate.
-  # Can be set using relative times (e.g., "365 days") or a specific date (e.g., "2024-12-31"). If empty, it uses a default duration of the role.
+  # Can be set using relative times (e.g., "+365d") or a specific date (e.g., "2024-12-31").
   not_after: "+90d"
+
+  # Specifies the provider for OpenSSL certificate creation.
+  # This is only used when certificate_signing_provider is set to "openssl".
+  # Options:
+  #   "selfsigned": Creates a self-signed certificate (typically for root CAs).
+  #   "ownca": Signs certificate using a custom local OpenSSL Certificate Authority.
+  provider: "ownca"
+
+  # OwnCA configuration (only used when provider is set to "ownca").
+  # These settings define the Certificate Authority that will sign the certificate.
+  ownca:
+    # The name of the Certificate Authority certificate (without extension).
+    # This typically corresponds to the common name of the CA.
+    # Example: "sub-ca.lan.home"
+    name: "sub-ca.lan.home"
+
+    # The directory path where the CA certificate and private key are stored.
+    # Example: "{{ context_vars.certificates_base_path }}/2026/lan.home/prd/sub-ca"
+    path: "{{ context_vars.certificates_base_path
+      ~ '/' ~ ansible_facts.date_time.year
+      ~ '/' ~ context_vars.certificate_domain
+      ~ '/' ~ execution_environment }}/sub-ca"
 
 # Variables that will be used for creating a PKCS12 file.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
@@ -200,15 +229,15 @@ auto_renewal:
   # When enabled, certificates nearing expiration will be automatically renewed based on the defined criteria.
   enabled: true
 
-  # Number of days before expiration to trigger auto-renewal.
-  # If the certificate is set to expire within this number of days, it will be automatically renewed.
-  days_before_expiration: 5
-
   # Number of days before expiration to trigger yellow/warning status.
-  days_for_yellow_alert: 15
+  days_for_yellow_alert: 11
 
   # Number of days before expiration to trigger red/critical status.
   days_for_red_alert: 5
+
+  # Number of days before expiration to trigger auto-renewal.
+  # If the certificate is set to expire within this number of days, it will be automatically renewed.
+  days_before_expiration: 10
 
   # Maintenance windows for certificate import operations.
   # Each window defines when certificate imports are allowed.

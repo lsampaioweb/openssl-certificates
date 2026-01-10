@@ -1,0 +1,9 @@
+---
+- name: "Create Certificates"
+  hosts: "CertificateAuthorityServer"
+
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "certificate"

@@ -4,12 +4,12 @@
     certificate_config_path: "{{ certificate_path ~ '/' ~ context_vars.config_file }}"
     jinja2_config_file: "{{ context_vars.config_file }}.j2"
 
-- name: "Loading base config file"
+- name: "Loading base config file: '{{ context_vars.config_file }}'"
   ansible.builtin.include_vars:
     file: "{{ context_vars.config_file }}"
     name: "base_config_vars"
 
-- name: "Loading domain-specific config file"
+- name: "Loading domain-specific config file: '{{ domain_config_file }}'"
   ansible.builtin.include_vars:
     file: "{{ domain_config_file }}"
     name: "domain_config_vars"
@@ -23,13 +23,13 @@
     path: "{{ certificate_config_path }}"
   register: "certificate_config_found"
 
-- name: "Loading certificate config file if it exists"
+- name: "Loading certificate config file: '{{ certificate_config_path }}' if it exists"
   when: certificate_config_found.stat.exists
   ansible.builtin.include_vars:
     file: "{{ certificate_config_path }}"
     name: "temp_certificate_config_vars"
 
-- name: "Setting loaded certificate config or default minimal config to certificate_config_vars"
+- name: "Setting loaded certificate config or default minimal config to 'certificate_config_vars'"
   ansible.builtin.set_fact:
     certificate_config_vars: "{{ temp_certificate_config_vars if certificate_config_found.stat.exists else {'version': reference_config_vars.version} }}"
 
