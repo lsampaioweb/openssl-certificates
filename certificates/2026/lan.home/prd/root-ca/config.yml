@@ -19,10 +19,10 @@ secret_provider: "keychain"
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
 csr:
   # Organization name to be included in the CSR.
-  organization_name: "Root Certificate Authority - Homelab"
+  organization_name: "Root Certificate Authority - 2026 - Home"
   # Common name (usually the domain name) to be included in the CSR.
   # This field is often required for SSL/TLS certificates.
-  common_name: "root-ca.lan.home"
+  common_name: "root-ca-2026.lan.home"
   # Subject Alternative Names (SANs) to be included in the CSR.
   # This is a list of additional names (e.g., domain names) the certificate should cover.
   # Example:
@@ -30,11 +30,13 @@ csr:
     # - "DNS:site.lan.home"
     # - "DNS:othersan.lan.home"
   subject_alt_name:
-    - "DNS:root-ca.lan.home"
+    - "DNS:root-ca-2026.lan.home"
   # Basic constraints to be included in the CSR.
   # 'CA:TRUE' indicates that this certificate can be used to sign other certificates.
+  #  ,pathlen:1 means this Root CA can sign intermediate CAs (1 level down), but not end-entity certificates.
+  #  ,pathlen:0 means this Sub CA can sign end-entity certificates, but cannot sign other CAs.
   # 'CA:FALSE' indicates that this certificate cannot be used to sign other certificates.
-  basic_constraints: "CA:TRUE, pathlen:1"
+  basic_constraints: "CA:TRUE,pathlen:1"
   # Key usage extensions to be included in the CSR (Certificate Signing Request).
   # This defines the allowed cryptographic operations for the key.
   # key_usage:

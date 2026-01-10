@@ -44,10 +44,13 @@ private_key:
   # Type of the private key to be generated.
   # Determines the algorithm used for generating the private key.
   # Common options include:
-  # - 'RSA': Widely used and supports various key lengths (e.g., 2048, 4096 bits).
   # - 'DSA': Less commonly used, mainly for compatibility with older systems.
   # - 'ECC': Uses elliptic curve cryptography for smaller key sizes and faster performance.
   # - 'Ed25519': A modern elliptic curve algorithm known for its speed and security.
+  # - 'Ed448': A variant of Ed25519 with a larger key size for enhanced security.
+  # - 'RSA': Widely used and supports various key lengths (e.g., 2048, 4096 bits).
+  # - 'X25519': Primarily used for key exchange in secure communications.
+  # - 'X448': A variant of X25519 with a larger key size for enhanced security.
   type: "{{ config_overrides.private_key.type }}"
 {% endif %}
 {% if 'size' in config_overrides.private_key %}
@@ -151,6 +154,8 @@ csr:
 {% if 'basic_constraints' in config_overrides.csr %}
   # Basic constraints to be included in the CSR.
   # 'CA:TRUE' indicates that this certificate can be used to sign other certificates.
+  #  ,pathlen:1 means this Root CA can sign intermediate CAs (1 level down), but not end-entity certificates.
+  #  ,pathlen:0 means this Sub CA can sign end-entity certificates, but cannot sign other CAs.
   # 'CA:FALSE' indicates that this certificate cannot be used to sign other certificates.
   basic_constraints: "{{ config_overrides.csr.basic_constraints }}"
 {% endif %}
@@ -230,18 +235,18 @@ certificate:
   provider: "{{ config_overrides.certificate.provider }}"
 {% endif %}
 {% if 'ownca' in config_overrides.certificate %}
-  # OwnCA configuration (only used when provider is set to "ownca").
+  # OwnCA configuration (only used when certificate_signing_provider is set to "openssl" and provider is set to "ownca").
   # These settings define the Certificate Authority that will sign the certificate.
   ownca:
 {% if 'name' in config_overrides.certificate.ownca %}
     # The name of the Certificate Authority certificate (without extension).
     # This typically corresponds to the common name of the CA.
-    # Example: "root-ca.lan.home"
+    # Example: "sub-ca.lan.home"
     name: "{{ config_overrides.certificate.ownca.name }}"
 {% endif %}
 {% if 'path' in config_overrides.certificate.ownca %}
     # The directory path where the CA certificate and private key are stored.
-    # Example: "{{ context_vars.certificates_base_path }}/2025/lan.home/prd/root-ca"
+    # Example: "{{ context_vars.certificates_base_path }}/2026/lan.home/prd/sub-ca"
     path: "{{ config_overrides.certificate.ownca.path }}"
 {% endif %}
 {% endif %}
@@ -283,11 +288,6 @@ auto_renewal:
   # When enabled, certificates nearing expiration will be automatically renewed based on the defined criteria.
   enabled: {{ config_overrides.auto_renewal.enabled | lower }}
 {% endif %}
-{% if 'days_before_expiration' in config_overrides.auto_renewal %}
-  # Number of days before expiration to trigger auto-renewal.
-  # If the certificate is set to expire within this number of days, it will be automatically renewed.
-  days_before_expiration: {{ config_overrides.auto_renewal.days_before_expiration }}
-{% endif %}
 {% if 'days_for_yellow_alert' in config_overrides.auto_renewal %}
   # Number of days before expiration to trigger yellow/warning status.
   days_for_yellow_alert: {{ config_overrides.auto_renewal.days_for_yellow_alert }}
@@ -295,6 +295,11 @@ auto_renewal:
 {% if 'days_for_red_alert' in config_overrides.auto_renewal %}
   # Number of days before expiration to trigger red/critical status.
   days_for_red_alert: {{ config_overrides.auto_renewal.days_for_red_alert }}
+{% endif %}
+{% if 'days_before_expiration' in config_overrides.auto_renewal %}
+  # Number of days before expiration to trigger auto-renewal.
+  # If the certificate is set to expire within this number of days, it will be automatically renewed.
+  days_before_expiration: {{ config_overrides.auto_renewal.days_before_expiration }}
 {% endif %}
 {% if 'certificate_pki_pipeline_window' in config_overrides.auto_renewal %}
   # Maintenance windows for certificate import operations.

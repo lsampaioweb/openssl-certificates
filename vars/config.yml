@@ -124,8 +124,8 @@ csr:
 
   # Basic constraints to be included in the CSR.
   # 'CA:TRUE' indicates that this certificate can be used to sign other certificates.
-  #   ,pathlen:1 means this Root CA can sign intermediate CAs (1 level down), but not end-entity certificates.
-  #   ,pathlen:0 means this Sub CA can sign end-entity certificates, but cannot sign other CAs.
+  #  ,pathlen:1 means this Root CA can sign intermediate CAs (1 level down), but not end-entity certificates.
+  #  ,pathlen:0 means this Sub CA can sign end-entity certificates, but cannot sign other CAs.
   # 'CA:FALSE' indicates that this certificate cannot be used to sign other certificates.
   basic_constraints: "CA:FALSE"
 
@@ -152,13 +152,14 @@ csr:
 
   # Extended key usage extensions to be included in the CSR.
   # This further refines the specific purposes of the key in different contexts.
-  extended_key_usage:
-    - "serverAuth"      # For SSL/TLS server authentication.
+  # extended_key_usage:
+    # - "serverAuth"      # For SSL/TLS server authentication.
     # - "clientAuth"      # For SSL/TLS client authentication.
     # - "emailProtection" # For securing email communications.
     # - "codeSigning"     # For signing executable code to ensure authenticity.
     # - "timeStamping"    # For creating secure timestamps.
-
+  extended_key_usage:
+    - "serverAuth"
   # Indicates whether the extended key usage extension is critical.
   extended_key_usage_critical: true
 
@@ -187,7 +188,7 @@ certificate:
   #   "ownca": Signs certificate using a custom local OpenSSL Certificate Authority.
   provider: "ownca"
 
-  # OwnCA configuration (only used when provider is set to "ownca").
+  # OwnCA configuration (only used when certificate_signing_provider is set to "openssl" and provider is set to "ownca").
   # These settings define the Certificate Authority that will sign the certificate.
   ownca:
     # The name of the Certificate Authority certificate (without extension).

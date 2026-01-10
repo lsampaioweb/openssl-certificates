@@ -19,12 +19,10 @@ secret_provider: "keychain"
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
 csr:
   # Organization name to be included in the CSR.
-  organization_name: "Subordinate Certificate Authority - Homelab"
-
+  organization_name: "Subordinate Certificate Authority - 2026 - Home"
   # Common name (usually the domain name) to be included in the CSR.
   # This field is often required for SSL/TLS certificates.
-  common_name: "sub-ca.lan.home"
-
+  common_name: "sub-ca-2026.lan.home"
   # Subject Alternative Names (SANs) to be included in the CSR.
   # This is a list of additional names (e.g., domain names) the certificate should cover.
   # Example:
@@ -32,15 +30,13 @@ csr:
     # - "DNS:site.lan.home"
     # - "DNS:othersan.lan.home"
   subject_alt_name:
-    - "DNS:sub-ca.lan.home"
-
+    - "DNS:sub-ca-2026.lan.home"
   # Basic constraints to be included in the CSR.
   # 'CA:TRUE' indicates that this certificate can be used to sign other certificates.
-  #   ,pathlen:1 means this Root CA can sign intermediate CAs (1 level down), but not end-entity certificates.
-  #   ,pathlen:0 means this Sub CA can sign end-entity certificates, but cannot sign other CAs.
+  #  ,pathlen:1 means this Root CA can sign intermediate CAs (1 level down), but not end-entity certificates.
+  #  ,pathlen:0 means this Sub CA can sign end-entity certificates, but cannot sign other CAs.
   # 'CA:FALSE' indicates that this certificate cannot be used to sign other certificates.
-  basic_constraints: "CA:TRUE, pathlen:0"
-
+  basic_constraints: "CA:TRUE,pathlen:0"
   # Key usage extensions to be included in the CSR (Certificate Signing Request).
   # This defines the allowed cryptographic operations for the key.
   # key_usage:
@@ -62,15 +58,13 @@ certificate:
   # Sets the expiration date of the certificate.
   # Can be set using relative times (e.g., "+365d") or a specific date (e.g., "2024-12-31").
   not_after: "+500d"
-
-  # Specifies the provider for OpenSSL certificate creation.
-  # This Sub CA will be signed by the Root CA using "ownca".
-  provider: "ownca"
-
-  # OwnCA configuration - pointing to the Root CA.
+  # OwnCA configuration (only used when certificate_signing_provider is set to "openssl" and provider is set to "ownca").
+  # These settings define the Certificate Authority that will sign the certificate.
   ownca:
-    # The name of the Root CA certificate (without extension).
+    # The name of the Certificate Authority certificate (without extension).
+    # This typically corresponds to the common name of the CA.
+    # Example: "sub-ca.lan.home"
     name: "root-ca.lan.home"
-
-    # The directory path where the Root CA certificate and private key are stored.
+    # The directory path where the CA certificate and private key are stored.
+    # Example: "/opt/certificates/2026/lan.home/prd/sub-ca"
     path: "/opt/certificates/2026/lan.home/prd/root-ca"
