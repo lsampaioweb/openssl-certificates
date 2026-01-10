@@ -3,12 +3,12 @@
 debug: true
 
 # Domain for certificates. Options: home, homelab. Defaults to home if not specified.
-# domain_context: "home"
+domain_context: "home"
 # domain_context: "homelab"
 
 # Environment of the execution. Options: stg, prd. Defaults to prd if not specified.
 # execution_environment: "stg"
-# execution_environment: "prd"
+execution_environment: "prd"
 
 # Path to search for certificates.
 # path: "/opt/certificates"
@@ -16,14 +16,14 @@ debug: true
 # List of certificates to process.
 # Leave empty [] to process all certificates.
 certificates:
-  - "edge-firewall"
+  # - "edge-firewall"
   # - "edge-grafana"
   # - "edge-jump-server"
   # - "edge-ldap"
   # - "edge-load-balancer"
   # - "edge-pve"
-  # - "edge-root-ca"
-  # - "edge-sub-ca"
+  - "root-ca"
+  # - "sub-ca"
   # - "edge-switch"
   # - "edge-vault"
   # - "edge-zabbix"
@@ -67,6 +67,10 @@ certificates:
   #   extension: "cer"
   #   digest: "sha256"
   #   not_after: "+300d"
+  #   provider: "selfsigned"
+  #   ownca:
+  #     name: "root-ca.lan.home"
+  #     path: "/opt/certificates/2025/lan.home/prd/root-ca"
 
   # pkcs12:
   #   extension: "pfx"
@@ -76,9 +80,9 @@ certificates:
 
   # auto_renewal:
   #   enabled: true
-  #   days_for_yellow_alert: 15
+  #   days_for_yellow_alert: 11
   #   days_for_red_alert: 5
-  #   days_before_expiration: 5
+  #   days_before_expiration: 10
   #   certificate_pki_pipeline_window: []
 
   # notification_mail:
