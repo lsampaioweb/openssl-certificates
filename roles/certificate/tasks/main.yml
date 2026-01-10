@@ -1,0 +1,7 @@
+---
+- name: "Creating the basic variables"
+  ansible.builtin.set_fact:
+    certificate_creation_output: {}
+
+- name: "Dispatching to the appropriate certificate provider"
+  ansible.builtin.include_tasks: "{{ config_vars.certificate_signing_provider | lower }}.yml"

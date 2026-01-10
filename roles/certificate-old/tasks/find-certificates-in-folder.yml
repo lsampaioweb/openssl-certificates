@@ -1,8 +1,8 @@
 ---
 - name: "Joining the elements of the certificates array as a string"
+  when: certificates is defined and certificates | length > 0
   ansible.builtin.set_fact:
     certificates_to_find_patterns: "{{ certificates | join(',') }}"
-  when: certificates is defined
 
 - name: "Getting the list of certificates in the '{{ certificates_path }}' folder"
   ansible.builtin.find:
