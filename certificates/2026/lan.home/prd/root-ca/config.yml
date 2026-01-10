@@ -1,0 +1,64 @@
+---
+# The version of the configuration file format.
+version: "2.0"
+
+# Specifies the provider that will be used to sign the certificates.
+# Options:
+#   "vault": HashiCorp Vault PKI Engine (default).
+#   "openssl": The local OpenSSL tool.
+certificate_signing_provider: "openssl"
+
+# Secret storage provider for passwords and sensitive data.
+# Options:
+#   "vault": HashiCorp Vault Secret Engine (default).
+#   "keyring" (Ubuntu).
+#   "keychain" (MacOS).
+secret_provider: "keychain"
+
+# Variables that will be used for creating a certificate signing request.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
+csr:
+  # Organization name to be included in the CSR.
+  organization_name: "Root Certificate Authority - Homelab"
+  # Common name (usually the domain name) to be included in the CSR.
+  # This field is often required for SSL/TLS certificates.
+  common_name: "root-ca.lan.home"
+  # Subject Alternative Names (SANs) to be included in the CSR.
+  # This is a list of additional names (e.g., domain names) the certificate should cover.
+  # Example:
+  # subject_alt_name:
+    # - "DNS:site.lan.home"
+    # - "DNS:othersan.lan.home"
+  subject_alt_name:
+    - "DNS:root-ca.lan.home"
+  # Basic constraints to be included in the CSR.
+  # 'CA:TRUE' indicates that this certificate can be used to sign other certificates.
+  # 'CA:FALSE' indicates that this certificate cannot be used to sign other certificates.
+  basic_constraints: "CA:TRUE, pathlen:1"
+  # Key usage extensions to be included in the CSR (Certificate Signing Request).
+  # This defines the allowed cryptographic operations for the key.
+  # key_usage:
+    # - "digitalSignature" # Sign data for authentication, integrity, TLS handshakes, CRLs, OCSP responses.
+    # - "keyEncipherment"  # Encrypt symmetric keys for transfer (RSA key exchange).
+    # - "keyAgreement"     # Establish symmetric keys via key agreement (ECDHE/DHE) - recommended for modern TLS.
+    # - "nonRepudiation"   # Prevents signing entity from denying an action (legal/audit contexts).
+    # - "dataEncipherment" # Encrypt/decrypt actual application data (rarely used).
+    # - "keyCertSign"      # Sign certificates - CA certificates ONLY (Root CA signs Sub CAs, Sub CA signs end-entity certs).
+    # - "cRLSign"          # Sign certificate revocation lists (CRLs) - CA certificates ONLY.
+  key_usage:
+    - "digitalSignature"
+    - "keyCertSign"
+    - "cRLSign"
+
+# Variables that will be used for creating a certificate.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
+certificate:
+  # Sets the expiration date of the certificate.
+  # Can be set using relative times (e.g., "+365d") or a specific date (e.g., "2024-12-31").
+  not_after: "+1000d"
+  # Specifies the provider for OpenSSL certificate creation.
+  # This is only used when certificate_signing_provider is set to "openssl".
+  # Options:
+  #   "selfsigned": Creates a self-signed certificate (typically for root CAs).
+  #   "ownca": Signs certificate using a custom local OpenSSL Certificate Authority.
+  provider: "selfsigned"
