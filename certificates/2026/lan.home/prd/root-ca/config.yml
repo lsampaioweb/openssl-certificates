@@ -19,7 +19,7 @@ secret_provider: "keychain"
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
 csr:
   # Organization name to be included in the CSR.
-  organization_name: "Root Certificate Authority - 2026 - Home"
+  organization_name: "Root Certificate Authority - 2026"
   # Common name (usually the domain name) to be included in the CSR.
   # This field is often required for SSL/TLS certificates.
   common_name: "root-ca-2026.lan.home"
