@@ -20,11 +20,12 @@ This is an Ansible-based certificate management system for automated SSL/TLS cer
 **Review Focus**: Task names in gerund form, proper no_log for sensitive data, meaningful variable names, idempotent operations.
 
 **Question Assumptions**: Challenge design decisions if:
-- New variables duplicate existing functionality
-- Tasks could fit in existing roles instead of creating new ones
-- Hardcoded values could be configurable
-- Complex conditionals could be simplified
-- Error handling is missing or inadequate
+- New variables duplicate existing functionality.
+- Tasks could fit in existing roles instead of creating new ones.
+- Hardcoded values could be configurable.
+- Complex conditionals could be simplified.
+- Error handling is missing or inadequate.
+- **NEVER add features, suffixes, or variations without explicit user confirmation**. Ask first, implement after approval.
 
 ## Project Discipline
 
