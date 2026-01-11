@@ -1,0 +1,45 @@
+---
+- name: "Extracting certificate metadata"
+  when: file_exists.stat.exists | bool
+  ansible.builtin.import_tasks: "extract_metadata.yml"
+
+- name: "Updating metadata for current certificate"
+  when: metadata_changed
+  ansible.builtin.set_fact:
+    metadata: >-
+      {{ metadata | combine({
+          'last_updated': ansible_facts['date_time']['iso8601'],
+          'certificates': metadata.certificates
+          | combine({
+              (cert_key): {
+                'expiry_date': certificate_info.not_after,
+                'alert_status': alert_status,
+                'last_notification': '',
+              }
+            }
+          ),
+        },recursive=True,) }}
+
+- name: "Writing updated metadata to file"
+  when: metadata_changed
+  ansible.builtin.copy:
+    content: "{{ metadata | to_nice_json(indent=2, sort_keys=False) }}"
+    dest: "{{ context_vars.metadata_file_path }}"
+    mode: "0644"
+  register: "metadata_write_result"
+
+- name: "Removing lock file at '{{ context_vars.lock_file_path }}'"
+  ansible.builtin.file:
+    path: "{{ context_vars.lock_file_path }}"
+    state: "absent"
+
+- name: "Printing metadata update file information"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Certificate: {{ certificate_name }}"
+      - "Expiry Date: {{ certificate_info.not_after }}"
+      - "Alert Status: {{ alert_status }}"
+      - "Already in metadata: {{ cert_in_metadata }}"
+      - "Metadata changed: {{ metadata_changed }}"
+      - "File updated: {{ metadata_write_result.changed | default(false) }}"

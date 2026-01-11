@@ -10,4 +10,5 @@
       - "csr"
       - "certificate"
       - "pkcs12"
+      - "update_metadata"
       - "verify"

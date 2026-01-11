@@ -1,0 +1,9 @@
+---
+- name: "Checking if certificate file exists"
+  ansible.builtin.stat:
+    path: "{{ certificate_file }}"
+  register: "file_exists"
+
+- name: "Updating metadata if certificate file exists"
+  when: file_exists.stat.exists | bool
+  ansible.builtin.include_tasks: "update_metadata_file.yml"
