@@ -3,8 +3,6 @@
   ansible.builtin.set_fact:
     csr_creation_output: {}
     private_key_passphrase: ""
-    private_key_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.private_key.extension }}"
-    csr_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.csr.extension }}"
 
 - name: "Retrieving Private Key passphrase from secret storage if required"
   when: config_vars.private_key.passphrase != ''

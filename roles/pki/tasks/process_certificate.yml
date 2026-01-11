@@ -17,6 +17,13 @@
     - name: "Loading config files"
       ansible.builtin.import_tasks: "load_config_files.yml"
 
+    - name: "Creating the basic variables that all roles use"
+      ansible.builtin.set_fact:
+        private_key_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.private_key.extension }}"
+        csr_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.csr.extension }}"
+        certificate_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.certificate.extension }}"
+        pkcs12_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.pkcs12.extension }}"
+
     - name: "Including the role(s) for each certificate"
       ansible.builtin.include_role:
         name: "{{ role }}"

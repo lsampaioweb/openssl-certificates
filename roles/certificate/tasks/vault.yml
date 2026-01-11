@@ -1,9 +1,4 @@
 ---
-- name: "Creating path variables for certificate creation"
-  ansible.builtin.set_fact:
-    csr_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.csr.extension }}"
-    certificate_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.certificate.extension }}"
-
 - name: "Vault PKI certificate issuance - Not yet implemented"
   ansible.builtin.fail:
     msg: "Vault PKI integration is not yet implemented. Please use 'certificate_signing_provider: openssl' in your configuration."

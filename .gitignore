@@ -15,4 +15,5 @@ ca_host_key
 *.pem
 *.p12
 *.pub
+*.pfx
 **/notifications.log

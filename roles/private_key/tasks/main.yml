@@ -2,7 +2,6 @@
 - name: "Creating the basic variables"
   ansible.builtin.set_fact:
     private_key_creation_output: {}
-    private_key_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.private_key.extension }}"
 
 - name: "Generating a random password for the Private Key if required"
   when: config_vars.private_key.passphrase == context_vars.passphrase_random_marker
