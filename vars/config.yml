@@ -225,6 +225,31 @@ pkcs12:
   # A friendly name for the PKCS12 file, used when importing it into a keystore.
   friendly_name: "Home"
 
+  # PKCS#12 file passphrase handling.
+  # - "?": Auto-generate a random password (stored in secret manager, non-idempotent by design).
+  # - Explicit value: Use the provided passphrase (stored in secret manager).
+  passphrase: "?"
+
+  # Size of the randomly generated PKCS#12 passphrase (in characters) if passphrase is set to "?".
+  passphrase_size: 30
+
+  # Legacy PKCS#12 format for compatibility with older systems.
+  # When set to true, uses legacy OpenSSL format with specific encryption algorithms.
+  # This is only supported via the command-line openssl tool, not the Ansible module.
+  legacy: false
+
+  # Defines the required legacy algorithm for the private key encryption.
+  legacy_key_alg: "PBE-SHA1-RC2-40"
+
+  # Defines the required legacy algorithm for the certificate encryption.
+  legacy_cert_alg: "PBE-SHA1-RC2-40"
+
+  # Defines the required legacy algorithm for the file integrity check (MAC).
+  legacy_mac_alg: "sha1"
+
+  # Defines the iteration count to match the known-working file.
+  legacy_iter_count: 2048
+
 auto_renewal:
   # Enables or disables the auto-renewal feature.
   # When enabled, certificates nearing expiration will be automatically renewed based on the defined criteria.

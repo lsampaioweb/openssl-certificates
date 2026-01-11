@@ -1,8 +1,8 @@
 ---
 - name: "Creating the basic variables"
   ansible.builtin.set_fact:
-    private_key_passphrase: ""
     csr_creation_output: {}
+    private_key_passphrase: ""
     private_key_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.private_key.extension }}"
     csr_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.csr.extension }}"
 
