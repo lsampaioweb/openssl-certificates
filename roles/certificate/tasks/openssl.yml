@@ -97,7 +97,7 @@
 
     # Certificate parameters.
     path: "{{ certificate_file }}"
-    mode: "0644"
+    mode: "{{ config_vars.certificate.mode }}"
   register: "certificate_creation_output"
 
 - name: "Printing Certificate creation result"

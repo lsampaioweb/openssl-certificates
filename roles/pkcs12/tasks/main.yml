@@ -88,7 +88,7 @@
     other_certificates:
       - "{{ certificate_file }}"
     other_certificates_parse_all: true
-    mode: "0644"
+    mode: "{{ config_vars.pkcs12.mode }}"
   register: "pkcs12_creation_output"
 
 - name: "Printing PKCS#12 file creation result"
@@ -100,9 +100,9 @@
 - name: "Storing PKCS#12 passphrase in secret storage '{{ config_vars.secret_provider }}'"
   when:
     # Store the PKCS#12 passphrase if it was changed or newly created.
-    - pkcs12_passphrase != private_key_passphrase
     - pkcs12_creation_output.changed | default(false)
     - not pkcs12_creation_output.failed | default(false)
+    - private_key_passphrase != pkcs12_passphrase
   no_log: "{{ not debug | default(true) }}"
   ansible.builtin.include_role:
     name: "common"

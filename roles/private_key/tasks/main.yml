@@ -43,7 +43,7 @@
     curve: "{{ config_vars.private_key.curve }}"
     cipher: "{{ (private_key_passphrase != '') | ternary(config_vars.private_key.cipher, omit) }}"
     passphrase: "{{ private_key_passphrase | default(omit, true) }}"
-    mode: "0600"
+    mode: "{{ config_vars.private_key.mode }}"
   register: "private_key_creation_output"
 
 - name: "Printing Private Key creation result"

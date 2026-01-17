@@ -67,7 +67,7 @@
     key_usage_critical: "{{ config_vars.csr.key_usage_critical }}"
     extended_key_usage: "{{ config_vars.csr.extended_key_usage }}"
     extended_key_usage_critical: "{{ config_vars.csr.extended_key_usage_critical }}"
-    mode: "0644"
+    mode: "{{ config_vars.csr.mode }}"
   register: "csr_creation_output"
 
 - name: "Printing Certificate Signing Request (CSR) creation result"
