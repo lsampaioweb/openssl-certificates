@@ -2,12 +2,6 @@
 # The version of the configuration file format.
 version: "2.0"
 
-# Specifies the provider that will be used to sign the certificates.
-# Options:
-#   "vault": HashiCorp Vault PKI Engine (default).
-#   "openssl": The local OpenSSL tool.
-certificate_signing_provider: "openssl"
-
 # Secret storage provider for passwords and sensitive data.
 # Options:
 #   "vault": HashiCorp Vault Secret Engine (default).
@@ -66,11 +60,16 @@ csr:
 # Variables that will be used for creating a certificate.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
 certificate:
+  # Specifies the provider that will be used to sign the certificates.
+  # Options:
+  #   "vault": HashiCorp Vault PKI Engine (default).
+  #   "openssl": The local OpenSSL tool.
+  signing_provider: "openssl"
   # Sets the expiration date of the certificate.
   # Can be set using relative times (e.g., "+365d") or a specific date (e.g., "2024-12-31").
   not_after: "+1000d"
   # Specifies the provider for OpenSSL certificate creation.
-  # This is only used when certificate_signing_provider is set to "openssl".
+  # This is only used when signing_provider is set to "openssl".
   # Options:
   #   "selfsigned": Creates a self-signed certificate (typically for root CAs).
   #   "ownca": Signs certificate using a custom local OpenSSL Certificate Authority.
