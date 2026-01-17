@@ -2,12 +2,15 @@
 # The version of the configuration file format.
 version: "2.0"
 
-# Secret storage provider for passwords and sensitive data.
-# Options:
-#   "vault": HashiCorp Vault Secret Engine (default).
-#   "keyring" (Ubuntu).
-#   "keychain" (MacOS).
-secret_provider: "keychain"
+# Variables that will be used for creating a private key.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
+private_key:
+  # Secret storage provider for the private key passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "keychain"
 
 # Variables that will be used for creating a certificate signing request.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
@@ -74,3 +77,13 @@ certificate:
   #   "selfsigned": Creates a self-signed certificate (typically for root CAs).
   #   "ownca": Signs certificate using a custom local OpenSSL Certificate Authority.
   provider: "selfsigned"
+
+# Variables that will be used for creating a PKCS12 file.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
+pkcs12:
+  # Secret storage provider for the PKCS12 passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "keychain"
