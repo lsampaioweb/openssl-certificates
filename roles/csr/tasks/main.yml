@@ -7,10 +7,10 @@
 - name: "Retrieving Private Key passphrase from secret storage if required"
   when: config_vars.private_key.passphrase != ''
   block:
-    - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.secret_provider }}'"
+    - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.private_key.secret_provider }}'"
       ansible.builtin.include_role:
         name: "common"
-        tasks_from: "secrets/{{ config_vars.secret_provider }}/read.yml"
+        tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
       vars:
         secret_key: "{{ certificate_domain ~ '/' ~ execution_environment ~ '/' ~ certificate_name }}"
 

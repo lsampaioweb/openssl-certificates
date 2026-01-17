@@ -5,16 +5,17 @@
   vars:
     converted_config:
       version: "{{ reference_config_vars.version }}"
-      certificate_signing_provider: "{{ certificate_config_vars.certificate_signing_method | default(omit) }}"
-      secret_provider: "{{ certificate_config_vars.secret_provider | default(omit) }}"
       private_key:
         extension: "{{ certificate_config_vars.privatekey_extension | default(omit) }}"
+        secret_provider: "{{ certificate_config_vars.secret_provider | default(omit) }}"
         format: "{{ certificate_config_vars.privatekey_format | default(omit) }}"
         type: "{{ certificate_config_vars.privatekey_type | default(omit) }}"
+        size: "{{ certificate_config_vars.privatekey_size | default(omit) }}"
         curve: "{{ certificate_config_vars.privatekey_curve | default(omit) }}"
         cipher: "{{ certificate_config_vars.privatekey_cipher | default(omit) }}"
         passphrase: "{{ certificate_config_vars.privatekey_passphrase | default(omit) }}"
         passphrase_size: "{{ certificate_config_vars.privatekey_passphrase_size | default(omit) }}"
+        mode: "{{ certificate_config_vars.privatekey_mode | default(omit) }}"
       csr:
         extension: "{{ certificate_config_vars.csr_extension | default(omit) }}"
         digest: "{{ certificate_config_vars.csr_digest | default(omit) }}"
@@ -32,16 +33,35 @@
         key_usage_critical: "{{ certificate_config_vars.csr_key_usage_critical | default(omit) }}"
         extended_key_usage: "{{ certificate_config_vars.csr_extended_key_usage | default(omit) }}"
         extended_key_usage_critical: "{{ certificate_config_vars.csr_extended_key_usage_critical | default(omit) }}"
+        mode: "{{ certificate_config_vars.csr_mode | default(omit) }}"
       certificate:
+        signing_provider: "{{ certificate_config_vars.certificate_signing_method | default(omit) }}"
         extension: "{{ certificate_config_vars.certificate_extension | default(omit) }}"
         digest: "{{ certificate_config_vars.certificate_digest | default(omit) }}"
         not_after: "{{ certificate_config_vars.certificate_not_after | default(omit) }}"
+        provider: "{{ certificate_config_vars.certificate_provider | default(omit) }}"
+        ownca:
+          name: "{{ certificate_config_vars.certificate_ownca_name | default(omit) }}"
+          path: "{{ certificate_config_vars.certificate_ownca_path | default(omit) }}"
+        mode: "{{ certificate_config_vars.certificate_mode | default(omit) }}"
       pkcs12:
         extension: "{{ certificate_config_vars.pkcs12_extension | default(omit) }}"
+        secret_provider: "{{ certificate_config_vars.secret_provider | default(omit) }}"
         encryption: "{{ certificate_config_vars.pkcs12_encryption | default(omit) }}"
         action: "{{ certificate_config_vars.pkcs12_action | default(omit) }}"
+        friendly_name: "{{ certificate_config_vars.pkcs12_friendly_name | default(omit) }}"
+        passphrase: "{{ certificate_config_vars.pkcs12_passphrase | default(omit) }}"
+        passphrase_size: "{{ certificate_config_vars.pkcs12_passphrase_size | default(omit) }}"
+        legacy: "{{ certificate_config_vars.pkcs12_legacy | default(omit) }}"
+        legacy_key_alg: "{{ certificate_config_vars.pkcs12_legacy_key_alg | default(omit) }}"
+        legacy_cert_alg: "{{ certificate_config_vars.pkcs12_legacy_cert_alg | default(omit) }}"
+        legacy_mac_alg: "{{ certificate_config_vars.pkcs12_legacy_mac_alg | default(omit) }}"
+        legacy_iter_count: "{{ certificate_config_vars.pkcs12_legacy_iter_count | default(omit) }}"
+        mode: "{{ certificate_config_vars.pkcs12_mode | default(omit) }}"
       auto_renewal:
         enabled: "{{ certificate_config_vars.auto_renewal_enabled | default(omit) }}"
+        days_for_yellow_alert: "{{ certificate_config_vars.auto_renewal_days_for_yellow_alert | default(omit) }}"
+        days_for_red_alert: "{{ certificate_config_vars.auto_renewal_days_for_red_alert | default(omit) }}"
         days_before_expiration: "{{ certificate_config_vars.auto_renewal_days_before_expiration | default(omit) }}"
         certificate_pki_pipeline_window: "{{ certificate_config_vars.certificate_pki_pipeline_window | default(omit) }}"
       notification_mail:

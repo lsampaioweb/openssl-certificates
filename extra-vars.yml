@@ -32,15 +32,16 @@ certificates:
 # extra_config_vars: {}
 # extra_config_vars:
   # version: "2.0"
-  # secret_provider: "vault"
   # private_key:
   #   extension: "key"
   #   format: "pkcs8"
   #   type: "ECC"
   #   curve: "secp256r1"
+  #   size: 3072
   #   cipher: "auto"
   #   passphrase: "{{ context_vars.passphrase_random_marker }}"
   #   passphrase_size: 30
+  #   secret_provider: "{{ context_vars.default_secret_provider }}"
   #   mode: "0600"
   # csr:
   #   extension: "csr"
@@ -77,6 +78,7 @@ certificates:
 
   # pkcs12:
   #   extension: "pfx"
+  #   secret_provider: "{{ context_vars.default_secret_provider }}"
   #   encryption: "auto"
   #   action: "export"
   #   friendly_name: "Home"

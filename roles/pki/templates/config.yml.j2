@@ -1,15 +1,6 @@
 ---
 # The version of the configuration file format.
 version: "{{ config_overrides.version }}"
-{% if 'secret_provider' in config_overrides %}
-
-# Secret storage provider for passwords and sensitive data.
-# Options:
-#   "vault": HashiCorp Vault Secret Engine (default).
-#   "keyring" (Ubuntu).
-#   "keychain" (MacOS).
-secret_provider: "{{ config_overrides.secret_provider }}"
-{% endif %}
 {% if 'private_key' in config_overrides %}
 
 # Variables that will be used for creating a private key.
@@ -19,6 +10,14 @@ private_key:
   # Extension for the private key file.
   # Common extensions include 'key' or 'pem'.
   extension: "{{ config_overrides.private_key.extension }}"
+{% endif %}
+{% if 'secret_provider' in config_overrides.private_key %}
+  # Secret storage provider for the private key passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "{{ config_overrides.private_key.secret_provider }}"
 {% endif %}
 {% if 'format' in config_overrides.private_key %}
   # Determines which format the private key is written in.
@@ -212,17 +211,17 @@ csr:
 # Variables that will be used for creating a certificate.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
 certificate:
+{% if 'extension' in config_overrides.certificate %}
+  # Extension for the certificate file.
+  # Common extensions include 'cer', 'crt', or 'pem'.
+  extension: "{{ config_overrides.certificate.extension }}"
+{% endif %}
 {% if 'signing_provider' in config_overrides.certificate %}
   # Specifies the provider that will be used to sign the certificates.
   # Options:
   #   "vault": HashiCorp Vault PKI Engine (default).
   #   "openssl": The local OpenSSL tool.
   signing_provider: "{{ config_overrides.certificate.signing_provider }}"
-{% endif %}
-{% if 'extension' in config_overrides.certificate %}
-  # Extension for the certificate file.
-  # Common extensions include 'cer', 'crt', or 'pem'.
-  extension: "{{ config_overrides.certificate.extension }}"
 {% endif %}
 {% if 'digest' in config_overrides.certificate %}
   # Digest algorithm to be used for signing certificates.
@@ -277,6 +276,14 @@ pkcs12:
   # Extension for the PKCS12 file, which stores both the certificate and its private key.
   # Common extensions include 'p12' or 'pfx'.
   extension: "{{ config_overrides.pkcs12.extension }}"
+{% endif %}
+{% if 'secret_provider' in config_overrides.pkcs12 %}
+  # Secret storage provider for the PKCS12 passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "{{ config_overrides.pkcs12.secret_provider }}"
 {% endif %}
 {% if 'encryption' in config_overrides.pkcs12 %}
   # Determines the encryption level used.

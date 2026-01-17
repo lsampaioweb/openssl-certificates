@@ -9,10 +9,10 @@
 - name: "Retrieving Private Key passphrase from secret storage if required"
   when: config_vars.private_key.passphrase != ''
   block:
-    - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.secret_provider }}'"
+    - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.private_key.secret_provider }}'"
       ansible.builtin.include_role:
         name: "common"
-        tasks_from: "secrets/{{ config_vars.secret_provider }}/read.yml"
+        tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
       vars:
         secret_key: "{{ certificate_domain ~ '/' ~ execution_environment ~ '/' ~ certificate_name }}"
 
@@ -97,7 +97,7 @@
     msg:
       - "{{ pkcs12_creation_output }}"
 
-- name: "Storing PKCS#12 passphrase in secret storage '{{ config_vars.secret_provider }}'"
+- name: "Storing PKCS#12 passphrase in secret storage '{{ config_vars.pkcs12.secret_provider }}'"
   when:
     # Store the PKCS#12 passphrase if it was changed or newly created.
     - pkcs12_creation_output.changed | default(false)
@@ -106,7 +106,7 @@
   no_log: "{{ not debug | default(true) }}"
   ansible.builtin.include_role:
     name: "common"
-    tasks_from: "secrets/{{ config_vars.secret_provider }}/write.yml"
+    tasks_from: "secrets/{{ config_vars.pkcs12.secret_provider }}/write.yml"
   vars:
     secret_key: "{{ certificate_domain ~ '/' ~ execution_environment ~ '/' ~ certificate_name }}"
     secret_value: "{{ pkcs12_passphrase }}"

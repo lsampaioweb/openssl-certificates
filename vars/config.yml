@@ -2,19 +2,19 @@
 # The version of the configuration file format.
 version: "2.0"
 
-# Secret storage provider for passwords and sensitive data.
-# Options:
-#   "vault": HashiCorp Vault Secret Engine (default).
-#   "keyring" (Ubuntu).
-#   "keychain" (MacOS).
-secret_provider: "vault"
-
 # Variables that will be used for creating a private key.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
 private_key:
   # Extension for the private key file.
   # Common extensions include 'key' or 'pem'.
   extension: "key"
+
+  # Secret storage provider for the private key passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "{{ context_vars.default_secret_provider }}"
 
   # Determines which format the private key is written in.
   # By default, PKCS1 (traditional OpenSSL format) is used for all keys which support it.
@@ -170,15 +170,15 @@ csr:
 # Variables that will be used for creating a certificate.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
 certificate:
+  # Extension for the certificate file.
+  # Common extensions include 'cer', 'crt', or 'pem'.
+  extension: "cer"
+
   # Specifies the provider that will be used to sign the certificates.
   # Options:
   #   "vault": HashiCorp Vault PKI Engine (default).
   #   "openssl": The local OpenSSL tool.
   signing_provider: "{{ context_vars.default_signing_provider }}"
-
-  # Extension for the certificate file.
-  # Common extensions include 'cer', 'crt', or 'pem'.
-  extension: "cer"
 
   # Digest algorithm to be used for signing certificates.
   # Determines the hashing algorithm used for certificate signing.
@@ -224,6 +224,13 @@ pkcs12:
   # Extension for the PKCS12 file, which stores both the certificate and its private key.
   # Common extensions include 'p12' or 'pfx'.
   extension: "pfx"
+
+  # Secret storage provider for the PKCS12 passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "{{ context_vars.default_secret_provider }}"
 
   # Determines the encryption level used.
   # - 'auto' uses the default of the selected backend.

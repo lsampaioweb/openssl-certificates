@@ -52,14 +52,14 @@
     msg:
       - "{{ private_key_creation_output }}"
 
-- name: "Storing Private Key passphrase in secret storage '{{ config_vars.secret_provider }}'"
+- name: "Storing Private Key passphrase in secret storage '{{ config_vars.private_key.secret_provider }}'"
   when:
     # Even if the passphrase is empty (no encryption), we update the secret storage because it may contain an old passphrase from a previous run.
     - private_key_creation_output.changed | default(false)
     - not private_key_creation_output.failed | default(false)
   ansible.builtin.include_role:
     name: "common"
-    tasks_from: "secrets/{{ config_vars.secret_provider }}/write.yml"
+    tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/write.yml"
   vars:
     secret_key: "{{ certificate_domain ~ '/' ~ execution_environment ~ '/' ~ certificate_name }}"
     secret_value: "{{ private_key_passphrase }}"

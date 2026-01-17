@@ -37,6 +37,13 @@ default_roles_map:
 # Marker to trigger random passphrase generation.
 passphrase_random_marker: "?"
 
+# Default secret storage provider for passphrases.
+# Options:
+#   "vault": HashiCorp Vault Secret Engine (default).
+#   "keyring" (Ubuntu).
+#   "keychain" (MacOS).
+default_secret_provider: "vault"
+
 # Default certificate signing provider.
 # Options:
 #   "vault": HashiCorp Vault PKI Engine (default).
