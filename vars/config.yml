@@ -2,12 +2,6 @@
 # The version of the configuration file format.
 version: "2.0"
 
-# Specifies the provider that will be used to sign the certificates.
-# Options:
-#   "vault": HashiCorp Vault PKI Engine (default).
-#   "openssl": The local OpenSSL tool.
-certificate_signing_provider: "vault"
-
 # Secret storage provider for passwords and sensitive data.
 # Options:
 #   "vault": HashiCorp Vault Secret Engine (default).
@@ -75,6 +69,11 @@ private_key:
   # Length of the random passphrase if 'passphrase' is set to "?".
   # A size of 30 characters provides strong security for the passphrase.
   passphrase_size: 30
+
+  # File permissions mode for the private key file.
+  # Private keys should have restrictive permissions (owner read/write only).
+  # Common values: '0600' (owner rw), '0400' (owner read-only).
+  mode: "0600"
 
 # Variables that will be used for creating a certificate signing request.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
@@ -163,9 +162,20 @@ csr:
   # Indicates whether the extended key usage extension is critical.
   extended_key_usage_critical: true
 
+  # File permissions mode for the CSR file.
+  # CSR files can be readable by others as they don't contain sensitive data.
+  # Common values: '0644' (owner rw, group/others read), '0600' (owner only).
+  mode: "0644"
+
 # Variables that will be used for creating a certificate.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
 certificate:
+  # Specifies the provider that will be used to sign the certificates.
+  # Options:
+  #   "vault": HashiCorp Vault PKI Engine (default).
+  #   "openssl": The local OpenSSL tool.
+  signing_provider: "{{ context_vars.default_signing_provider }}"
+
   # Extension for the certificate file.
   # Common extensions include 'cer', 'crt', or 'pem'.
   extension: "cer"
@@ -182,13 +192,13 @@ certificate:
   not_after: "+90d"
 
   # Specifies the provider for OpenSSL certificate creation.
-  # This is only used when certificate_signing_provider is set to "openssl".
+  # This is only used when signing_provider is set to "openssl".
   # Options:
   #   "selfsigned": Creates a self-signed certificate (typically for root CAs).
   #   "ownca": Signs certificate using a custom local OpenSSL Certificate Authority.
   provider: "ownca"
 
-  # OwnCA configuration (only used when certificate_signing_provider is set to "openssl" and provider is set to "ownca").
+  # OwnCA configuration (only used when signing_provider is set to "openssl" and provider is set to "ownca").
   # These settings define the Certificate Authority that will sign the certificate.
   ownca:
     # The name of the Certificate Authority certificate (without extension).
@@ -202,6 +212,11 @@ certificate:
       ~ '/' ~ ansible_facts.date_time.year
       ~ '/' ~ context_vars.certificate_domain
       ~ '/' ~ execution_environment }}/sub-ca"
+
+  # File permissions mode for the certificate file.
+  # Certificate files can be readable by others as they are public.
+  # Common values: '0644' (owner rw, group/others read), '0600' (owner only).
+  mode: "0644"
 
 # Variables that will be used for creating a PKCS12 file.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
@@ -249,6 +264,11 @@ pkcs12:
 
   # Defines the iteration count to match the known-working file.
   legacy_iter_count: 2048
+
+  # File permissions mode for the PKCS12 file.
+  # PKCS12 files can be readable by others as they are password-protected.
+  # Common values: '0644' (owner rw, group/others read), '0600' (owner only).
+  mode: "0644"
 
 auto_renewal:
   # Enables or disables the auto-renewal feature.

@@ -1,14 +1,6 @@
 ---
 # The version of the configuration file format.
 version: "{{ config_overrides.version }}"
-{% if 'certificate_signing_provider' in config_overrides %}
-
-# Specifies the provider that will be used to sign the certificates.
-# Options:
-#   "vault": HashiCorp Vault PKI Engine (default).
-#   "openssl": The local OpenSSL tool.
-certificate_signing_provider: "{{ config_overrides.certificate_signing_provider }}"
-{% endif %}
 {% if 'secret_provider' in config_overrides %}
 
 # Secret storage provider for passwords and sensitive data.
@@ -88,6 +80,12 @@ private_key:
   # Length of the random passphrase if 'passphrase' is set to "?".
   # A size of 30 characters provides strong security for the passphrase.
   passphrase_size: {{ config_overrides.private_key.passphrase_size }}
+{% endif %}
+{% if 'mode' in config_overrides.private_key %}
+  # File permissions mode for the private key file.
+  # Private keys should have restrictive permissions (owner read/write only).
+  # Common values: '0600' (owner rw), '0400' (owner read-only).
+  mode: "{{ config_overrides.private_key.mode }}"
 {% endif %}
 {% endif %}
 {% if 'csr' in config_overrides %}
@@ -202,12 +200,25 @@ csr:
   # Indicates whether the extended key usage extension is critical.
   extended_key_usage_critical: {{ config_overrides.csr.extended_key_usage_critical | lower }}
 {% endif %}
+{% if 'mode' in config_overrides.csr %}
+  # File permissions mode for the CSR file.
+  # CSR files can be readable by others as they don't contain sensitive data.
+  # Common values: '0644' (owner rw, group/others read), '0600' (owner only).
+  mode: "{{ config_overrides.csr.mode }}"
+{% endif %}
 {% endif %}
 {% if 'certificate' in config_overrides %}
 
 # Variables that will be used for creating a certificate.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
 certificate:
+{% if 'signing_provider' in config_overrides.certificate %}
+  # Specifies the provider that will be used to sign the certificates.
+  # Options:
+  #   "vault": HashiCorp Vault PKI Engine (default).
+  #   "openssl": The local OpenSSL tool.
+  signing_provider: "{{ config_overrides.certificate.signing_provider }}"
+{% endif %}
 {% if 'extension' in config_overrides.certificate %}
   # Extension for the certificate file.
   # Common extensions include 'cer', 'crt', or 'pem'.
@@ -228,14 +239,14 @@ certificate:
 {% endif %}
 {% if 'provider' in config_overrides.certificate %}
   # Specifies the provider for OpenSSL certificate creation.
-  # This is only used when certificate_signing_provider is set to "openssl".
+  # This is only used when signing_provider is set to "openssl".
   # Options:
   #   "selfsigned": Creates a self-signed certificate (typically for root CAs).
   #   "ownca": Signs certificate using a custom local OpenSSL Certificate Authority.
   provider: "{{ config_overrides.certificate.provider }}"
 {% endif %}
 {% if 'ownca' in config_overrides.certificate %}
-  # OwnCA configuration (only used when certificate_signing_provider is set to "openssl" and provider is set to "ownca").
+  # OwnCA configuration (only used when signing_provider is set to "openssl" and provider is set to "ownca").
   # These settings define the Certificate Authority that will sign the certificate.
   ownca:
 {% if 'name' in config_overrides.certificate.ownca %}
@@ -249,6 +260,12 @@ certificate:
     # Example: "{{ context_vars.certificates_base_path }}/2026/lan.home/prd/sub-ca"
     path: "{{ config_overrides.certificate.ownca.path }}"
 {% endif %}
+{% endif %}
+{% if 'mode' in config_overrides.certificate %}
+  # File permissions mode for the certificate file.
+  # Certificate files can be readable by others as they are public.
+  # Common values: '0644' (owner rw, group/others read), '0600' (owner only).
+  mode: "{{ config_overrides.certificate.mode }}"
 {% endif %}
 {% endif %}
 {% if 'pkcs12' in config_overrides %}
@@ -278,6 +295,44 @@ pkcs12:
 {% if 'friendly_name' in config_overrides.pkcs12 %}
   # A friendly name for the PKCS12 file, used when importing it into a keystore.
   friendly_name: "{{ config_overrides.pkcs12.friendly_name }}"
+{% endif %}
+{% if 'passphrase' in config_overrides.pkcs12 %}
+  # PKCS#12 file passphrase handling.
+  # - "?": Auto-generate a random password (stored in secret manager, non-idempotent by design).
+  # - Explicit value: Use the provided passphrase (stored in secret manager).
+  passphrase: "{{ config_overrides.pkcs12.passphrase }}"
+{% endif %}
+{% if 'passphrase_size' in config_overrides.pkcs12 %}
+  # Size of the randomly generated PKCS#12 passphrase (in characters) if passphrase is set to "?".
+  passphrase_size: {{ config_overrides.pkcs12.passphrase_size }}
+{% endif %}
+{% if 'legacy' in config_overrides.pkcs12 %}
+  # Legacy PKCS#12 format for compatibility with older systems.
+  # When set to true, uses legacy OpenSSL format with specific encryption algorithms.
+  # This is only supported via the command-line openssl tool, not the Ansible module.
+  legacy: {{ config_overrides.pkcs12.legacy | lower }}
+{% endif %}
+{% if 'legacy_key_alg' in config_overrides.pkcs12 %}
+  # Defines the required legacy algorithm for the private key encryption.
+  legacy_key_alg: "{{ config_overrides.pkcs12.legacy_key_alg }}"
+{% endif %}
+{% if 'legacy_cert_alg' in config_overrides.pkcs12 %}
+  # Defines the required legacy algorithm for the certificate encryption.
+  legacy_cert_alg: "{{ config_overrides.pkcs12.legacy_cert_alg }}"
+{% endif %}
+{% if 'legacy_mac_alg' in config_overrides.pkcs12 %}
+  # Defines the required legacy algorithm for the file integrity check (MAC).
+  legacy_mac_alg: "{{ config_overrides.pkcs12.legacy_mac_alg }}"
+{% endif %}
+{% if 'legacy_iter_count' in config_overrides.pkcs12 %}
+  # Defines the iteration count to match the known-working file.
+  legacy_iter_count: {{ config_overrides.pkcs12.legacy_iter_count }}
+{% endif %}
+{% if 'mode' in config_overrides.pkcs12 %}
+  # File permissions mode for the PKCS12 file.
+  # PKCS12 files can be readable by others as they are password-protected.
+  # Common values: '0644' (owner rw, group/others read), '0600' (owner only).
+  mode: "{{ config_overrides.pkcs12.mode }}"
 {% endif %}
 {% endif %}
 {% if 'auto_renewal' in config_overrides %}

@@ -9,6 +9,7 @@
           - "certificate_domain: {{ certificate_domain }}"
           - "certificate_environment: {{ certificate_environment }}"
           - "certificate_name: {{ certificate_name }}"
+          - "certificate_path_and_name: {{ certificate_path_and_name }}"
 
     # - name: "Setting certificate_process_mode to 'verifying' at the beginning of the process for each certificate"
     #   ansible.builtin.set_fact:

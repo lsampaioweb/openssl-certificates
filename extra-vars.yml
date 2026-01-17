@@ -16,23 +16,22 @@ execution_environment: "prd"
 # List of certificates to process.
 # Leave empty [] to process all certificates.
 certificates:
-  # - "root-ca"
+  - "root-ca"
   # - "sub-ca"
-  - "edge-firewall"
-  # - "edge-grafana"
-  # - "edge-jump-server"
-  # - "edge-ldap"
-  # - "edge-load-balancer"
-  # - "edge-pve"
-  # - "edge-switch"
-  # - "edge-vault"
-  # - "edge-zabbix"
+  # - "firewall"
+  # - "grafana"
+  # - "jump-server"
+  # - "ldap"
+  # - "load-balancer"
+  # - "pve"
+  # - "switch"
+  # - "vault"
+  # - "zabbix"
   # - "wildcard"
 
 # extra_config_vars: {}
 # extra_config_vars:
   # version: "2.0"
-  # certificate_signing_provider: "vault"
   # secret_provider: "vault"
   # private_key:
   #   extension: "key"
@@ -42,6 +41,7 @@ certificates:
   #   cipher: "auto"
   #   passphrase: "{{ context_vars.passphrase_random_marker }}"
   #   passphrase_size: 30
+  #   mode: "0600"
   # csr:
   #   extension: "csr"
   #   digest: "sha256"
@@ -62,15 +62,18 @@ certificates:
   #   extended_key_usage:
   #     - "serverAuth"
   #   extended_key_usage_critical: true
+  #   mode: "0644"
 
   # certificate:
   #   extension: "cer"
+  #   signing_provider: "{{ context_vars.default_signing_provider }}"
   #   digest: "sha256"
   #   not_after: "+300d"
   #   provider: "selfsigned"
   #   ownca:
   #     name: "root-ca.lan.home"
   #     path: "/opt/certificates/2025/lan.home/prd/root-ca"
+  #   mode: "0644"
 
   # pkcs12:
   #   extension: "pfx"
@@ -84,6 +87,7 @@ certificates:
   #   legacy_cert_alg: "PBE-SHA1-RC2-40"
   #   legacy_mac_alg: "sha1"
   #   legacy_iter_count: 2048
+  #   mode: "0644"
   # auto_renewal:
   #   enabled: true
   #   days_for_yellow_alert: 11
