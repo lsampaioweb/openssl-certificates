@@ -36,8 +36,9 @@ This is an Ansible-based certificate management system for automated SSL/TLS cer
 **Configuration File Synchronization**: CRITICAL - When ANY variable is added, updated, or removed from `vars/config.yml`, the SAME change MUST be applied to:
 1. `extra-vars.yml` - Runtime override template (commented out)
 2. `roles/pki/templates/config.yml.j2` - Certificate-specific config template
+3. `roles/pki/tasks/convert_config_from_older_version.yml` - Legacy format migration mappings
 
-These files must NEVER drift! All three define the same variable structure.
+These files must NEVER drift! All four define the same variable structure. The conversion file ensures backward compatibility by mapping old flat-format variables to the current nested structure.
 
 **Path Pattern**: `/opt/certificates/{year}/{domain}/{environment}/{certificate_name}`
 
