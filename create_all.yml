@@ -1,5 +1,5 @@
 ---
-- name: "Create Complete PKI Certificate Chain"
+- name: "Create Complete PKI Certificate Components"
   hosts: "CertificateAuthorityServer"
 
   roles:
