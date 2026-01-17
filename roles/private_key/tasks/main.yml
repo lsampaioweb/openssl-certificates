@@ -27,12 +27,12 @@
     msg:
       - "Private Key file: {{ private_key_file }}"
       - "Private Key type: {{ config_vars.private_key.type }}"
-      - "Private Key size: {{ config_vars.private_key.size }}"
       - "Private Key format: {{ config_vars.private_key.format }}"
+      - "Private Key size: {{ config_vars.private_key.size }}"
+      - "Private Key curve: {{ config_vars.private_key.curve }}"
       - "Private Key cipher: {{ (private_key_passphrase != '') | ternary(config_vars.private_key.cipher, omit) }}"
 
-- name: "Creating an OpenSSL Private Key (RSA)"
-  when: config_vars.private_key.type == "RSA"
+- name: "Creating an OpenSSL Private Key of type '{{ config_vars.private_key.type }}'"
   no_log: "{{ not debug | default(true) }}"
   # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
   community.crypto.openssl_privatekey:
@@ -40,19 +40,6 @@
     type: "{{ config_vars.private_key.type }}"
     format: "{{ config_vars.private_key.format }}"
     size: "{{ config_vars.private_key.size }}"
-    cipher: "{{ (private_key_passphrase != '') | ternary(config_vars.private_key.cipher, omit) }}"
-    passphrase: "{{ private_key_passphrase | default(omit, true) }}"
-    mode: "0600"
-  register: "private_key_creation_output"
-
-- name: "Creating an OpenSSL Private Key (ECC)"
-  when: config_vars.private_key.type == "ECC" or config_vars.private_key.type == "Ed25519"
-  no_log: "{{ not debug | default(true) }}"
-  # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
-  community.crypto.openssl_privatekey:
-    path: "{{ private_key_file }}"
-    type: "{{ config_vars.private_key.type }}"
-    format: "{{ config_vars.private_key.format }}"
     curve: "{{ config_vars.private_key.curve }}"
     cipher: "{{ (private_key_passphrase != '') | ternary(config_vars.private_key.cipher, omit) }}"
     passphrase: "{{ private_key_passphrase | default(omit, true) }}"
