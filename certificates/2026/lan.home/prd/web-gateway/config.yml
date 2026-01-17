@@ -16,7 +16,7 @@ private_key:
 csr:
   # Common name (usually the domain name) to be included in the CSR.
   # This field is often required for SSL/TLS certificates.
-  common_name: "edge-vault.lan.home"
+  common_name: "web-gateway.lan.home"
   # Subject Alternative Names (SANs) to be included in the CSR.
   # This is a list of additional names (e.g., domain names) the certificate should cover.
   # Example:
@@ -24,6 +24,6 @@ csr:
     # - "DNS:site.lan.home"
     # - "DNS:othersan.lan.home"
   subject_alt_name:
-    - "DNS:edge-vault.lan.home"
-    - "DNS:edge-vault-01.lan.home"
-    - "DNS:edge-vault-02.lan.home"
+    - "DNS:web-gateway.lan.home"
+    - "DNS:web-gateway-01.lan.home"
+    - "DNS:web-gateway-02.lan.home"
