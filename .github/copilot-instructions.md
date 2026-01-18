@@ -40,6 +40,12 @@ This is an Ansible-based certificate management system for automated SSL/TLS cer
 
 These files must NEVER drift! All four define the same variable structure. The conversion file ensures backward compatibility by mapping old flat-format variables to the current nested structure.
 
+**Variable Namespacing**: Context and config files are loaded with `name:` parameter creating namespaced variables:
+- Context: `base_context_vars` → `domain_context_vars` → merged into `context_vars`
+- Config: `base_config_vars` → `domain_config_vars` → `certificate_config_vars` → `extra_config_vars` → merged into `config_vars`
+- Within context/config files, reference other variables in same file using full namespace: `{{ base_context_vars.variable_name }}`
+- After merging, reference using merged namespace: `{{ context_vars.variable_name }}` or `{{ config_vars.variable_name }}`
+
 **Path Pattern**: `/opt/certificates/{year}/{domain}/{environment}/{certificate_name}`
 
 ## Architecture
