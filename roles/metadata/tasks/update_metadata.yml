@@ -18,22 +18,32 @@
   vars:
     temp_cert_key: "{{ certificate_path }}"
 
+- name: "Preparing base certificate metadata entry"
+  ansible.builtin.set_fact:
+    cert_data:
+      expiry_date: "{{ certificate_info.not_after }}"
+      last_notification: >-
+        {{ metadata.certificates[cert_key]['last_notification'] | default('')
+           if (cert_key in metadata.certificates and 'last_notification' in metadata.certificates[cert_key])
+           else '' }}
+
+- name: "Adding yellow alert override if different from global"
+  when: (config_vars.auto_renewal.days_for_yellow_alert | int) != (context_vars.auto_renewal.days_for_yellow_alert | int)
+  ansible.builtin.set_fact:
+    cert_data: "{{ cert_data | combine({'days_for_yellow_alert': config_vars.auto_renewal.days_for_yellow_alert | int}) }}"
+
+- name: "Adding red alert override if different from global"
+  when: (config_vars.auto_renewal.days_for_red_alert | int) != (context_vars.auto_renewal.days_for_red_alert | int)
+  ansible.builtin.set_fact:
+    cert_data: "{{ cert_data | combine({'days_for_red_alert': config_vars.auto_renewal.days_for_red_alert | int}) }}"
+
 - name: "Updating metadata for current certificate"
   when: metadata_needs_update
   ansible.builtin.set_fact:
-    metadata: >-
+    metadata: >
       {{ metadata | combine({
           'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
-          'certificates': metadata.certificates
-          | combine({
-              (cert_key): {
-                'expiry_date': certificate_info.not_after,
-                'last_notification': (metadata.certificates[cert_key]['last_notification'] | default(''))
-                  if (cert_key in metadata.certificates and 'last_notification' in metadata.certificates[cert_key])
-                  else '',
-              }
-            }
-          ),
+          'certificates': metadata.certificates | combine({(cert_key): cert_data}),
         },recursive=True,) }}
 
 - name: "Printing metadata update file information"

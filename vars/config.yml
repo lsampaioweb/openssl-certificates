@@ -16,6 +16,12 @@ private_key:
   #   "keychain" (MacOS).
   secret_provider: "{{ context_vars.default_secret_provider }}"
 
+  # Mount point for the secret provider (Vault engine name).
+  secret_provider_mount_point: "secret"
+
+  # Base path for certificate secrets in the secret provider.
+  secret_base_path: "Certificates"
+
   # Determines which format the private key is written in.
   # By default, PKCS1 (traditional OpenSSL format) is used for all keys which support it.
   # Please note that not every key can be exported in any format.
@@ -211,7 +217,7 @@ certificate:
     path: "{{ context_vars.certificates_base_path
       ~ '/' ~ ansible_facts.date_time.year
       ~ '/' ~ context_vars.certificate_domain
-      ~ '/' ~ execution_environment }}/sub-ca"
+      ~ '/' ~ certificate_environment }}/sub-ca"
 
   # File permissions mode for the certificate file.
   # Certificate files can be readable by others as they are public.
@@ -283,15 +289,16 @@ auto_renewal:
   enabled: true
 
   # Number of days before expiration to trigger yellow/warning status.
-  days_for_yellow_alert: 11
+  # References global context value; can be overridden per certificate in metadata.
+  days_for_yellow_alert: "{{ context_vars.auto_renewal.days_for_yellow_alert }}"
 
   # Number of days before expiration to trigger red/critical status.
-  days_for_red_alert: 5
+  # References global context value; can be overridden per certificate in metadata.
+  days_for_red_alert: "{{ context_vars.auto_renewal.days_for_red_alert }}"
 
   # Number of days before expiration to trigger auto-renewal.
   # If the certificate is set to expire within this number of days, it will be automatically renewed.
-  days_before_expiration: 10
-
+  days_before_expiration: "{{ context_vars.auto_renewal.days_before_expiration }}"
   # Maintenance windows for certificate import operations.
   # Each window defines when certificate imports are allowed.
   # Empty list [] means imports allowed at any time.
@@ -331,6 +338,14 @@ notification_mail:
 
   # The username for the SMTP server.
   smtp_username: "lsampaioweb@gmail.com"
+
+  # SMTP secret storage configuration for email notifications.
+  # Secret storage provider for the SMTP password.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  smtp_secret_provider: "{{ context_vars.default_secret_provider }}"
 
   # The ID of the SMTP password stored in the Secret Management system.
   smtp_password_id: "certificate-smtp-password"

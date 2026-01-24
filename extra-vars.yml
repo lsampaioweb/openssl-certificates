@@ -16,9 +16,9 @@ execution_environment: "prd"
 # List of certificates to process.
 # Leave empty [] to process all certificates.
 certificates:
-  - "root-ca"
+  # - "root-ca"
   # - "sub-ca"
-  # - "firewall"
+  - "firewall"
   # - "grafana"
   # - "jump-server"
   # - "ldap"
@@ -92,9 +92,9 @@ certificates:
   #   mode: "0644"
   # auto_renewal:
   #   enabled: true
-  #   days_for_yellow_alert: 11
-  #   days_for_red_alert: 5
-  #   days_before_expiration: 10
+  #   days_for_yellow_alert: "{{ context_vars.auto_renewal.days_for_yellow_alert }}"
+  #   days_for_red_alert: "{{ context_vars.auto_renewal.days_for_red_alert }}"
+  #   days_before_expiration: "{{ context_vars.auto_renewal.days_before_expiration }}"
   #   certificate_pki_pipeline_window: []
 
   # notification_mail:
@@ -102,6 +102,7 @@ certificates:
   #   port: 587
   #   secure: "starttls"
   #   smtp_username: "lsampaioweb@gmail.com"
+  #   smtp_secret_provider: "{{ context_vars.default_secret_provider }}"
   #   smtp_password_id: "certificate-smtp-password"
   #   from: "lsampaioweb+home@gmail.com"
   #   to:

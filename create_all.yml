@@ -11,4 +11,4 @@
       - "certificate"
       - "pkcs12"
       - "metadata"
-      - "verify"
+      - "notify"

@@ -3,7 +3,4 @@
   hosts: "CertificateAuthorityServer"
 
   roles:
-    - "pki"
-  vars:
-    roles_to_include:
-      - "verify"
+    - "verify"

@@ -7,4 +7,4 @@
   vars:
     roles_to_include:
       - "import"
-      - "verify"
+      - "notify"

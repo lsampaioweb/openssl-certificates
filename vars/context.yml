@@ -85,3 +85,19 @@ lock_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_contex
 
 # Timeout in seconds for acquiring the metadata lock file.
 lock_timeout_seconds: 30
+
+auto_renewal:
+  # Number of days before expiration to trigger yellow/warning status.
+  days_for_yellow_alert: 11
+
+  # Number of days before expiration to trigger red/critical status.
+  days_for_red_alert: 5
+
+  # Number of days before expiration to trigger auto-renewal.
+  days_before_expiration: 10
+
+# Vault address used for sending API requests.
+ansible_hashi_vault_addr: "{{ lookup('env', 'ANSIBLE_HASHI_VAULT_ADDR') }}"
+
+# Vault UI base path structure for web interface.
+vault_ui_base_path: "/ui/vault/secrets"
