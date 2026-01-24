@@ -6,4 +6,4 @@
     - "pki"
   vars:
     roles_to_include:
-      - "update_metadata"
+      - "metadata"
