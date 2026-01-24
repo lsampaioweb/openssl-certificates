@@ -13,7 +13,8 @@
     cert_key: "{{ temp_cert_key }}"
     # Checking if certificate is not in metadata and if it is, if the expiry date in metadata differs from the certificate's actual expiry date.
     metadata_needs_update: "{{ (temp_cert_key not in metadata.certificates) or
-                        (metadata.certificates[temp_cert_key]['expiry_date'] != certificate_info.not_after | default(true)) }}"
+                        ('expiry_date' not in metadata.certificates[temp_cert_key]) or
+                        (metadata.certificates[temp_cert_key]['expiry_date'] != certificate_info.not_after) }}"
   vars:
     temp_cert_key: "{{ certificate_path }}"
 
@@ -27,7 +28,9 @@
           | combine({
               (cert_key): {
                 'expiry_date': certificate_info.not_after,
-                'last_notification': metadata.certificates[cert_key]['last_notification'] | default('', true),
+                'last_notification': (metadata.certificates[cert_key]['last_notification'] | default(''))
+                  if (cert_key in metadata.certificates and 'last_notification' in metadata.certificates[cert_key])
+                  else '',
               }
             }
           ),
@@ -37,6 +40,7 @@
   when: debug | bool
   ansible.builtin.debug:
     msg:
+      - "Certificate full path: {{ cert_key }}"
       - "Certificate: {{ certificate_name }}"
       - "Expiry Date: {{ certificate_info.not_after }}"
       - "Metadata needs update: {{ metadata_needs_update }}"
