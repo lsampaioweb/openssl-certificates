@@ -12,7 +12,7 @@
         name: "common"
         tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
       vars:
-        secret_key: "{{ certificate_domain ~ '/' ~ execution_environment ~ '/' ~ certificate_name }}"
+        secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
 
     - name: "Setting the Private Key passphrase variable 'private_key_passphrase'"
       no_log: "{{ not debug | default(true) }}"

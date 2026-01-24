@@ -61,5 +61,5 @@
     name: "common"
     tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/write.yml"
   vars:
-    secret_key: "{{ certificate_domain ~ '/' ~ execution_environment ~ '/' ~ certificate_name }}"
+    secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
     secret_value: "{{ private_key_passphrase }}"
