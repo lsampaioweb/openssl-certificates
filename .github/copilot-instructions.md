@@ -130,6 +130,23 @@ no_log: "{{ not debug | default(true) }}"
 
 **Role Inclusion**: `roles/pki/tasks/steps.yml` includes roles based on `roles_to_include` variable.
 
+**Cross-Role Task Inclusion**: When calling tasks from another role, ALWAYS use `include_role` with `tasks_from`, NEVER use `include_tasks` with relative paths:
+
+```yaml
+# CORRECT - Use this pattern
+ansible.builtin.include_role:
+  name: "update_metadata"
+  tasks_from: "read_metadata.yml"
+
+# CORRECT - Dynamic task selection
+ansible.builtin.include_role:
+  name: "common"
+  tasks_from: "{{ context_vars.smtp_secret_provider }}/get.yml"
+
+# WRONG - Never use relative paths with include_tasks
+ansible.builtin.include_tasks: "{{ role_path }}/../other_role/tasks/some_task.yml"
+```
+
 **Certificate Exclusions**: Folders prefixed with `_` are excluded. Backup paths filtered out.
 
 **Password Handling**:
