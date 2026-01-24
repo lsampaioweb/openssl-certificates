@@ -69,6 +69,7 @@
         port: "{{ certificate_config_vars.mail_port | default(omit) }}"
         secure: "{{ certificate_config_vars.mail_secure | default(omit) }}"
         smtp_username: "{{ certificate_config_vars.mail_username | default(omit) }}"
+        smtp_secret_provider: "{{ certificate_config_vars.mail_secret_provider | default(omit) }}"
         smtp_password_id: "{{ certificate_config_vars.mail_password_id | default(omit) }}"
         from: "{{ certificate_config_vars.mail_from | default(omit) }}"
         to: "{{ certificate_config_vars.mail_to | default(omit) }}"

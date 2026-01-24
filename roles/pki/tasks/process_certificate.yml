@@ -41,7 +41,7 @@
           domain: "{{ certificate_domain }}"
           environment: "{{ certificate_environment }}"
           error: "{{ ansible_failed_result | default('Unknown error') }}"
-          timestamp: "{{ ansible_facts['date_time']['iso8601'] }}"
+          timestamp: "{{ now(utc=true) }}"
 
     - name: "Logging error to failure list"
       ansible.builtin.set_fact:

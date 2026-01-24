@@ -4,7 +4,6 @@
     file: "{{ context_file }}"
     name: "base_context_vars"
 
-
 - name: "Loading domain-specific context file: '{{ domain_context_file }}'"
   ansible.builtin.include_vars:
     file: "{{ domain_context_file }}"

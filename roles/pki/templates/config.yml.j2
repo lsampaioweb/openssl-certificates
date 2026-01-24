@@ -414,6 +414,14 @@ notification_mail:
   # The username for the SMTP server.
   smtp_username: "{{ config_overrides.notification_mail.smtp_username }}"
 {% endif %}
+{% if 'smtp_secret_provider' in config_overrides.notification_mail %}
+  # Secret storage provider for the SMTP password.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  smtp_secret_provider: "{{ config_overrides.notification_mail.smtp_secret_provider }}"
+{% endif %}
 {% if 'smtp_password_id' in config_overrides.notification_mail %}
   # The ID of the SMTP password stored in the Secret Management system.
   smtp_password_id: "{{ config_overrides.notification_mail.smtp_password_id }}"
