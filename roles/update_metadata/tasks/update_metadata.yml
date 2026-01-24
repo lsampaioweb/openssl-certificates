@@ -1,0 +1,46 @@
+---
+- name: "Loading metadata from file"
+  when: file_exists.stat.exists | bool
+  ansible.builtin.import_tasks: "read_metadata.yml"
+
+- name: "Reading certificate to extract expiry date"
+  community.crypto.x509_certificate_info:
+    path: "{{ certificate_file }}"
+  register: "certificate_info"
+
+- name: "Checking if certificate metadata needs to be updated"
+  ansible.builtin.set_fact:
+    cert_key: "{{ temp_cert_key }}"
+    # Checking if certificate is not in metadata and if it is, if the expiry date in metadata differs from the certificate's actual expiry date.
+    metadata_needs_update: "{{ (temp_cert_key not in metadata.certificates) or
+                        (metadata.certificates[temp_cert_key]['expiry_date'] != certificate_info.not_after | default(true)) }}"
+  vars:
+    temp_cert_key: "{{ certificate_path }}"
+
+- name: "Updating metadata for current certificate"
+  when: metadata_needs_update
+  ansible.builtin.set_fact:
+    metadata: >-
+      {{ metadata | combine({
+          'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
+          'certificates': metadata.certificates
+          | combine({
+              (cert_key): {
+                'expiry_date': certificate_info.not_after,
+                'last_notification': metadata.certificates[cert_key]['last_notification'] | default('', true),
+              }
+            }
+          ),
+        },recursive=True,) }}
+
+- name: "Printing metadata update file information"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Certificate: {{ certificate_name }}"
+      - "Expiry Date: {{ certificate_info.not_after }}"
+      - "Metadata needs update: {{ metadata_needs_update }}"
+
+- name: "Saving updated metadata to file"
+  when: metadata_needs_update
+  ansible.builtin.include_tasks: "write_metadata.yml"

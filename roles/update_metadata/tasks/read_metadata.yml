@@ -1,0 +1,51 @@
+---
+- name: "Checking if lock file exists at '{{ context_vars.lock_file_path }}'"
+  ansible.builtin.stat:
+    path: "{{ context_vars.lock_file_path }}"
+  register: "lock_file_stat"
+
+- name: "Waiting for lock file to be released if it exists"
+  when: lock_file_stat.stat.exists | bool
+  ansible.builtin.wait_for:
+    path: "{{ context_vars.lock_file_path }}"
+    state: "absent"
+    timeout: "{{ context_vars.lock_timeout_seconds }}"
+
+- name: "Creating lock file to prevent concurrent access at '{{ context_vars.lock_file_path }}'"
+  ansible.builtin.file:
+    path: "{{ context_vars.lock_file_path }}"
+    state: "touch"
+    mode: "0644"
+
+- name: "Reading metadata file with lock protection"
+  block:
+    - name: "Checking if metadata file already exists at '{{ context_vars.metadata_file_path }}'"
+      ansible.builtin.stat:
+        path: "{{ context_vars.metadata_file_path }}"
+      register: "metadata_file_stat"
+
+    - name: "Reading existing metadata file if it exists"
+      when: metadata_file_stat.stat.exists | bool
+      block:
+        - name: "Retrieving metadata file content at '{{ context_vars.metadata_file_path }}'"
+          ansible.builtin.slurp:
+            src: "{{ context_vars.metadata_file_path }}"
+          register: "metadata_file_content"
+
+        - name: "Parsing metadata file as JSON"
+          ansible.builtin.set_fact:
+            metadata: "{{ metadata_file_content.content | b64decode | from_json }}"
+
+    - name: "Initializing metadata if file does not exist"
+      when: not (metadata_file_stat.stat.exists | bool)
+      ansible.builtin.set_fact:
+        metadata:
+          version: "1.0"
+          last_updated: "{{ now(utc=true, fmt=context_vars.certificate_datetime_format) }}"
+          certificates: {}
+
+  always:
+    - name: "Removing lock file after reading at '{{ context_vars.lock_file_path }}'"
+      ansible.builtin.file:
+        path: "{{ context_vars.lock_file_path }}"
+        state: "absent"

@@ -6,4 +6,4 @@
 
 - name: "Updating metadata if certificate file exists"
   when: file_exists.stat.exists | bool
-  ansible.builtin.include_tasks: "update_metadata_file.yml"
+  ansible.builtin.include_tasks: "update_metadata.yml"
