@@ -135,7 +135,7 @@ no_log: "{{ not debug | default(true) }}"
 ```yaml
 # CORRECT - Use this pattern
 ansible.builtin.include_role:
-  name: "update_metadata"
+  name: "metadata"
   tasks_from: "read_metadata.yml"
 
 # CORRECT - Dynamic task selection
