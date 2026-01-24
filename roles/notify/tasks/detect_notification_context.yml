@@ -1,0 +1,16 @@
+---
+- name: "Detecting notification context based on output variables"
+  ansible.builtin.set_fact:
+    notification_context: "{{
+      'creating' if (certificate_creation_output.changed | default(false))
+      else ('importing' if (import_creation_output.changed | default(false))
+      else ('scheduled' if (verify_execution | default(false))
+      else '')) }}"
+
+- name: "Printing detected notification context"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Certificate creation changed: {{ certificate_creation_output.changed | default(false) }}"
+      - "Import creation changed: {{ import_creation_output.changed | default(false) }}"
+      - "Notification context: {{ notification_context }}"

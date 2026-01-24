@@ -1,0 +1,79 @@
+---
+- name: "Extracting certificate common name for notification"
+  ansible.builtin.set_fact:
+    certificate_common_name: "{{ certificate_info.subject.commonName }}"
+    certificate_days_to_expire: "{{ ((certificate_info.not_after | to_datetime(context_vars.certificate_datetime_format)) -
+                                    (ansible_facts['date_time']['iso8601'] | to_datetime(context_vars.ansible_datetime_format))).days }}"
+
+    certificate_info: "{{ certificate_info | combine({'formatted_serial_number': local_serial_hex}) }}"
+  vars:
+    # Converts decimal 12345 -> Hex '3039'.
+    local_serial_hex: "{{ '%X' | format(certificate_info.serial_number) }}"
+
+- name: "Creating notification context variables"
+  ansible.builtin.set_fact:
+    secret_provider: "{{ config_vars.private_key.secret_provider }}"
+    secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
+    # Optional AWX integration (set empty if not configured).
+    awx_job_details_url: "{{ context_vars.awx_job_details_url | default('') }}"
+    # Only Vault has web UI with clickable URLs.
+    secret_access_url: "{{ context_vars.ansible_hashi_vault_addr ~ context_vars.vault_ui_base_path ~ '/' ~
+                          config_vars.private_key.secret_provider_mount_point ~ '/show/' ~
+                          config_vars.private_key.secret_base_path ~ '/' ~ secret_key
+                          if config_vars.private_key.secret_provider == 'vault' else '' }}"
+    # Optional GLPI integration (set empty if not configured).
+    glpi_certificate_id: "{{ context_vars.glpi_certificate_id | default('') }}"
+    glpi_front_get_certificate_url: "{{ context_vars.glpi_front_get_certificate_url | default('') }}"
+    glpi_front_search_certificate_url: "{{ context_vars.glpi_front_search_certificate_url | default('') }}"
+    glpi_field_name: "{{ context_vars.glpi_field_name | default('') }}"
+
+- name: "Setting the 'who executed' audit message"
+  when: (awx_user_name is defined)
+  ansible.builtin.set_fact:
+    who_executed: "{{ awx_user_name }}{{' - ' ~ awx_user_email if (awx_user_email is defined and awx_user_email) else ''}}"
+
+- name: "Setting email subject for new certificate"
+  when: notification_context == "creating" | default(false)
+  ansible.builtin.set_fact:
+    mail_subject: "[SSL] The certificate: {{ certificate_common_name }} was created"
+    mail_main_message: >
+      The certificate '<strong>{{ certificate_common_name }}</strong>' was created
+      using <strong>{{ config_vars.certificate_ca_name | default(config_vars.certificate.signing_provider) }}</strong>.
+
+- name: "Setting email subject for importing certificate"
+  when: notification_context == "importing" | default(false)
+  ansible.builtin.set_fact:
+    mail_subject: "[SSL] The certificate: {{ certificate_common_name }} was imported"
+    mail_main_message: >
+      The certificate '<strong>{{ certificate_common_name }}</strong>' was imported into '<strong>{{ import_type }}</strong>'.
+
+- name: "Setting email subject for certificate nearing expiration (yellow alert)"
+  when: certificate_alert_is_yellow | default(false)
+  ansible.builtin.set_fact:
+    mail_subject: "[SSL][Attention] - The certificate {{ certificate_common_name }} is expiring in {{ certificate_days_to_expire }} days"
+    mail_main_message: >
+      The certificate '<strong>{{ certificate_common_name }}</strong>' is expiring in
+      <strong style='color: red;'>{{ certificate_days_to_expire }}</strong> days.
+
+- name: "Setting email subject for critical certificate expiration (red alert)"
+  when: certificate_alert_is_red | default(false)
+  ansible.builtin.set_fact:
+    mail_subject: "[SSL][Alert] - The certificate {{ certificate_common_name }} is expiring in {{ certificate_days_to_expire }} days"
+    mail_main_message: >
+      The certificate '<strong>{{ certificate_common_name }}</strong>' is expiring in
+      <strong style='color: red;'>{{ certificate_days_to_expire }}</strong> days.
+
+- name: "Setting email subject for expired certificate notification"
+  when: certificate_info.expired | default(false)
+  ansible.builtin.set_fact:
+    mail_subject: "[SSL][Urgent] - The certificate {{ certificate_common_name }} is expired"
+    mail_main_message: >
+      The certificate '<strong>{{ certificate_common_name }}</strong>' is expired.
+
+- name: "Printing notification variables"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "who_executed: {{ who_executed | default('Not defined') }}"
+      - "Mail Subject: {{ mail_subject | default('Not defined') }}"
+      - "Mail Main Message: {{ mail_main_message | default('Not defined') }}"

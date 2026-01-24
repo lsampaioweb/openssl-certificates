@@ -1,9 +1,20 @@
 ---
-- name: "Verifying if {{ certificate_file }} file exists"
-  ansible.builtin.stat:
-    path: "{{ certificate_file }}"
-  register: "file_exists"
+- name: "Loading context files"
+  ansible.builtin.include_role:
+    name: "pki"
+    tasks_from: "load_context_files.yml"
 
-- name: "Checking certificate file and its validity"
-  when: file_exists.stat.exists | bool
-  ansible.builtin.include_tasks: "verify.yml"
+- name: "Loading certificate metadata from file"
+  ansible.builtin.include_role:
+    name: "metadata"
+    tasks_from: "read_metadata.yml"
+
+- name: "Processing each certificate in metadata"
+  loop: "{{ metadata.certificates | dict2items | default([]) }}"
+  loop_control:
+    loop_var: "cert_entry"
+    label: "{{ cert_entry.key }}"
+  ansible.builtin.include_tasks: "process_certificate.yml"
+  vars:
+    cert_key: "{{ cert_entry.key }}"
+    cert_data: "{{ cert_entry.value }}"

@@ -1,0 +1,12 @@
+---
+- name: "Detecting notification context"
+  ansible.builtin.import_tasks: "detect_notification_context.yml"
+
+- name: "Processing notification"
+  when: notification_context is defined and notification_context | length > 0
+  block:
+    - name: "Preparing notification for '{{ notification_context }}' context"
+      ansible.builtin.include_tasks: "prepare_notification.yml"
+
+    - name: "Sending notification for certificate '{{ certificate_info.subject.commonName }}'"
+      ansible.builtin.include_tasks: "send_notification.yml"
