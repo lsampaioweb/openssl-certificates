@@ -1,12 +1,29 @@
 ---
-- name: "Loading metadata from file"
-  when: file_exists.stat.exists | bool
-  ansible.builtin.import_tasks: "read_metadata.yml"
-
 - name: "Reading certificate to extract expiry date"
   community.crypto.x509_certificate_info:
     path: "{{ certificate_file }}"
   register: "certificate_info"
+
+- name: "Preparing base certificate metadata entry"
+  ansible.builtin.set_fact:
+    cert_data:
+      expiry_date: "{{ certificate_info.not_after }}"
+
+- name: "Adding yellow alert override if different from global"
+  when: (config_vars.auto_renewal.days_for_yellow_alert | int) != (context_vars.auto_renewal.days_for_yellow_alert | int)
+  ansible.builtin.set_fact:
+    cert_data: "{{ cert_data
+      | combine({'days_for_yellow_alert': config_vars.auto_renewal.days_for_yellow_alert | int}) }}"
+
+- name: "Adding red alert override if different from global"
+  when: (config_vars.auto_renewal.days_for_red_alert | int) != (context_vars.auto_renewal.days_for_red_alert | int)
+  ansible.builtin.set_fact:
+    cert_data: "{{ cert_data
+      | combine({'days_for_red_alert': config_vars.auto_renewal.days_for_red_alert | int}) }}"
+
+- name: "Loading metadata from file"
+  when: file_exists.stat.exists | bool
+  ansible.builtin.import_tasks: "read_metadata.yml"
 
 - name: "Checking if certificate metadata needs to be updated"
   ansible.builtin.set_fact:
@@ -18,43 +35,25 @@
   vars:
     temp_cert_key: "{{ certificate_path }}"
 
-- name: "Preparing base certificate metadata entry"
-  ansible.builtin.set_fact:
-    cert_data:
-      expiry_date: "{{ certificate_info.not_after }}"
-      last_notification: >-
-        {{ metadata.certificates[cert_key]['last_notification'] | default('')
-           if (cert_key in metadata.certificates and 'last_notification' in metadata.certificates[cert_key])
-           else '' }}
-
-- name: "Adding yellow alert override if different from global"
-  when: (config_vars.auto_renewal.days_for_yellow_alert | int) != (context_vars.auto_renewal.days_for_yellow_alert | int)
-  ansible.builtin.set_fact:
-    cert_data: "{{ cert_data | combine({'days_for_yellow_alert': config_vars.auto_renewal.days_for_yellow_alert | int}) }}"
-
-- name: "Adding red alert override if different from global"
-  when: (config_vars.auto_renewal.days_for_red_alert | int) != (context_vars.auto_renewal.days_for_red_alert | int)
-  ansible.builtin.set_fact:
-    cert_data: "{{ cert_data | combine({'days_for_red_alert': config_vars.auto_renewal.days_for_red_alert | int}) }}"
-
-- name: "Updating metadata for current certificate"
+- name: "Processing current certificate metadata update"
   when: metadata_needs_update
-  ansible.builtin.set_fact:
-    metadata: >
-      {{ metadata | combine({
-          'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
-          'certificates': metadata.certificates | combine({(cert_key): cert_data}),
-        },recursive=True,) }}
+  block:
+    - name: "Updating metadata object with certificate '{{ certificate_name }}' data"
+      ansible.builtin.set_fact:
+        metadata: >
+          {{ metadata | combine({
+              'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
+              'certificates': metadata.certificates | combine({(cert_key): cert_data}),
+            },recursive=True,) }}
 
-- name: "Printing metadata update file information"
-  when: debug | bool
-  ansible.builtin.debug:
-    msg:
-      - "Certificate full path: {{ cert_key }}"
-      - "Certificate: {{ certificate_name }}"
-      - "Expiry Date: {{ certificate_info.not_after }}"
-      - "Metadata needs update: {{ metadata_needs_update }}"
+    - name: "Printing metadata update file information"
+      when: debug | bool
+      ansible.builtin.debug:
+        msg:
+          - "Certificate full path: {{ cert_key }}"
+          - "Certificate: {{ certificate_name }}"
+          - "Expiry Date: {{ certificate_info.not_after }}"
+          - "Metadata needs update: {{ metadata_needs_update }}"
 
-- name: "Saving updated metadata to file"
-  when: metadata_needs_update
-  ansible.builtin.include_tasks: "write_metadata.yml"
+    - name: "Saving updated metadata to file"
+      ansible.builtin.include_tasks: "write_metadata.yml"
