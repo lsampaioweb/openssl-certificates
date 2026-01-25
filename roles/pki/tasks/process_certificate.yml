@@ -11,10 +11,6 @@
           - "certificate_name: {{ certificate_name }}"
           - "certificate_path_and_name: {{ certificate_path_and_name }}"
 
-    # - name: "Setting certificate_process_mode to 'verifying' at the beginning of the process for each certificate"
-    #   ansible.builtin.set_fact:
-    #     certificate_process_mode: "verifying"
-
     - name: "Loading config files"
       ansible.builtin.import_tasks: "load_config_files.yml"
 
