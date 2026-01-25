@@ -34,15 +34,21 @@
 
         - name: "Parsing metadata file as JSON"
           ansible.builtin.set_fact:
-            metadata: "{{ metadata_file_content.content | b64decode | from_json }}"
+            metadata: "{{ metadata_file_content.content
+              | b64decode
+              | default('{}', true)
+              | from_json }}"
 
-    - name: "Initializing metadata if file does not exist"
+    - name: "Initializing metadata if file does not exist or is missing required fields"
       when: not (metadata_file_stat.stat.exists | bool)
+        or metadata.version is not defined
+        or metadata.last_updated is not defined
+        or metadata.certificates is not defined
       ansible.builtin.set_fact:
         metadata:
-          version: "1.0"
+          version: "{{ metadata.version | default(context_vars.certificate_metadata.version) }}"
           last_updated: "{{ now(utc=true, fmt=context_vars.certificate_datetime_format) }}"
-          certificates: {}
+          certificates: "{{ metadata.certificates | default({}, true) }}"
 
   always:
     - name: "Removing lock file after reading at '{{ context_vars.lock_file_path }}'"

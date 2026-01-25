@@ -29,9 +29,9 @@
   ansible.builtin.set_fact:
     cert_key: "{{ temp_cert_key }}"
     # Checking if certificate is not in metadata and if it is, if the expiry date in metadata differs from the certificate's actual expiry date.
-    metadata_needs_update: "{{ (temp_cert_key not in metadata.certificates) or
-                        ('expiry_date' not in metadata.certificates[temp_cert_key]) or
-                        (metadata.certificates[temp_cert_key]['expiry_date'] != certificate_info.not_after) }}"
+    metadata_needs_update: "{{ (temp_cert_key not in metadata.certificates)
+                            or ('expiry_date' not in metadata.certificates[temp_cert_key])
+                            or (metadata.certificates[temp_cert_key]['expiry_date'] != certificate_info.not_after) }}"
   vars:
     temp_cert_key: "{{ certificate_path }}"
 
