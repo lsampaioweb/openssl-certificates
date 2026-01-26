@@ -1,26 +1,49 @@
 ---
-- name: "Extracting certificate common name for notification"
+- name: "Loading certificate file details"
+  when: notification_context == "scheduled" | default(false)
+  community.crypto.x509_certificate_info:
+    path: "{{ certificate_file }}"
+    valid_at:
+      point_1: "+{{ config_vars.auto_renewal.days_for_yellow_alert }}d"
+      point_2: "+{{ config_vars.auto_renewal.days_for_red_alert }}d"
+  register: "certificate_info"
+
+- name: "Determining alert zone for certificate"
+  ansible.builtin.set_fact:
+    certificate_alert_is_yellow: "{{ not certificate_info.valid_at.point_1 }}"
+    certificate_alert_is_red: "{{ not certificate_info.valid_at.point_2 }}"
+    certificate_alert_is_expired: "{{ certificate_info.expired }}"
+
+- name: "Formatting certificate serial number from Decimal to Hex with colons"
+  ansible.builtin.include_role:
+    name: "common"
+    tasks_from: "utils/format_certificate_serial.yml"
+  vars:
+    input_serial_decimal: "{{ certificate_info.serial_number }}"
+
+- name: "Merging formatted serial number into certificate_info"
+  ansible.builtin.set_fact:
+    certificate_info: "{{ certificate_info | combine({'formatted_serial_number': formatted_serial_number}, recursive=True) }}"
+
+- name: "Preparing notification variables"
   ansible.builtin.set_fact:
     certificate_common_name: "{{ certificate_info.subject.commonName }}"
     certificate_days_to_expire: "{{ ((certificate_info.not_after | to_datetime(context_vars.certificate_datetime_format)) -
                                     (ansible_facts['date_time']['iso8601'] | to_datetime(context_vars.ansible_datetime_format))).days }}"
 
-    certificate_info: "{{ certificate_info | combine({'formatted_serial_number': local_serial_hex}) }}"
-  vars:
-    # Converts decimal 12345 -> Hex '3039'.
-    local_serial_hex: "{{ '%X' | format(certificate_info.serial_number) }}"
-
 - name: "Creating notification context variables"
   ansible.builtin.set_fact:
-    secret_provider: "{{ config_vars.private_key.secret_provider }}"
-    secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
     # Optional AWX integration (set empty if not configured).
     awx_job_details_url: "{{ context_vars.awx_job_details_url | default('') }}"
+
     # Only Vault has web UI with clickable URLs.
     secret_access_url: "{{ context_vars.ansible_hashi_vault_addr ~ context_vars.vault_ui_base_path ~ '/' ~
                           config_vars.private_key.secret_provider_mount_point ~ '/show/' ~
                           config_vars.private_key.secret_base_path ~ '/' ~ secret_key
                           if config_vars.private_key.secret_provider == 'vault' else '' }}"
+    secret_provider: "{{ config_vars.private_key.secret_provider }}"
+    secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
+
     # Optional GLPI integration (set empty if not configured).
     glpi_certificate_id: "{{ context_vars.glpi_certificate_id | default('') }}"
     glpi_front_get_certificate_url: "{{ context_vars.glpi_front_get_certificate_url | default('') }}"
@@ -64,7 +87,7 @@
       <strong style='color: red;'>{{ certificate_days_to_expire }}</strong> days.
 
 - name: "Setting email subject for expired certificate notification"
-  when: certificate_info.expired | default(false)
+  when: certificate_alert_is_expired | default(false)
   ansible.builtin.set_fact:
     mail_subject: "[SSL][Urgent] - The certificate {{ certificate_common_name }} is expired"
     mail_main_message: >
