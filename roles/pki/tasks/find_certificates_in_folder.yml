@@ -38,7 +38,7 @@
     # The 'list' filter converts the result back into a list after applying 'map'.
     certificates_list: "{{ certificates | map('regex_replace', '^', path ~ '/') | list }}"
 
-- name: "Printing variables"
+- name: "Printing the final list of certificates to process"
   when: debug | bool
   ansible.builtin.debug:
     msg: "{{ certificates_list }}"
