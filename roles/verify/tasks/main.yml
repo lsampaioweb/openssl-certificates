@@ -4,17 +4,24 @@
     name: "pki"
     tasks_from: "load_context_files.yml"
 
-- name: "Loading certificate metadata from file"
-  ansible.builtin.include_role:
-    name: "metadata"
-    tasks_from: "read_metadata.yml"
+- name: "Getting the list of certificates that need to be processed"
+  ansible.builtin.import_tasks: "find_certificates_to_process.yml"
 
-- name: "Processing each certificate in metadata"
-  loop: "{{ metadata.certificates | dict2items | default([]) }}"
-  loop_control:
-    loop_var: "cert_entry"
-    label: "{{ cert_entry.key }}"
-  ansible.builtin.include_tasks: "process_certificate.yml"
+- name: "Including task to iterate over list of certificates"
+  when: certificates_list | default([]) | length > 0
+  ansible.builtin.include_role:
+    name: "pki"
+    tasks_from: "iterate_over_list_of_certificates.yml"
   vars:
-    cert_key: "{{ cert_entry.key }}"
-    cert_data: "{{ cert_entry.value }}"
+    roles_to_include:
+      - "notify"
+    # Specify that the execution is from the Verify playbook.
+    verify_execution: true
+
+# - name: "Moving the expired certificate files to the backup folder"
+#   when: certificates_expired_list | default([]) | length > 0
+#   ansible.builtin.include_role:
+#     name: "backup"
+#     tasks_from: "main.yml"
+#   vars:
+#     backup_mode: "expired"

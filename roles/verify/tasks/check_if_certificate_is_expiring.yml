@@ -1,0 +1,32 @@
+---
+- name: "Calculating days until expiry for '{{ cert_key }}'"
+  ansible.builtin.set_fact:
+    cert_expiry_datetime: "{{ cert_data.expiry_date | to_datetime(context_vars.certificate_datetime_format) }}"
+    current_datetime: "{{ ansible_facts['date_time']['iso8601'] | to_datetime(context_vars.ansible_datetime_format) }}"
+
+- name: "Computing days until expiry"
+  ansible.builtin.set_fact:
+    certificate_days_to_expire: "{{ (cert_expiry_datetime - current_datetime).days }}"
+
+- name: "Determining certificate-specific alert thresholds"
+  ansible.builtin.set_fact:
+    cert_yellow_threshold: "{{ cert_data.days_for_yellow_alert | default(context_vars.auto_renewal.days_for_yellow_alert, true) | int }}"
+
+- name: "Determining alert zone for certificate"
+  ansible.builtin.set_fact:
+    certificate_is_green: "{{ certificate_days_to_expire | int > cert_yellow_threshold }}"
+
+- name: "Processing alert for certificate '{{ cert_key }}'"
+  when: not (certificate_is_green | bool)
+  block:
+    - name: "Checking if a notification was already sent today or not"
+      ansible.builtin.set_fact:
+        notification_needed: "{{ true if (last_notification is none) else (last_notification < current_datetime) }}"
+      vars:
+        last_notification: "{{ cert_data.last_notification | to_datetime(context_vars.certificate_datetime_format)
+                            if ('last_notification' in cert_data and cert_data.last_notification) else none }}"
+
+    - name: "Adding the current certificate '{{ cert_key }}' to the list of certificates needing notification"
+      when: notification_needed | bool
+      ansible.builtin.set_fact:
+        certificates_list: "{{ certificates_list | default([]) + [cert_key] }}"
