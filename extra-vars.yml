@@ -27,7 +27,6 @@ certificates:
   # - "switch"
   # - "vault"
   # - "zabbix"
-  # - "wildcard"
 
 # extra_config_vars: {}
 # extra_config_vars:

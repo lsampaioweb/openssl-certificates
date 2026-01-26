@@ -74,14 +74,17 @@ notification_file: "notifications.log"
 # The file with the instructions to import a certificate.
 import_file: "import.yml"
 
-# The file name that will contain the certificate metadata for each certificate.
-certificate_metadata_file: "certificate-metadata.json"
+# Metadata configuration.
+certificate_metadata:
+  # The version of the metadata structure.
+  version: "1.0"
+  # The file name that will contain the certificate metadata for each certificate.
+  file: "certificate-metadata.json"
 
 # The file path that will contain the metadata index with certificate expiry dates and notification status.
-metadata_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata_file }}"
-
+metadata_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata.file }}"
 # The directory and filename for the metadata lock file to prevent concurrent access during updates.
-lock_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata_file }}.lock"
+lock_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata.file }}.lock"
 
 # Timeout in seconds for acquiring the metadata lock file.
 lock_timeout_seconds: 30
