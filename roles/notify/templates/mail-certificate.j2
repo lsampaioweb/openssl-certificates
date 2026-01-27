@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ mail_subject }}</title>
+</head>
+
+<body>
+  <p>{{ mail_main_message }}</p>
+
+  {# ===== Detalhes da Execução ===== #}
+  {% if awx_schedule_name is defined or awx_job_id is defined or who_executed is defined %}
+  <h3>Detalhes da Execução:</h3>
+  <ul>
+    {% if awx_schedule_name is defined %}
+    <li><strong>Nome do Job:</strong> {{ awx_schedule_name }}</li>
+    {% endif %}
+    {% if awx_job_id is defined %}
+    <li><strong>AWX:</strong> {{ awx_job_details_url }}/{{ awx_job_id }}/details</li>
+    {% endif %}
+    {% if who_executed is defined %}
+    <li><strong>Executado por:</strong> {{ who_executed }}</li>
+    {% endif %}
+  </ul>
+  {% endif %}
+
+  {# ===== Resumo do Certificado ===== #}
+  <h3>Resumo do Certificado:</h3>
+  <ul>
+    <li><strong>Nome Comum:</strong> {{ certificate_info.subject.commonName }}</li>
+    {% if certificate_info.subject_alt_name is defined and certificate_info.subject_alt_name %}
+    <li><strong>Nome Alternativo (SAN):</strong> {{ certificate_info.subject_alt_name | join(', ') }}</li>
+    {% endif %}
+    <li><strong>Data de Criação (UTC):</strong> {{ certificate_not_before_formatted }}</li>
+    <li><strong>Data de Expiração (UTC):</strong> {{ certificate_not_after_formatted }} ({{ certificate_days_to_expire }} dias)</li>
+    <li><strong>Pasta do Certificado:</strong> {{ certificate_path }}</li>
+    {% if glpi_certificate_id or glpi_front_search_certificate_url %}
+    {% if glpi_certificate_id %}
+    <li><strong>GLPI:</strong> <a href="{{ glpi_front_get_certificate_url }}?id={{ glpi_certificate_id }}">{{ certificate_info.subject.commonName }}</a></li>
+    {% elif glpi_front_search_certificate_url %}
+    <li><strong>GLPI:</strong> <a href="{{ glpi_front_search_certificate_url }}?criteria[0][field]={{ glpi_field_name }}&criteria[0][searchtype]=contains&criteria[0][value]={{ certificate_info.subject.commonName | urlencode }}">{{ certificate_info.subject.commonName }}</a></li>
+    {% endif %}
+    {% endif %}
+  </ul>
+
+  {# ===== Chave Privada (.{{ private_key_extension }}) ===== #}
+  {% if secret_provider is defined and secret_key is defined %}
+  <h3>Chave Privada (.{{ private_key_extension }}):</h3>
+  <ul>
+    {% if secret_provider == 'vault' %}
+    <li><strong>Senha:</strong> <a href="{{ secret_access_url }}">{{ secret_key }}</a></li>
+    {% elif secret_provider == 'keyring' %}
+    <li><strong>Senha:</strong> Stored in Linux Keyring (ID: {{ secret_key }})</li>
+    {% elif secret_provider == 'keychain' %}
+    <li><strong>Senha:</strong> Stored in macOS Keychain (ID: {{ secret_key }})</li>
+    {% endif %}
+  </ul>
+  {% endif %}
+
+  {# ===== Detalhes do Certificado (.{{ certificate_extension }}) ===== #}
+  {% set has_cert_details = (certificate_info.formatted_serial_number is defined) or
+                            (certificate_info.subject.countryName is defined) or
+                            (certificate_info.subject.stateOrProvinceName is defined) or
+                            (certificate_info.subject.localityName is defined) or
+                            (certificate_info.subject.organizationName is defined) or
+                            (certificate_info.subject.organizationalUnitName is defined) or
+                            (certificate_info.subject.emailAddress is defined) or
+                            (certificate_info.version is defined) or
+                            (certificate_info.key_usage is defined and certificate_info.key_usage) or
+                            (certificate_info.extended_key_usage is defined and certificate_info.extended_key_usage) or
+                            (certificate_info.basic_constraints is defined and certificate_info.basic_constraints) %}
+  {% if has_cert_details %}
+  <h3>Detalhes do Certificado (.{{ certificate_extension }}):</h3>
+  <ul>
+    {% if certificate_info.formatted_serial_number is defined %}
+    <li><strong>Número de Série:</strong> {{ certificate_info.formatted_serial_number }}</li>
+    {% endif %}
+    {% if certificate_info.version is defined %}
+    <li><strong>Versão:</strong> {{ certificate_info.version }}</li>
+    {% endif %}
+    {% if certificate_info.subject.countryName is defined %}
+    <li><strong>Nome do País:</strong> {{ certificate_info.subject.countryName }}</li>
+    {% endif %}
+    {% if certificate_info.subject.stateOrProvinceName is defined %}
+    <li><strong>Nome do Estado ou Província:</strong> {{ certificate_info.subject.stateOrProvinceName }}</li>
+    {% endif %}
+    {% if certificate_info.subject.localityName is defined %}
+    <li><strong>Nome da Localidade:</strong> {{ certificate_info.subject.localityName }}</li>
+    {% endif %}
+    {% if certificate_info.subject.organizationName is defined %}
+    <li><strong>Nome da Organização:</strong> {{ certificate_info.subject.organizationName }}</li>
+    {% endif %}
+    {% if certificate_info.subject.organizationalUnitName is defined %}
+    <li><strong>Nome da Unidade Organizacional:</strong> {{ certificate_info.subject.organizationalUnitName }}</li>
+    {% endif %}
+    {% if certificate_info.subject.emailAddress is defined %}
+    <li><strong>Endereço de E-mail:</strong> {{ certificate_info.subject.emailAddress }}</li>
+    {% endif %}
+    {% if certificate_info.key_usage is defined and certificate_info.key_usage %}
+    <li><strong>Uso da Chave:</strong> {{ certificate_info.key_usage | join(', ') }}{% if certificate_info.key_usage_critical is defined %} (crítico: {{ certificate_info.key_usage_critical }}){% endif %}</li>
+    {% endif %}
+    {% if certificate_info.extended_key_usage is defined and certificate_info.extended_key_usage %}
+    <li><strong>Uso Estendido da Chave:</strong> {{ certificate_info.extended_key_usage | join(', ') }}{% if certificate_info.extended_key_usage_critical is defined %} (crítico: {{ certificate_info.extended_key_usage_critical }}){% endif %}</li>
+    {% endif %}
+    {% if certificate_info.basic_constraints is defined and certificate_info.basic_constraints %}
+    <li><strong>Restrições Básicas:</strong> {{ certificate_info.basic_constraints | join(', ') }}{% if certificate_info.basic_constraints_critical is defined %} (crítico: {{ certificate_info.basic_constraints_critical }}){% endif %}</li>
+    {% endif %}
+  </ul>
+  {% endif %}
+
+  <p>Best regards,<br />
+  <strong>Ansible Team</strong><br />
+  </p>
+</body>
+
+</html>
