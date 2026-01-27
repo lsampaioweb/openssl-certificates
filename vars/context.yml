@@ -56,6 +56,9 @@ certificate_datetime_format: "%Y%m%d%H%M%SZ"
 # DateTime format for ISO 8601 standard used in Ansible.
 ansible_datetime_format: "%Y-%m-%dT%H:%M:%SZ"
 
+# Human-readable date format for displaying certificate dates in notifications.
+display_datetime_format: "%Y-%m-%d %H:%M:%S"
+
 # The directory that will contain backup files.
 backup_directory: "backup"
 

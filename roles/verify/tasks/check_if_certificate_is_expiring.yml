@@ -21,10 +21,11 @@
   block:
     - name: "Checking if a notification was already sent today or not"
       ansible.builtin.set_fact:
-        notification_needed: "{{ true if (last_notification is none) else (last_notification < current_datetime) }}"
+        notification_needed: "{{ true if (last_notification_date is none) else (last_notification_date != today_date) }}"
       vars:
-        last_notification: "{{ cert_data.last_notification | to_datetime(context_vars.certificate_datetime_format)
-                            if ('last_notification' in cert_data and cert_data.last_notification) else none }}"
+        last_notification_date: "{{ (cert_data.last_notification | to_datetime(context_vars.certificate_datetime_format)).strftime('%Y-%m-%d')
+                                  if ('last_notification' in cert_data and cert_data.last_notification) else none }}"
+        today_date: "{{ current_datetime.strftime('%Y-%m-%d') }}"
 
     - name: "Adding the current certificate '{{ cert_key }}' to the list of certificates needing notification"
       when: notification_needed | bool
