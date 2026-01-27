@@ -1,24 +1,12 @@
 ---
-- name: "Checking if lock file exists at '{{ context_vars.lock_file_path }}'"
-  ansible.builtin.stat:
-    path: "{{ context_vars.lock_file_path }}"
-  register: "lock_file_stat"
-
-- name: "Waiting for lock file to be released if it exists"
-  when: lock_file_stat.stat.exists | bool
-  ansible.builtin.wait_for:
-    path: "{{ context_vars.lock_file_path }}"
-    state: "absent"
-    timeout: "{{ context_vars.lock_timeout_seconds }}"
-
-- name: "Creating lock file to prevent concurrent access at '{{ context_vars.lock_file_path }}'"
-  ansible.builtin.file:
-    path: "{{ context_vars.lock_file_path }}"
-    state: "touch"
-    mode: "0644"
+- name: "Waiting for any existing lock to be released"
+  ansible.builtin.include_tasks: "wait_for_lock.yml"
 
 - name: "Writing metadata file with lock protection"
   block:
+    - name: "Acquiring lock for metadata operation"
+      ansible.builtin.include_tasks: "acquire_lock.yml"
+
     - name: "Writing updated metadata to file at '{{ context_vars.metadata_file_path }}'"
       ansible.builtin.copy:
         content: "{{ metadata | to_nice_json(indent=2, sort_keys=False) }}"
@@ -33,7 +21,5 @@
           - "Metadata file written: {{ metadata_write_result.changed }}"
 
   always:
-    - name: "Removing lock file at '{{ context_vars.lock_file_path }}'"
-      ansible.builtin.file:
-        path: "{{ context_vars.lock_file_path }}"
-        state: "absent"
+    - name: "Releasing lock after writing"
+      ansible.builtin.include_tasks: "release_lock.yml"
