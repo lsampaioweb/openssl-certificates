@@ -38,13 +38,22 @@
 - name: "Processing current certificate metadata update"
   when: metadata_needs_update
   block:
-    - name: "Updating metadata object with certificate '{{ certificate_name }}' data"
+    - name: "Removing existing certificate entry to ensure clean replacement"
       ansible.builtin.set_fact:
         metadata: >
           {{ metadata | combine({
-              'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
-              'certificates': metadata.certificates | combine({(cert_key): cert_data}),
-            },recursive=True,) }}
+            'certificates': metadata.certificates | dict2items
+              | rejectattr('key', 'equalto', cert_key)
+              | items2dict
+          }) }}
+
+    - name: "Adding new certificate entry with fresh metadata"
+      ansible.builtin.set_fact:
+        metadata: >
+          {{ metadata | combine({
+            'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
+            'certificates': metadata.certificates | combine({(cert_key): cert_data}),
+          }, recursive=True) }}
 
     - name: "Printing metadata update file information"
       when: debug | bool
