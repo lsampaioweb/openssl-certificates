@@ -15,13 +15,8 @@
   vars:
     roles_to_include:
       - "notify"
+      - "backup"
     # Specify that the execution is from the Verify playbook.
     verify_execution: true
-
-# - name: "Moving the expired certificate files to the backup folder"
-#   when: certificates_expired_list | default([]) | length > 0
-#   ansible.builtin.include_role:
-#     name: "backup"
-#     tasks_from: "main.yml"
-#   vars:
-#     backup_mode: "expired"
+    # Specify that the backup role should archieve expired certificates.
+    backup_mode: "expired"
