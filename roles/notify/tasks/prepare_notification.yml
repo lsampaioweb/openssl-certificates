@@ -1,6 +1,5 @@
 ---
 - name: "Loading certificate file details"
-  when: notification_context == "scheduled" | default(false)
   community.crypto.x509_certificate_info:
     path: "{{ certificate_file }}"
     valid_at:
@@ -78,28 +77,31 @@
     mail_main_message: >
       The certificate '<strong>{{ certificate_common_name }}</strong>' was imported into '<strong>{{ import_type }}</strong>'.
 
-- name: "Setting email subject for certificate nearing expiration (yellow alert)"
-  when: certificate_alert_is_yellow | default(false)
-  ansible.builtin.set_fact:
-    mail_subject: "[SSL][Attention] - The certificate {{ certificate_common_name }} is expiring in {{ certificate_days_to_expire }} days"
-    mail_main_message: >
-      The certificate '<strong>{{ certificate_common_name }}</strong>' is expiring in
-      <strong style='color: red;'>{{ certificate_days_to_expire }}</strong> days.
+- name: "Processing notification"
+  when: notification_context == "scheduled"
+  block:
+    - name: "Setting email subject for certificate nearing expiration (yellow alert)"
+      when: certificate_alert_is_yellow | default(false)
+      ansible.builtin.set_fact:
+        mail_subject: "[SSL][Attention] - The certificate {{ certificate_common_name }} is expiring in {{ certificate_days_to_expire }} days"
+        mail_main_message: >
+          The certificate '<strong>{{ certificate_common_name }}</strong>' is expiring in
+          <strong style='color: red;'>{{ certificate_days_to_expire }}</strong> days.
 
-- name: "Setting email subject for critical certificate expiration (red alert)"
-  when: certificate_alert_is_red | default(false)
-  ansible.builtin.set_fact:
-    mail_subject: "[SSL][Alert] - The certificate {{ certificate_common_name }} is expiring in {{ certificate_days_to_expire }} days"
-    mail_main_message: >
-      The certificate '<strong>{{ certificate_common_name }}</strong>' is expiring in
-      <strong style='color: red;'>{{ certificate_days_to_expire }}</strong> days.
+    - name: "Setting email subject for critical certificate expiration (red alert)"
+      when: certificate_alert_is_red | default(false)
+      ansible.builtin.set_fact:
+        mail_subject: "[SSL][Alert] - The certificate {{ certificate_common_name }} is expiring in {{ certificate_days_to_expire }} days"
+        mail_main_message: >
+          The certificate '<strong>{{ certificate_common_name }}</strong>' is expiring in
+          <strong style='color: red;'>{{ certificate_days_to_expire }}</strong> days.
 
-- name: "Setting email subject for expired certificate notification"
-  when: certificate_alert_is_expired | default(false)
-  ansible.builtin.set_fact:
-    mail_subject: "[SSL][Urgent] - The certificate {{ certificate_common_name }} is expired"
-    mail_main_message: >
-      The certificate '<strong>{{ certificate_common_name }}</strong>' is expired.
+    - name: "Setting email subject for expired certificate notification"
+      when: certificate_alert_is_expired | default(false)
+      ansible.builtin.set_fact:
+        mail_subject: "[SSL][Urgent] - The certificate {{ certificate_common_name }} is expired"
+        mail_main_message: >
+          The certificate '<strong>{{ certificate_common_name }}</strong>' is expired.
 
 - name: "Printing notification variables"
   when: debug | bool
