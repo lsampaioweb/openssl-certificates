@@ -100,6 +100,25 @@
     mode: "{{ config_vars.certificate.mode }}"
   register: "certificate_creation_output"
 
+- name: "Appending CA certificate to create certificate chain"
+  when: certificate_creation_output.changed and config_vars.certificate.provider == "ownca"
+  block:
+    - name: "Reading leaf certificate content"
+      ansible.builtin.slurp:
+        src: "{{ certificate_file }}"
+      register: "leaf_cert_content"
+
+    - name: "Reading CA certificate content"
+      ansible.builtin.slurp:
+        src: "{{ ca_certificate_file }}"
+      register: "ca_cert_content"
+
+    - name: "Writing certificate chain (leaf + CA) to certificate file"
+      ansible.builtin.copy:
+        content: "{{ leaf_cert_content.content | b64decode }}{{ ca_cert_content.content | b64decode }}"
+        dest: "{{ certificate_file }}"
+        mode: "{{ config_vars.certificate.mode }}"
+
 - name: "Printing Certificate creation result"
   when: debug | bool
   ansible.builtin.debug:
