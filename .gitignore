@@ -17,3 +17,5 @@ ca_host_key
 *.pub
 *.pfx
 **/notifications.log
+certificate-metadata.json
+certificate-metadata.json.lock
