@@ -31,8 +31,16 @@
     certificate_days_to_expire: "{{ ((certificate_info.not_after | to_datetime(context_vars.certificate_datetime_format)) -
                                     (ansible_facts['date_time']['iso8601'] | to_datetime(context_vars.ansible_datetime_format))).days }}"
 
-- name: "Creating notification context variables"
-  ansible.builtin.set_fact:
+    # Formatting certificate dates for display.
+    certificate_not_before_formatted: "{{ context_vars.display_datetime_format
+                                        | strftime((certificate_info.not_before | to_datetime(context_vars.certificate_datetime_format)).timestamp() | int) }}"
+    certificate_not_after_formatted: "{{ context_vars.display_datetime_format
+                                        | strftime((certificate_info.not_after | to_datetime(context_vars.certificate_datetime_format)).timestamp() | int) }}"
+
+    # Setting file extension variables for template.
+    private_key_extension: "{{ config_vars.private_key.extension }}"
+    certificate_extension: "{{ config_vars.certificate.extension }}"
+
     # Optional AWX integration (set empty if not configured).
     awx_job_details_url: "{{ context_vars.awx_job_details_url | default('') }}"
 
