@@ -1,5 +1,5 @@
 ---
-- name: "Loading certificate file details"
+- name: "Loading certificate file details from '{{ certificate_file }}'"
   community.crypto.x509_certificate_info:
     path: "{{ certificate_file }}"
     valid_at:
