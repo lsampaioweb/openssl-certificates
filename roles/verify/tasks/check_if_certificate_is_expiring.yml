@@ -16,6 +16,13 @@
   ansible.builtin.set_fact:
     certificate_is_green: "{{ certificate_days_to_expire | int > cert_yellow_threshold }}"
 
+- name: "Printing certificate expiry information"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "certificate_days_to_expire: {{ certificate_days_to_expire }}"
+      - "certificate_is_green: {{ certificate_is_green }}"
+
 - name: "Processing alert for certificate '{{ cert_key }}'"
   when: not (certificate_is_green | bool)
   block:
