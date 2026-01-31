@@ -83,11 +83,14 @@
     src: "{{ jinja2_config_file }}"
     dest: "{{ certificate_config_path }}"
     mode: "0644"
-    backup: "{{ context_vars.backup_config_files_to_keep > 0 }}"
+    backup: "{{ context_vars.backup_files_to_keep > 0 }}"
   register: "config_template_result"
 
 - name: "Moving the backup file created by template module to a proper backup directory"
-  when: config_template_result.changed and context_vars.backup_config_files_to_keep > 0
+  when: config_template_result.changed and context_vars.backup_files_to_keep > 0
   ansible.builtin.include_role:
     name: "backup"
-    tasks_from: "backup_config.yml"
+    tasks_from: "backup_file.yml"
+  vars:
+    backup_file_name: "{{ context_vars.config_file }}"
+    backup_files_to_keep: "{{ context_vars.backup_files_to_keep }}"

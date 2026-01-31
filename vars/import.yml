@@ -1,0 +1,15 @@
+---
+# The version of the import configuration file format.
+version: "2.0"
+
+# MacOS import configuration.
+macos:
+  # Path to the system keychain where certificates will be imported.
+  keychain_path: "/Library/Keychains/System.keychain"
+
+  # Temporary folder for file transfers to MacOS targets.
+  temp_folder: "/tmp"
+
+  # List of MacOS hosts where certificates should be imported.
+  # Empty list means no MacOS imports configured.
+  targets: []

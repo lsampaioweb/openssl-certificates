@@ -1,4 +1,8 @@
 ---
+# ==============================================================================
+# GENERAL CONFIGURATION
+# ==============================================================================
+
 # The domain for the certificates.
 certificate_domain: "lan.home"
 
@@ -22,10 +26,7 @@ certificate_excludes:
   - '(?i)(^|.*[-_\.])bkp$'     # Excludes directories ending with "bkp" at start or after delimiter(s).
   - '(?i)(^|.*[-_\.])old$'     # Excludes directories ending with "old" at start or after delimiter(s).
 
-# The file with the variables that will be used to create a certificate.
-config_file: "config.yml"
-
-# The default roles that should be executed if the the user does not provide any.
+# The default roles that should be executed if the user does not provide any.
 default_roles_map:
   - "backup"
   - "private_key"
@@ -33,6 +34,22 @@ default_roles_map:
   - "certificate"
   - "pkcs12"
   - "verify"
+
+# Date format strings.
+certificate_datetime_format: "%Y%m%d%H%M%SZ"
+
+# DateTime format for ISO 8601 standard used in Ansible.
+ansible_datetime_format: "%Y-%m-%dT%H:%M:%SZ"
+
+# Human-readable date format for displaying certificate dates in notifications.
+display_datetime_format: "%Y-%m-%d %H:%M:%S"
+
+# ==============================================================================
+# CERTIFICATE CREATION CONFIGURATION
+# ==============================================================================
+
+# The file with the variables that will be used to create a certificate.
+config_file: "config.yml"
 
 # Marker to trigger random passphrase generation.
 passphrase_random_marker: "?"
@@ -50,32 +67,9 @@ default_secret_provider: "vault"
 #   "openssl": The local OpenSSL tool.
 default_signing_provider: "vault"
 
-# Date format strings.
-certificate_datetime_format: "%Y%m%d%H%M%SZ"
-
-# DateTime format for ISO 8601 standard used in Ansible.
-ansible_datetime_format: "%Y-%m-%dT%H:%M:%SZ"
-
-# Human-readable date format for displaying certificate dates in notifications.
-display_datetime_format: "%Y-%m-%d %H:%M:%S"
-
-# The directory that will contain backup files.
-backup_directory: "backup"
-
-# The directory that will contain old and expired certificates.
-backup_base_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.backup_directory }}"
-
-# Number of config.yml backup files to keep per certificate.
-backup_config_files_to_keep: 5
-
-# The datetime format to use in backup filenames for config files.
-backup_config_datetime_format: "+%Y-%m-%d-%H-%M-%S"
-
-# The file that will contain the dates of every notification that was sent about a certificate that is expiring soon.
-notification_file: "notifications.log"
-
-# The file with the instructions to import a certificate.
-import_file: "import.yml"
+# ==============================================================================
+# METADATA CONFIGURATION
+# ==============================================================================
 
 # Metadata configuration.
 certificate_metadata:
@@ -86,11 +80,23 @@ certificate_metadata:
 
 # The file path that will contain the metadata index with certificate expiry dates and notification status.
 metadata_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata.file }}"
+
 # The directory and filename for the metadata lock file to prevent concurrent access during updates.
 lock_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata.file }}.lock"
 
 # Timeout in seconds for acquiring the metadata lock file.
 lock_timeout_seconds: 30
+
+# ==============================================================================
+# NOTIFICATION CONFIGURATION
+# ==============================================================================
+
+# The file that will contain the dates of every notification that was sent about a certificate that is expiring soon.
+notification_file: "notifications.log"
+
+# ==============================================================================
+# CERTIFICATE VERIFICATION AND AUTO-RENEWAL CONFIGURATION
+# ==============================================================================
 
 auto_renewal:
   # Number of days before expiration to trigger yellow/warning status.
@@ -101,6 +107,33 @@ auto_renewal:
 
   # Number of days before expiration to trigger auto-renewal.
   days_before_expiration: 10
+
+# ==============================================================================
+# BACKUP CONFIGURATION
+# ==============================================================================
+
+# The directory that will contain backup files.
+backup_directory: "backup"
+
+# The directory that will contain old and expired certificates.
+backup_base_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.backup_directory }}"
+
+# Number of config.yml or import.yml backup files to keep per certificate.
+backup_files_to_keep: 5
+
+# The datetime format to use in backup filenames for config files.
+backup_datetime_format: "+%Y-%m-%d-%H-%M-%S"
+
+# ==============================================================================
+# IMPORT CONFIGURATION
+# ==============================================================================
+
+# The file with the instructions to import a certificate.
+import_file: "import.yml"
+
+# ==============================================================================
+# VAULT CONFIGURATION
+# ==============================================================================
 
 # Vault address used for sending API requests.
 ansible_hashi_vault_addr: "{{ lookup('env', 'ANSIBLE_HASHI_VAULT_ADDR') }}"
