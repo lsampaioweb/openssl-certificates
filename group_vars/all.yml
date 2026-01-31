@@ -22,3 +22,6 @@ domain_context_file: "context-{{ domain_context }}.yml"
 
 # The global config file that will be loaded, using certificate specific settings.
 domain_config_file: "config-{{ domain_context }}.yml"
+
+# The global import file that will be loaded, using certificate specific settings.
+domain_import_file: "import-{{ domain_context }}.yml"

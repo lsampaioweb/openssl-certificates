@@ -5,9 +5,9 @@
     dest: "{{ certificate_backup_path ~ '/' ~ backup_filename }}"
     mode: "preserve"
   vars:
-    backup_filename_prefix: "{{ lookup('pipe', 'date ' ~ context_vars.backup_config_datetime_format) }}"
+    backup_filename_prefix: "{{ lookup('pipe', 'date ' ~ context_vars.backup_datetime_format) }}"
     current_index: "{{ ('-%02d' | format(index)) if (index > 0) else '' }}"
-    backup_filename: "{{ backup_filename_prefix ~ current_index ~ '.' ~ context_vars.config_file }}"
+    backup_filename: "{{ backup_filename_prefix ~ current_index ~ '.' ~ backup_file_name }}"
 
 - name: "Removing temporary backup file"
   ansible.builtin.file:
