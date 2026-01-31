@@ -1,0 +1,31 @@
+---
+- name: "Loading metadata from file"
+  ansible.builtin.import_tasks: "read_metadata.yml"
+
+- name: "Checking if certificate exists in metadata"
+  ansible.builtin.set_fact:
+    cert_exists_in_metadata: "{{ certificate_path in metadata.certificates }}"
+
+- name: "Removing certificate entry from metadata"
+  when: cert_exists_in_metadata
+  block:
+    - name: "Removing existing certificate entry"
+      ansible.builtin.set_fact:
+        metadata: >
+          {{ metadata | combine({
+            'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
+            'certificates': metadata.certificates | dict2items
+              | rejectattr('key', 'equalto', certificate_path)
+              | items2dict
+          }) }}
+
+    - name: "Printing metadata removal information"
+      when: debug | bool
+      ansible.builtin.debug:
+        msg:
+          - "Certificate full path: {{ certificate_path }}"
+          - "Certificate: {{ certificate_name }}"
+          - "Removed from metadata: {{ cert_exists_in_metadata }}"
+
+    - name: "Saving updated metadata to file"
+      ansible.builtin.include_tasks: "write_metadata.yml"

@@ -16,6 +16,7 @@
     roles_to_include:
       - "notify"
       - "backup"
+      - "metadata"
     # Specify that the execution is from the Verify playbook.
     verify_execution: true
     # Specify that the backup role should archieve expired certificates.

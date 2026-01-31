@@ -22,7 +22,6 @@
       | combine({'days_for_red_alert': config_vars.auto_renewal.days_for_red_alert | int}) }}"
 
 - name: "Loading metadata from file"
-  when: file_exists.stat.exists | bool
   ansible.builtin.import_tasks: "read_metadata.yml"
 
 - name: "Checking if certificate metadata needs to be updated"
