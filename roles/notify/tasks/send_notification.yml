@@ -4,18 +4,19 @@
     - mail_subject is defined
     - config_vars.notification_mail.to | length > 0 or config_vars.notification_mail.cc | length > 0
   block:
-    - name: "Retrieving SMTP password from secret provider: '{{ config_vars.notification_mail.smtp_secret_provider }}'"
+    - name: "Retrieving SMTP password if not already cached"
       when: smtp_mail_password is not defined or smtp_mail_password | length == 0
-      ansible.builtin.include_role:
-        name: "common"
-        tasks_from: "secrets/{{ config_vars.notification_mail.smtp_secret_provider }}/read.yml"
-      vars:
-        secret_key: "{{ config_vars.notification_mail.smtp_password_id }}"
+      block:
+        - name: "Retrieving SMTP password from secret provider: '{{ config_vars.notification_mail.smtp_secret_provider }}'"
+          ansible.builtin.include_role:
+            name: "common"
+            tasks_from: "secrets/{{ config_vars.notification_mail.smtp_secret_provider }}/read.yml"
+          vars:
+            secret_key: "{{ config_vars.notification_mail.smtp_password_id }}"
 
-    - name: "Setting 'smtp_mail_password' variable from secret value"
-      when: smtp_mail_password is not defined or smtp_mail_password | length == 0
-      ansible.builtin.set_fact:
-        smtp_mail_password: "{{ secret_value | default('', true) }}"
+        - name: "Setting 'smtp_mail_password' variable from secret value"
+          ansible.builtin.set_fact:
+            smtp_mail_password: "{{ secret_value | default('', true) }}"
 
     - name: "Sending email for certificate '{{ certificate_common_name }}' status"
       ansible.builtin.include_role:
