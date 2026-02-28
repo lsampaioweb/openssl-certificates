@@ -1,0 +1,149 @@
+---
+- name: "Creating MacOS import variables for target '{{ target_config.host }}'"
+  ansible.builtin.set_fact:
+    target_host: "{{ target_config.host }}"
+    keychain_path: "{{ target_config.keychain_path | default(import_vars.macos.keychain_path) }}"
+    temp_folder: "{{ target_config.temp_folder | default(import_vars.macos.temp_folder) }}"
+    certificate_file: "{{ certificate_path }}/{{ certificate_name }}.{{ config_vars.certificate.extension }}"
+    temp_certificate_path: "{{ target_config.temp_folder
+                            | default(import_vars.macos.temp_folder) }}/{{ certificate_name }}.{{ config_vars.certificate.extension }}"
+
+- name: "Loading certificate file details from '{{ certificate_file }}'"
+  community.crypto.x509_certificate_info:
+    path: "{{ certificate_file }}"
+  register: "certificate_info"
+
+- name: "Displaying MacOS import variables"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Target host: {{ target_host }}"
+      - "Keychain path: {{ keychain_path }}"
+      - "Certificate file: {{ certificate_file }}"
+      - "Temp certificate path: {{ temp_certificate_path }}"
+      - "Common Name: {{ certificate_info.subject.commonName }}"
+      - "Not After: {{ certificate_info.not_after }}"
+      - "Expired: {{ certificate_info.expired }}"
+
+- name: "Importing certificate to MacOS Keychain on '{{ target_host }}'"
+  ignore_unreachable: true
+  block:
+    - name: "Checking if certificate already exists in keychain on '{{ target_host }}'"
+      delegate_to: "{{ target_host }}"
+      ansible.builtin.command:
+        cmd: "/usr/bin/security find-certificate -c '{{ certificate_info.subject.commonName }}' -p '{{ keychain_path }}'"
+      register: "keychain_cert_raw"
+      changed_when: false
+      failed_when: false
+
+    - name: "Checking if target host is reachable"
+      when: keychain_cert_raw.unreachable | default(false)
+      ansible.builtin.fail:
+        msg: "Target host '{{ target_host }}' is unreachable. Skipping import."
+
+    - name: "Extracting certificate expiration from keychain certificate"
+      when: keychain_cert_raw.rc == 0
+      ansible.builtin.command:
+        cmd: "/usr/bin/openssl x509 -text -noout"
+        stdin: "{{ keychain_cert_raw.stdout }}"
+      register: "keychain_certificate_info"
+      changed_when: false
+      failed_when: false
+
+    - name: "Determining if certificate import is needed"
+      ansible.builtin.set_fact:
+        should_import_certificate: "{{ cert_not_in_keychain or expiration_dates_differ }}"
+      vars:
+        cert_not_in_keychain: "{{ keychain_cert_raw.rc != 0 }}"
+        local_cert_expiration: "{{ certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
+        keychain_cert_expiration: "{{ (keychain_certificate_info.stdout | regex_search('Not After : (.+)', '\\1') | first).strip()
+                                    | to_datetime('%b %d %H:%M:%S %Y %Z') if keychain_cert_raw.rc == 0 else '' }}"
+        expiration_dates_differ: "{{ keychain_cert_raw.rc == 0 and local_cert_expiration != keychain_cert_expiration }}"
+
+    - name: "Displaying import decision for '{{ target_host }}'"
+      when: debug | bool
+      ansible.builtin.debug:
+        msg:
+          - "Certificate exists in keychain: {{ keychain_cert_raw.rc == 0 }}"
+          - "Local certificate expiration: {{ certificate_info.not_after }}"
+          - "Keychain certificate expiration: {{ (keychain_certificate_info.stdout | regex_search('Not After : (.+)', '\\1') | first).strip()
+                                              if keychain_cert_raw.rc == 0 else 'N/A' }}"
+          - "Should import: {{ should_import_certificate }}"
+
+    - name: "Skipping import - certificate already current in keychain"
+      when: not should_import_certificate
+      ansible.builtin.debug:
+        msg: "Certificate '{{ certificate_info.subject.commonName }}' is already current in keychain on '{{ target_host }}'. Skipping import."
+
+    - name: "Performing certificate import on '{{ target_host }}'"
+      when: should_import_certificate
+      block:
+        - name: "Copying certificate file to '{{ target_host }}'"
+          delegate_to: "{{ target_host }}"
+          ansible.builtin.copy:
+            src: "{{ certificate_file }}"
+            dest: "{{ temp_certificate_path }}"
+            mode: "0644"
+
+        - name: "Allowing Ansible to modify trust settings on '{{ target_host }}'"
+          delegate_to: "{{ target_host }}"
+          become: true
+          ansible.builtin.command:
+            cmd: "/usr/bin/security authorizationdb write com.apple.trust-settings.admin allow"
+          register: "auth_allow"
+          changed_when: auth_allow.rc == 0
+
+        - name: "Importing certificate into keychain on '{{ target_host }}'"
+          delegate_to: "{{ target_host }}"
+          become: true
+          ansible.builtin.command:
+            cmd: "/usr/bin/security add-trusted-cert -d -r trustRoot -k {{ keychain_path }} '{{ temp_certificate_path }}'"
+          register: "import_result"
+          changed_when: import_result.rc == 0
+
+        - name: "Removing Ansible trust settings modification permissions on '{{ target_host }}'"
+          delegate_to: "{{ target_host }}"
+          become: true
+          ansible.builtin.command:
+            cmd: "/usr/bin/security authorizationdb remove com.apple.trust-settings.admin"
+          register: "auth_remove"
+          changed_when: auth_remove.rc == 0
+
+        - name: "Recording successful import result"
+          ansible.builtin.set_fact:
+            import_results: "{{ import_results + [result] }}"
+          vars:
+            result:
+              provider: "macos"
+              host: "{{ target_host }}"
+              status: "imported"
+              changed: true
+              certificate_cn: "{{ certificate_info.subject.commonName }}"
+
+    - name: "Recording skipped import result"
+      when: not should_import_certificate
+      ansible.builtin.set_fact:
+        import_results: "{{ import_results + [result] }}"
+      vars:
+        result:
+          provider: "macos"
+          host: "{{ target_host }}"
+          status: "skipped"
+          changed: false
+          reason: "certificate already current"
+
+  rescue:
+    - name: "Recording failed import result"
+      ansible.builtin.set_fact:
+        import_results: "{{ import_results + [result] }}"
+      vars:
+        result:
+          provider: "macos"
+          host: "{{ target_host }}"
+          status: "failed"
+          changed: false
+          error: "{{ ansible_failed_result.msg | default('Unknown error') }}"
+
+    - name: "Displaying import failure message"
+      ansible.builtin.debug:
+        msg: "Failed to import certificate to MacOS Keychain on '{{ target_host }}': {{ ansible_failed_result.msg | default('Unknown error') }}"

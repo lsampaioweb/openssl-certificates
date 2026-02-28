@@ -1,0 +1,46 @@
+---
+# The version of the import configuration file format.
+version: "{{ import_overrides.version }}"
+{% if 'macos' in import_overrides %}
+
+# MacOS import configuration.
+macos:
+{% if 'keychain_path' in import_overrides.macos %}
+  # Path to the system keychain where certificates will be imported.
+  keychain_path: "{{ import_overrides.macos.keychain_path }}"
+{% endif %}
+{% if 'temp_folder' in import_overrides.macos %}
+  # Temporary folder for file transfers to MacOS targets.
+  temp_folder: "{{ import_overrides.macos.temp_folder }}"
+{% endif %}
+{% if 'targets' in import_overrides.macos %}
+  # List of MacOS hosts where certificates should be imported.
+  # Empty list means no MacOS imports configured.
+  targets:{{ ('') if (import_overrides.macos.targets | default([]) | length > 0) else " []" }}
+{% for target in import_overrides.macos.targets | default([]) %}
+    - host: "{{ target.host }}"
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if 'linux' in import_overrides %}
+
+# Linux import configuration.
+linux:
+{% if 'debian' in import_overrides.linux %}
+  # Debian/Ubuntu CA trust store import configuration.
+  debian:
+{% if 'ca_certificates_path' in import_overrides.linux.debian %}
+    # Path where CA certificates are installed on Debian/Ubuntu systems.
+    # NOTE: update-ca-certificates requires files with .crt extension in this directory.
+    ca_certificates_path: "{{ import_overrides.linux.debian.ca_certificates_path }}"
+{% endif %}
+{% if 'targets' in import_overrides.linux.debian %}
+    # List of Debian/Ubuntu hosts where CA certificates should be imported into the trust store.
+    # Empty list means no Debian CA trust store imports configured.
+    targets:{{ ('') if (import_overrides.linux.debian.targets | default([]) | length > 0) else " []" }}
+{% for target in import_overrides.linux.debian.targets | default([]) %}
+      - host: "{{ target.host }}"
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endif %}

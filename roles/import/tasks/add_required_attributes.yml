@@ -1,0 +1,7 @@
+---
+- name: "Adding 'version' to import_overrides"
+  ansible.builtin.set_fact:
+    import_overrides: "{{ import_overrides | combine(required_overrides, recursive=True) }}"
+  vars:
+    required_overrides:
+      version: "{{ reference_import_vars.version }}"

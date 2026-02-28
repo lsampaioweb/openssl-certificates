@@ -1,0 +1,48 @@
+---
+- name: "Resetting role-specific variables"
+  ansible.builtin.set_fact:
+    import_creation_output: {}
+
+- name: "Creating import variables"
+  ansible.builtin.set_fact:
+    certificate_import_path: "{{ certificate_path ~ '/' ~ context_vars.import_file }}"
+
+- name: "Verifying if the '{{ certificate_import_path }}' file exists"
+  ansible.builtin.stat:
+    path: "{{ certificate_import_path }}"
+  register: "certificate_import_found"
+
+- name: "Loading and processing import configuration"
+  when: certificate_import_found.stat.exists
+  block:
+    - name: "Loading import configuration files"
+      ansible.builtin.import_tasks: "load_import_files.yml"
+
+    - name: "Initializing import results array"
+      ansible.builtin.set_fact:
+        import_results: []
+
+    - name: "Importing certificates to MacOS Keychain targets"
+      when: import_vars.macos.targets | default([]) | length > 0
+      ansible.builtin.include_tasks: "macos/keychain.yml"
+      loop: "{{ import_vars.macos.targets }}"
+      loop_control:
+        loop_var: "target_config"
+
+    - name: "Importing CA certificates to Debian trust store targets"
+      when: import_vars.linux.debian.targets | default([]) | length > 0
+      ansible.builtin.include_tasks: "linux/debian_ca.yml"
+      loop: "{{ import_vars.linux.debian.targets }}"
+      loop_control:
+        loop_var: "target_config"
+
+    - name: "Setting import creation output for notification context"
+      ansible.builtin.set_fact:
+        import_creation_output:
+          changed: "{{ import_results | selectattr('changed', 'equalto', true) | list | length > 0 }}"
+        import_type: "{{ import_results | selectattr('changed', 'equalto', true)
+                                        | map(attribute='provider') | unique | join(', ') }}"
+
+    - name: "Displaying import results summary"
+      ansible.builtin.debug:
+        msg: "{{ import_results }}"
