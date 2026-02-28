@@ -101,7 +101,7 @@ Configs merge: base → domain → certificate → extra_vars. Final result in `
 **Environment Variables** (required):
 
 ```bash
-export ANSIBLE_HASHI_VAULT_ADDR="https://vault.lan.homelab"
+export ANSIBLE_HASHI_VAULT_ADDR="https://vault.lan.home"
 export ANSIBLE_HASHI_VAULT_AUTH_METHOD="ldap"
 export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
 ```
