@@ -3,7 +3,7 @@
 proxmox_port: 8006
 proxmox_tmp_folder: "/tmp"
 proxmox_prefix: "pve"
-proxmox_domain: "lan.homelab"
+proxmox_domain: "lan.home"
 
 import_config:
   [
@@ -20,6 +20,6 @@ import_config:
           url: "{{ proxmox_prefix }}-02.{{ proxmox_domain }}",
           port: "{{ proxmox_port }}",
           tmp_folder: "{{ proxmox_tmp_folder }}",
-        }
-      ]
+        },
+      ],
   ]
