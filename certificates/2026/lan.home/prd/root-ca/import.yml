@@ -1,0 +1,22 @@
+---
+# The version of the import configuration file format.
+version: "2.0"
+
+# # MacOS import configuration.
+# macos:
+#   # List of MacOS hosts where certificates should be imported.
+#   # Empty list means no MacOS imports configured.
+#   targets:
+#     - host: "Lucianos-MacBook-Pro.local"
+
+# Linux import configuration.
+linux:
+  # Debian/Ubuntu CA trust store import configuration.
+  debian:
+    # Path where CA certificates are installed on Debian/Ubuntu systems.
+    # NOTE: update-ca-certificates requires files with .crt extension in this directory.
+    ca_certificates_path: "/usr/local/share/ca-certificates"
+    # List of Debian/Ubuntu hosts where CA certificates should be imported into the trust store.
+    # Empty list means no Debian CA trust store imports configured.
+    targets:
+      - host: "mini-pc-01"
