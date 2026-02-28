@@ -51,8 +51,7 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 
 ## Supported Import Types
 
-1. [Traefik](roles/import/templates/traefik.yml)
-1. [Springboot](roles/import/templates/springboot.yml)
+1. [Debian/Ubuntu](roles/import/tasks/linux/debian_ca.yml)
 
 ## How to Execute
 
@@ -80,7 +79,7 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 
     export ANSIBLE_HASHI_VAULT_ADDR="https://vault.lan.home"
     export ANSIBLE_HASHI_VAULT_AUTH_METHOD="ldap"
-    export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
+    export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible"
     export ANSIBLE_HASHI_VAULT_PASSWORD="$(secret-tool lookup secret 'ansible_hashi_vault_password')"
 
     source ~/.bashrc
@@ -100,6 +99,51 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
     - Confirm it was saved correctly:
       ```bash
       secret-tool lookup password "certificate_smtp_password"
+      ```
+
+1. Set up the Ansible user on each target host (required for certificate import):
+
+    **Note**: This local user approach is a temporary solution until an LDAP/AD-based user is available. When that time comes, only `ANSIBLE_USER` and `ANSIBLE_PASSWORD` env vars need to be updated — no playbook changes required.
+
+    The import playbook connects to target hosts using a dedicated local user. Run these commands **on each target host**:
+
+    - Create the user:
+      ```bash
+      sudo useradd -m -s /bin/bash usr_ansible
+      ```
+
+    - Generate a strong random password and set it:
+      ```bash
+      openssl rand -base64 32
+      sudo passwd usr_ansible
+      ```
+
+    - Grant passwordless sudo:
+      ```bash
+      sudo visudo -f /etc/sudoers.d/usr_ansible
+      ```
+      Add this single line — `visudo` validates syntax before writing, so it won't corrupt sudoers:
+      ```
+      usr_ansible ALL=(ALL) NOPASSWD: ALL
+      ```
+
+    Then, back **on the Ansible controller**, store the password in the secret manager and set the environment variables:
+
+    - Store the password:
+      ```bash
+      secret-tool store --label="usr_ansible" password "usr_ansible"
+      ```
+
+    - Add the connection env vars to your shell profile:
+      ```bash
+      echo 'export ANSIBLE_USER="usr_ansible"' >> ~/.bashrc
+      echo 'export ANSIBLE_PASSWORD="$(secret-tool lookup password usr_ansible)"' >> ~/.bashrc
+      source ~/.bashrc
+      ```
+
+    - Test the connection before running the playbook:
+      ```bash
+      ssh usr_ansible@<target-host>
       ```
 
 1. Generate all components of a certificate:
@@ -184,7 +228,7 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 1. Check a Certificate
 
     ```bash
-    openssl x509 -text -noout -in *.cer
+    openssl x509 -text -noout -in *.crt
     ```
 
 1. Check a PKCS#12 File (.pfx or .p12)

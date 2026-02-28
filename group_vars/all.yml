@@ -8,12 +8,6 @@ domain_context: "home"
 # Environment of the execution. Options: stg, prd. Defaults to prd if not specified.
 execution_environment: "prd"
 
-# # The user for Ansible to connect to other servers.
-# ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
-
-# # The password for the Ansible user to connect to other servers.
-# ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"
-
 # The file with all the default variables shared by all companies.
 context_file: "context.yml"
 
@@ -25,3 +19,9 @@ domain_config_file: "config-{{ domain_context }}.yml"
 
 # The global import file that will be loaded, using certificate specific settings.
 domain_import_file: "import-{{ domain_context }}.yml"
+
+# The user for Ansible to connect to other servers.
+ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
+
+# The password for the Ansible user to connect to other servers.
+ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"

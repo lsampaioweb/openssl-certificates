@@ -16,9 +16,9 @@ execution_environment: "prd"
 # List of certificates to process.
 # Leave empty [] to process all certificates.
 certificates:
-  # - "root-ca"
+  - "root-ca"
   # - "sub-ca"
-  - "firewall"
+  # - "firewall"
   # - "pve"
   # - "grafana"
   # - "jump-server"
@@ -65,7 +65,7 @@ certificates:
   #   mode: "0644"
 
   # certificate:
-  #   extension: "cer"
+  #   extension: "crt"
   #   signing_provider: "{{ context_vars.default_signing_provider }}"
   #   digest: "sha256"
   #   not_after: "+300d"
@@ -102,7 +102,7 @@ certificates:
   #   secure: "starttls"
   #   smtp_username: "lsampaioweb@gmail.com"
   #   smtp_secret_provider: "{{ context_vars.default_secret_provider }}"
-  #   smtp_password_id: "certificate-smtp-password"
+  #   smtp_password_id: "certificate_smtp_password"
   #   from: "lsampaioweb+home@gmail.com"
   #   to:
   #     - "lsampaioweb+home@gmail.com"
