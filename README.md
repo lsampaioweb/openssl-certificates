@@ -86,6 +86,22 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
     source ~/.bashrc
     ```
 
+1. Save the SMTP password in the secret manager:
+
+    The playbook sends an email notification after creating a certificate. The SMTP password must be stored in the OS secret manager (e.g: Keyring in Ubuntu) on the Ansible controller — never hardcode credentials in source files.
+
+    The secret key `certificate_smtp_password` matches the default value of `config_vars.notification_mail.smtp_password_id` in `vars/config.yml`. Override that variable if you use a different key name.
+
+    - Store the password:
+      ```bash
+      secret-tool store --label="certificate_smtp_password" password "certificate_smtp_password"
+      ```
+
+    - Confirm it was saved correctly:
+      ```bash
+      secret-tool lookup password "certificate_smtp_password"
+      ```
+
 1. Generate all components of a certificate:
 
     1. Configuration File:

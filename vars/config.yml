@@ -348,7 +348,7 @@ notification_mail:
   smtp_secret_provider: "{{ context_vars.default_secret_provider }}"
 
   # The ID of the SMTP password stored in the Secret Management system.
-  smtp_password_id: "certificate-smtp-password"
+  smtp_password_id: "certificate_smtp_password"
 
   # Email details for sending notifications.
   from: "lsampaioweb+home@gmail.com"
