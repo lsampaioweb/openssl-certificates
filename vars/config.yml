@@ -178,7 +178,7 @@ csr:
 certificate:
   # Extension for the certificate file.
   # Common extensions include 'cer', 'crt', or 'pem'.
-  extension: "cer"
+  extension: "crt"
 
   # Specifies the provider that will be used to sign the certificates.
   # Options:
