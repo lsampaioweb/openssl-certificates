@@ -10,7 +10,7 @@ private_key:
   #   "vault": HashiCorp Vault Secret Engine (default).
   #   "keyring" (Ubuntu).
   #   "keychain" (MacOS).
-  secret_provider: "keychain"
+  secret_provider: "keyring"
 
 # Variables that will be used for creating a certificate signing request.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
@@ -90,4 +90,14 @@ pkcs12:
   #   "vault": HashiCorp Vault Secret Engine (default).
   #   "keyring" (Ubuntu).
   #   "keychain" (MacOS).
-  secret_provider: "keychain"
+  secret_provider: "keyring"
+
+# Variables that will be used for sending email notifications about the certificates.
+# https://docs.ansible.com/ansible/latest/collections/community/general/mail_module.html
+notification_mail:
+  # Secret storage provider for the SMTP password.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  smtp_secret_provider: "keyring"
