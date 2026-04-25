@@ -1,0 +1,19 @@
+---
+- name: "Loading context files"
+  ansible.builtin.include_role:
+    name: "pki"
+    tasks_from: "load_context_files.yml"
+
+- name: "Getting the list of certificates that need to be processed"
+  ansible.builtin.import_tasks: "find_certificates_to_process.yml"
+
+- name: "Including task to iterate over list of certificates"
+  when: certificates_list | default([]) | length > 0
+  ansible.builtin.include_role:
+    name: "pki"
+    tasks_from: "iterate_over_list_of_certificates.yml"
+  vars:
+    roles_to_include:
+      - "notify"
+    # Specify that the execution is from the Verify playbook.
+    verify_execution: true

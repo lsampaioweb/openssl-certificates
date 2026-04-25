@@ -1,0 +1,48 @@
+---
+# Traefik Configuration.
+
+# OS type of the target system.
+traefik_os_type: "linux"
+
+# Path to the Python interpreter to use for executing Ansible tasks on the remote server.
+traefik_python_interpreter: "/bin/python3"
+
+# STANDARDIZED: Use OS-standard certificate paths instead of application-specific ones.
+traefik_certificate_path: "/etc/pki/tls/certs"
+traefik_private_key_path: "/etc/pki/tls/private"
+
+# File mode (permissions) for the certificate file.
+traefik_certificate_mode: "0644"
+traefik_private_key_mode: "0640"
+
+# Owner of the certificate file - use root user for security.
+traefik_certificate_owner: "root"
+traefik_certificate_group: "root"
+
+# Base directory where Traefik is installed and managed.
+traefik_app_path: "/opt/traefik/config/reverse-proxy"
+
+# Path to the Traefik SSL configuration file.
+traefik_config_file: "{{ traefik_app_path }}/shared/tls.yaml"
+
+# Path to the reload trigger file.
+# When this file is modified, Traefik can be configured to automatically reload its configuration.
+traefik_reload_file: "{{ traefik_app_path }}/reload.txt"
+
+import_config: {
+  traefik: [
+    {
+      host: "server.lan.home",
+      os_type: "{{ traefik_os_type }}",
+      python_interpreter: "{{ traefik_python_interpreter }}",
+      certificate_path: "{{ traefik_certificate_path }}",
+      private_key_path: "{{ traefik_private_key_path }}",
+      certificate_mode: "{{ traefik_certificate_mode }}",
+      private_key_mode: "{{ traefik_private_key_mode }}",
+      certificate_owner: "{{ traefik_certificate_owner }}",
+      certificate_group: "{{ traefik_certificate_group }}",
+      config_file: "{{ traefik_config_file }}",
+      reload_file: "{{ traefik_reload_file }}",
+    }
+  ],
+}

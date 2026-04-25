@@ -1,0 +1,51 @@
+---
+# Fortigate Configuration.
+
+import_config: {
+  fortigate: [
+    {
+      # The fully qualified domain name (FQDN) or IP address of the target Fortigate firewall.
+      host: "server.lan.home",
+
+      # Port for HTTPS API communication with the Fortigate device.
+      # 443 - Default HTTPS port.
+      # 444 - Common alternate HTTPS port used by network teams.
+      port: 444,
+
+      # Virtual Domain (VDOM) to operate within.
+      # "root" - Default VDOM for most Fortigate configurations.
+      # Custom VDOM name can be specified if the firewall uses multiple VDOMs.
+      vdom: "root",
+
+      # Protocol used for API communication with the Fortigate device.
+      # "https" - Secure HTTP communication (recommended).
+      # "http" - Unencrypted HTTP communication (not recommended for production).
+      protocol: "https",
+
+      # Validate SSL certificates when connecting to Fortigate.
+      # true - Enforces certificate validation (recommended for production).
+      # false - Skips certificate validation (only for development/testing).
+      validate_certs: false,
+
+      # Temporary certificate name to switch to during certificate operations.
+      # This prevents admin interface lockout during certificate replacement.
+      # "Fortinet_GUI_Server" - Default temporary certificate name.
+      temp_certificate_name: "Fortinet_GUI_Server",
+
+      # Certificate scope within the Fortigate system.
+      # "global" - Available to all VDOMs (recommended).
+      # "vdom" - Available only to the specified VDOM.
+      certificate_scope: "global",
+
+      # Whether to set the new certificate as the admin interface certificate.
+      # true - Automatically configure the admin interface to use the new certificate.
+      # false - Only upload the certificate without changing admin interface settings.
+      set_as_admin_cert: true,
+
+      # Certificate source type for Fortigate certificate store.
+      # "user" - User-uploaded certificate (recommended for custom certificates).
+      # "factory" - Factory-provided certificates.
+      certificate_source: "user"
+    }
+  ]
+}

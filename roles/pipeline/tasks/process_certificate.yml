@@ -1,0 +1,109 @@
+---
+- name: "Debugging current certificate being processed"
+  when: debug | default(false)
+  ansible.builtin.debug:
+    msg:
+      - "certificate:"
+      - "{{ certificate }}"
+
+- name: "Initializing certificate_in_window for certificate '{{ certificate.name }}'"
+  ansible.builtin.set_fact:
+    # This is necessary to avoid modifying the loop variable directly, which is read-only.
+    working_certificate: "{{ certificate }}"
+    certificate_in_window: "{{ certificate.window | default([]) | length == 0 }}"
+
+# Check the rules and flip the status to true if any rule matches.
+# This uses the exact, proven logic from the Python script.
+- name: "Checking each window rule (if any) for a match"
+  ansible.builtin.set_fact:
+    certificate_in_window: true
+  loop: "{{ working_certificate.window | default([]) }}"
+  loop_control:
+    loop_var: "rule"
+  vars:
+    current_day: "{{ now(utc=False, fmt='%A').lower() }}"
+    current_time: "{{ now(utc=False, fmt='%H:%M') }}"
+  when:
+    # Only run the loop if rules exist.
+    - working_certificate.window | default([]) | length > 0
+    # Check if the current day is in the rule's days (case insensitive).
+    - current_day in (rule.days | map('lower') | list)
+    # Check if the current time is within the rule's time window.
+    # Handle overnight windows that cross midnight.
+    - (rule.start_time <= rule.end_time and current_time >= rule.start_time and current_time <= rule.end_time) or
+      (rule.start_time > rule.end_time and (current_time >= rule.start_time or current_time <= rule.end_time))
+
+- name: "Processing certificate '{{ working_certificate.name }}' when within allowed window"
+  when: certificate_in_window
+  block:
+    - name: "Defining path, certificates list, and certificate for '{{ working_certificate.name }}'"
+      ansible.builtin.set_fact:
+        path: "{{ working_certificate.path | dirname }}"
+        certificates: "{{ [working_certificate.path | basename] }}"
+
+    - name: "Debug output of certificate creation result for '{{ working_certificate.name }}'"
+      when: debug | default(false)
+      ansible.builtin.debug:
+        msg:
+          - "Path:"
+          - "{{ path }}"
+          - "Certificates:"
+          - "{{ certificates }}"
+
+    - name: "Creating the certificate '{{ working_certificate.name }}'"
+      when: not working_certificate.created
+      ansible.builtin.include_role:
+        name: "pki"
+      vars:
+        roles_to_include:
+          - "pki_backup"
+          - "pki_private_key"
+          - "pki_csr"
+          - "pki_certificate"
+          - "pki_pkcs12"
+          - "pki_verify"
+        backup_mode: "renewal"
+
+    - name: "Updating 'created: true' and 'imported: false' in our state variable"
+      when: certificate_process_mode == "creating"
+      ansible.builtin.set_fact:
+        working_certificate: "{{ working_certificate | combine({'created': true, 'imported': false}) }}"
+
+    - name: "Updating the created status of certificate '{{ working_certificate.name }}' in the pipeline list"
+      when: certificate_process_mode == "creating"
+      ansible.builtin.include_role:
+        name: "pki_pipeline"
+        tasks_from: "update_item_in_list.yml"
+      vars:
+        item_to_update: "{{ working_certificate }}"
+
+    - name: "Importing the certificate '{{ working_certificate.name }}'"
+      when: not working_certificate.imported
+      ansible.builtin.include_role:
+        name: "pki"
+      vars:
+        roles_to_include:
+          - "pki_import"
+          - "glpi"
+          - "pki_verify"
+
+    - name: "Updating 'imported: true' in our state variable"
+      when: certificate_process_mode == "importing"
+      ansible.builtin.set_fact:
+        working_certificate: "{{ working_certificate | combine({'imported': true}) }}"
+
+    - name: "Updating the imported status of certificate '{{ working_certificate.name }}' in the pipeline list"
+      when: certificate_process_mode == "importing"
+      ansible.builtin.include_role:
+        name: "pki_pipeline"
+        tasks_from: "update_item_in_list.yml"
+      vars:
+        item_to_update: "{{ working_certificate }}"
+
+- name: "Removing certificate '{{ working_certificate.name }}' from pipeline list after creation and import"
+  when: working_certificate.created and working_certificate.imported
+  ansible.builtin.include_role:
+    name: "pki_pipeline"
+    tasks_from: "remove_item_from_list.yml"
+  vars:
+    item_to_remove: "{{ working_certificate }}"

@@ -1,0 +1,13 @@
+---
+- name: "Create and Import Certificates Pipeline"
+  hosts: "OpenSSLCertServer"
+  gather_facts: false
+
+  pre_tasks:
+    - name: "Retrieving usr_ansible_pd password from Vault"
+      ansible.builtin.import_role:
+        name: "pki"
+        tasks_from: "retrieve_password.yml"
+
+  roles:
+    - "pipeline"

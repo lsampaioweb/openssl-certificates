@@ -1,0 +1,190 @@
+---
+- name: "Creating the specific variables"
+  ansible.builtin.set_fact:
+    host: "{{ host_config.host }}"
+    api_port: "{{ host_config.port | default(443) }}"
+    os_type: "{{ host_config.os_type | default('fortigate') }}"
+    vdom: "{{ host_config.vdom | default('root') }}"
+    protocol: "{{ host_config.protocol | default('https') }}"
+    validate_certs: "{{ host_config.validate_certs | default(true) }}"
+    temp_certificate_name: "{{ host_config.temp_certificate_name | default('Fortinet_GUI_Server') }}"
+    certificate_scope: "{{ host_config.certificate_scope | default('global') }}"
+    set_as_admin_cert: "{{ host_config.set_as_admin_cert | default(true) }}"
+    certificate_source: "{{ host_config.certificate_source | default('user') }}"
+
+- name: "Debugging"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Host config: {{ host_config }}"
+      - "Import certificate path: {{ import_certificate_path }}"
+      - "OS type: {{ os_type }}"
+      - "Host: {{ host }}"
+      - "Api Port: {{ api_port }}"
+      - "VDOM: {{ vdom }}"
+      - "Protocol: {{ protocol }}"
+      - "Validate certs: {{ validate_certs }}"
+      - "Certificate name: {{ certificate_name }}"
+      - "Temp certificate name: {{ temp_certificate_name }}"
+      - "Certificate scope: {{ certificate_scope }}"
+      - "Set as admin cert: {{ set_as_admin_cert }}"
+      - "Certificate source: {{ certificate_source }}"
+
+- name: "Getting local certificate information"
+  community.crypto.x509_certificate_info:
+    path: "{{ ssl_certificate_path }}"
+  register: "local_cert_info"
+
+- name: "Normalizing local certificate serial number to hexadecimal"
+  ansible.builtin.set_fact:
+    # Converts decimal 12345 -> Hex '3039'.
+    local_serial_hex: "{{ '%X' | format(local_cert_info.serial_number) }}"
+
+- name: "Adding host '{{ host }}' in group '{{ os_type }}' into the memory inventory"
+  ansible.builtin.add_host:
+    groups: "{{ os_type }}"
+    name: "{{ host }}"
+    ansible_user: "{{ fortigate_username }}"
+    ansible_password: "{{ fortigate_password }}"
+    ansible_httpapi_port: "{{ api_port }}"
+    ansible_httpapi_use_ssl: "{{ protocol == 'https' }}"
+    ansible_httpapi_validate_certs: "{{ validate_certs }}"
+  no_log: "{{ not debug | default(true) }}"
+
+- name: "Getting certificate runtime details (Monitor API)"
+  delegate_to: "{{ host }}"
+  fortinet.fortios.fortios_monitor_fact:
+    vdom: "{{ vdom | default(omit, true) }}"
+    selector: "system_available-certificates"
+    filters:
+      - "name=={{ certificate_name }}"
+  register: "monitor_cert_info"
+
+- name: "Getting current admin server certificate configuration"
+  delegate_to: "{{ host }}"
+  fortinet.fortios.fortios_configuration_fact:
+    vdom: "{{ vdom | default(omit, true) }}"
+    selector: "system_global"
+  register: "current_admin_config"
+
+- name: "Checking if certificate update is needed"
+  ansible.builtin.set_fact:
+    current_admin_cert: "{{ temp_current_admin_cert }}"
+    remote_serial: "{{ temp_remote_serial }}"
+
+    # Check if Serial matches (File Integrity).
+    serial_mismatch: "{{ temp_remote_serial != local_serial_hex }}"
+    # Check if Admin Interface is using the wrong cert (Configuration Integrity).
+    config_mismatch: "{{ temp_current_admin_cert != certificate_name }}"
+  vars:
+    temp_current_admin_cert: "{{ current_admin_config.meta.results['admin-server-cert'] | default('') }}"
+    temp_remote_serial: >-
+      {{
+        monitor_cert_info.meta.results
+        | selectattr('name', 'equalto', certificate_name)
+        | map(attribute='serial_number')
+        | first
+        | default('NOT_FOUND')
+        | replace(':', '')
+        | string
+      }}
+
+- name: "Debugging certificate comparison and update decision"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Local Serial (Hex):  {{ local_serial_hex }}"
+      - "Remote Serial (Hex): {{ remote_serial }}"
+      - "Current Admin Cert:  {{ current_admin_cert }}"
+      - "Target Admin Cert:   {{ certificate_name }}"
+      - "Serial Mismatch:     {{ serial_mismatch }}"
+      - "Config Mismatch:     {{ config_mismatch }}"
+      - "Update triggered:    {{ serial_mismatch or config_mismatch }}"
+
+- name: "Certificate upload tasks"
+  when: serial_mismatch | bool
+  block:
+    - name: "Retrieving secret from Vault"
+      ansible.builtin.include_role:
+        name: "common"
+        tasks_from: "vault/get.yml"
+      vars:
+        vault:
+          kv_version: "{{ vault_certificates_kv_version }}"
+          engine_mount_point: "{{ vault_certificates_engine_mount_point }}"
+          path: "{{ vault_path }}"
+
+    - name: "Creating the specific variables"
+      ansible.builtin.set_fact:
+        passphrase: "{{ vault_response.secret.key }}"
+      no_log: "{{ not debug | default(true) }}"
+
+    - name: "Reading SSL certificate file from local server"
+      ansible.builtin.slurp:
+        src: "{{ ssl_certificate_path }}"
+      register: "certificate_content"
+
+    - name: "Reading private key file from local server"
+      ansible.builtin.slurp:
+        src: "{{ privatekey_path }}"
+      register: "private_key_content"
+
+    - name: "Switching to temporary certificate '{{ temp_certificate_name }}' to unlock current admin certificate"
+      delegate_to: "{{ host }}"
+      # Only run if the cert we are deleting is currently active.
+      when: current_admin_cert == certificate_name
+      fortinet.fortios.fortios_system_global:
+        vdom: "{{ vdom | default(omit, true) }}"
+        system_global:
+          admin_server_cert: "{{ temp_certificate_name }}"
+
+    - name: "Deleting existing certificate '{{ certificate_name }}' if it exists"
+      delegate_to: "{{ host }}"
+      fortinet.fortios.fortios_vpn_certificate_local:
+        vdom: "{{ vdom | default(omit, true) }}"
+        state: "absent"
+        vpn_certificate_local:
+          name: "{{ certificate_name }}"
+      register: "delete_cert_result"
+      failed_when:
+        - delete_cert_result.failed
+        - "'not found' not in (delete_cert_result.msg | default(''))"
+        - "'does not exist' not in (delete_cert_result.msg | default(''))"
+      ignore_errors: true
+
+    - name: "Uploading the local SSL certificate '{{ certificate_name }}' to the device"
+      delegate_to: "{{ host }}"
+      fortinet.fortios.fortios_vpn_certificate_local:
+        vdom: "{{ vdom | default(omit, true) }}"
+        state: "present"
+        vpn_certificate_local:
+          range: "{{ certificate_scope }}"
+          source: "{{ certificate_source }}"
+          name: "{{ certificate_name }}"
+          certificate: "{{ certificate_content.content | b64decode }}"
+          private_key: "{{ private_key_content.content | b64decode }}"
+          password: "{{ passphrase }}"
+      register: "upload_cert_result"
+
+    - name: "Debugging upload result"
+      when: debug | bool
+      ansible.builtin.debug:
+        msg:
+          - "{{ upload_cert_result }}"
+
+- name: "Admin certificate configuration tasks"
+  when:
+    - set_as_admin_cert | bool
+    - serial_mismatch or config_mismatch
+  block:
+    - name: "Switching admin interface to use certificate '{{ certificate_name }}'"
+      delegate_to: "{{ host }}"
+      fortinet.fortios.fortios_system_global:
+        vdom: "{{ vdom | default(omit, true) }}"
+        system_global:
+          admin_server_cert: "{{ certificate_name }}"
+      register: "set_admin_cert_result"
+
+- name: "Setting file_imported_output"
+  ansible.builtin.set_fact:
+    file_imported_output: "{{ (set_admin_cert_result.changed | default(false)) }}"
