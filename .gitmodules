@@ -2,3 +2,6 @@
 	path = roles/common
 	url = https://github.com/lsampaioweb/ansible-common-tasks.git
 	branch = main
+[submodule ".github/skills"]
+	path = .github/skills
+	url = https://github.com/lsampaioweb/copilot-skills-iac.git
