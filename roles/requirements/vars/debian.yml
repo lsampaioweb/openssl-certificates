@@ -1,4 +1,8 @@
 ---
+# Use the interactive user's pipx launcher so the module does not fall back to
+# Ansible's own pipx-managed Python, which does not include the pipx package.
+pipx_executable: "{{ lookup('env', 'HOME') }}/.local/bin/pipx"
+
 pipx_packages:
   # Personal Development Environment - Ansible tools for infrastructure management.
   - {name: "ansible", install_deps: true}
