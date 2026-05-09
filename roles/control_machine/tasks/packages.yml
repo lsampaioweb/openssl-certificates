@@ -19,15 +19,16 @@
       - {name: "python3-setuptools"}
       - {name: "python3-idna"}
 
-- name: "Injecting passlib in Ansible environment"
-  ansible.builtin.include_tasks: "{{ path_packages_pipx }}"
+- name: "Installing PIPX packages"
+  ansible.builtin.import_role:
+    name: "common"
+    tasks_from: "debian/packages/pipx"
   vars:
-    packages:
-      - {state: "inject", inject_packages: "passlib", name: "ansible"}
-      - {state: "inject", inject_packages: "jmespath", name: "ansible"}
+    packages: "{{ pipx_packages }}"
 
-- name: "Ensure Ansible Galaxy collections are installed"
-  ansible.builtin.include_tasks: "{{ path_packages_ansible_galaxy }}"
+- name: "Installing Ansible Galaxy collections"
+  ansible.builtin.import_role:
+    name: "common"
+    tasks_from: "debian/packages/ansible-galaxy"
   vars:
-    packages:
-      - {name: "community.crypto"}
+    packages: "{{ ansible_galaxy_collections }}"

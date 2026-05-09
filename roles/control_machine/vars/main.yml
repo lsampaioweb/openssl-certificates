@@ -1,3 +1,14 @@
 ---
 # The path where all config and import files are stored.
 certificates_path_in_repository: "{{ playbook_dir }}/certificates"
+
+pipx_packages:
+  # Personal Development Environment - Ansible tools for infrastructure management.
+  - {name: "ansible", install_deps: true}
+  - {name: "ansible-lint", install_deps: true}
+  - {name: "ansible", state: "inject", include_injected: true, inject_packages: ["cryptography", "jmespath", "hvac", "certifi", "passlib"]}
+
+# This file lists all Ansible Galaxy collections required by this project.
+ansible_galaxy_collections:
+  - {name: "community.general"} # General purpose Ansible roles and collections.
+  - {name: "community.crypto"} # Cryptography and HashiCorp Vault.
