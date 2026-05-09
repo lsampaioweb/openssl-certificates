@@ -1,5 +1,6 @@
 ---
 pipx_packages:
-  - { name: "ansible", install_deps: true, global: true }
-  - { name: "ansible-lint", global: true }
-  - { name: "ansible", state: "inject", inject_packages: ["cryptography", "jmespath", "hvac"], include_injected: true, global: true }
+  # Personal Development Environment - Ansible tools for infrastructure management.
+  - {name: "ansible", install_deps: true}
+  - {name: "ansible-lint", install_deps: true}
+  - {name: "ansible", state: "inject", include_injected: true, inject_packages: ["cryptography", "jmespath", "hvac", "certifi", "passlib"]}
