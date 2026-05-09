@@ -11,6 +11,7 @@ ca_host_key
 *.csr
 *.key
 *.p12
+*.pfx
 *.pub
 *.pem
 **/notifications.log
