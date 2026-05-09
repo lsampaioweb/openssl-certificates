@@ -1,14 +1,9 @@
 ---
-- name: "Create a PKCS#12 file"
+- name: "Create PKCS#12 Keystores"
   hosts: "CertificateAuthorityServer"
 
-  tasks:
-    - name: "Getting the list of certificates"
-      ansible.builtin.import_tasks: "roles/certificate/tasks/find-certificates-in-folder.yml"
-
-    - name: "Including task to create a PKCS#12 file"
-      ansible.builtin.include_tasks: "roles/certificate/tasks/create-pkcs12.yml"
-      vars:
-        certificate_path: "{{ item }}"
-        include_config_files: true
-      loop: "{{ certificates_list }}"
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "pkcs12"

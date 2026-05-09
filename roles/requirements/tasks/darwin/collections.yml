@@ -1,0 +1,14 @@
+---
+- name: "Installing Ansible Galaxy collections"
+  become: false
+  ansible.builtin.import_role:
+    name: "common"
+    tasks_from: "darwin/packages/ansible-galaxy"
+  vars:
+    packages: "{{ ansible_galaxy_collections }}"
+
+- name: "Debug Ansible Galaxy installation output"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ output }}"

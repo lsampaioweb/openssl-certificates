@@ -1,0 +1,110 @@
+---
+# Specify if more messages should be displayed during the executions. Defaults to false if not specified.
+debug: true
+
+# Domain for certificates. Options: home, homelab. Defaults to home if not specified.
+domain_context: "home"
+# domain_context: "homelab"
+
+# Environment of the execution. Options: stg, prd. Defaults to prd if not specified.
+# execution_environment: "stg"
+execution_environment: "prd"
+
+# Path to search for certificates.
+# path: "/opt/certificates"
+
+# List of certificates to process.
+# Leave empty [] to process all certificates.
+certificates:
+  - "root-ca"
+  # - "sub-ca"
+  # - "firewall"
+  # - "pve"
+  # - "grafana"
+  # - "jump-server"
+  # - "ldap"
+  # - "load-balancer"
+  # - "switch"
+  # - "vault"
+  # - "zabbix"
+
+# extra_config_vars: {}
+# extra_config_vars:
+  # version: "2.0"
+  # private_key:
+  #   extension: "key"
+  #   format: "pkcs8"
+  #   type: "ECC"
+  #   curve: "secp256r1"
+  #   size: 3072
+  #   cipher: "auto"
+  #   passphrase: "{{ context_vars.passphrase_random_marker }}"
+  #   passphrase_size: 30
+  #   secret_provider: "{{ context_vars.default_secret_provider }}"
+  #   mode: "0600"
+  # csr:
+  #   extension: "csr"
+  #   digest: "sha256"
+  #   country_name: "BR"
+  #   state_or_province_name: "Sergipe"
+  #   locality_name: "Aracaju"
+  #   organization_name: "TheCodeMaster"
+  #   organizational_unit_name: "Home"
+  #   email_address: "lsampaioweb+home@gmail.com"
+  #   common_name: ""
+  #   subject_alt_name: []
+  #   basic_constraints: "CA:FALSE"
+  #   basic_constraints_critical: true
+  #   key_usage:
+  #     - "digitalSignature"
+  #     - "keyEncipherment"
+  #   key_usage_critical: true
+  #   extended_key_usage:
+  #     - "serverAuth"
+  #   extended_key_usage_critical: true
+  #   mode: "0644"
+
+  # certificate:
+  #   extension: "crt"
+  #   signing_provider: "{{ context_vars.default_signing_provider }}"
+  #   digest: "sha256"
+  #   not_after: "+300d"
+  #   provider: "selfsigned"
+  #   ownca:
+  #     name: "root-ca.lan.home"
+  #     path: "/opt/certificates/2025/lan.home/prd/root-ca"
+  #   mode: "0644"
+
+  # pkcs12:
+  #   extension: "pfx"
+  #   secret_provider: "{{ context_vars.default_secret_provider }}"
+  #   encryption: "auto"
+  #   action: "export"
+  #   friendly_name: "Home"
+  #   passphrase: "{{ context_vars.passphrase_random_marker }}"
+  #   passphrase_size: 30
+  #   legacy: false
+  #   legacy_key_alg: "PBE-SHA1-RC2-40"
+  #   legacy_cert_alg: "PBE-SHA1-RC2-40"
+  #   legacy_mac_alg: "sha1"
+  #   legacy_iter_count: 2048
+  #   mode: "0644"
+  # auto_renewal:
+  #   enabled: true
+  #   days_for_yellow_alert: "{{ context_vars.auto_renewal.days_for_yellow_alert }}"
+  #   days_for_red_alert: "{{ context_vars.auto_renewal.days_for_red_alert }}"
+  #   days_before_expiration: "{{ context_vars.auto_renewal.days_before_expiration }}"
+  #   certificate_pki_pipeline_window: []
+
+  # notification_mail:
+  #   host: "smtp.gmail.com"
+  #   port: 587
+  #   secure: "starttls"
+  #   smtp_username: "lsampaioweb@gmail.com"
+  #   smtp_secret_provider: "{{ context_vars.default_secret_provider }}"
+  #   smtp_password_id: "certificate_smtp_password"
+  #   from: "lsampaioweb+home@gmail.com"
+  #   to:
+  #     - "lsampaioweb+home@gmail.com"
+  #   cc: []
+  #   subtype: "html"

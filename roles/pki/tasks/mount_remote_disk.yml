@@ -1,0 +1,49 @@
+---
+- name: "Initializing the context variable"
+  ansible.builtin.set_fact:
+    is_mounted: "{{ ansible_mounts | selectattr('mount', 'equalto', certificates_base_path) | list | length > 0 }}"
+
+# - name: "Mounting ephemeral SSHFS volume from {{ mount_src }} to {{ certificates_base_path }}"
+#   when: not is_mounted
+#   ansible.builtin.command:
+#     cmd: >
+#       sshfs {{ ca_server_user }}@{{ ca_server_host }}:{{ ca_server_path }} {{ certificates_base_path }}
+#       -o IdentityFile={{ ssh_key_path }}
+#       -o idmap=user
+#       -o reconnect
+#       -o ServerAliveInterval=15
+#       -o ServerAliveCountMax=3
+#   register: "mount_output"
+#   changed_when: mount_output.rc == 0
+
+- name: "Mounting ephemeral SSHFS volume from {{ mount_src }} to {{ certificates_base_path }}"
+  when: not is_mounted
+  ansible.posix.mount:
+    backup: false
+    boot: false
+    src: "{{ mount_src }}"
+    path: "{{ certificates_base_path }}"
+    fstype: "fuse.sshfs"
+    # opts: “rw,noexec,nosuid,nodev,idmap=user,follow_symlinks,allow_other,default_permissions,uid=1000,gid=1000”
+    state: "ephemeral"
+  register: "mount_output"
+
+- name: "Mounting ephemeral NFS volume from {{ mount_src }} to {{ certificates_base_path }}"
+  when: not is_mounted
+  ansible.posix.mount:
+    src: "{{ mount_src }}"
+    path: "{{ certificates_base_path }}"
+    fstype: "nfs4"
+    state: "ephemeral"
+  register: "mount_output"
+
+- name: "Mounting ephemeral SMB volume from {{ mount_src }} to {{ certificates_base_path }}"
+  when: not is_mounted
+  ansible.posix.mount:
+    src: "{{ mount_src }}"
+    path: "{{ certificates_base_path }}"
+    fstype: "cifs"
+    # opts: "rw,username={{ ansible_user }},password={{ ansible_password }},gid={{ domain_gid }},uid={{ domain_uid }},iocharset=utf8"
+    opts: "rw,username={{ ansible_user }},password={{ ansible_password }},iocharset=utf8,noperm"
+    state: "ephemeral"
+  register: "mount_output"

@@ -1,0 +1,5 @@
+---
+- name: "Removing lock file at '{{ context_vars.lock_file_path }}'"
+  ansible.builtin.file:
+    path: "{{ context_vars.lock_file_path }}"
+    state: "absent"

@@ -1,0 +1,20 @@
+---
+- name: "Loading base context file: '{{ context_file }}'"
+  ansible.builtin.include_vars:
+    file: "{{ context_file }}"
+    name: "base_context_vars"
+
+- name: "Loading domain-specific context file: '{{ domain_context_file }}'"
+  ansible.builtin.include_vars:
+    file: "{{ domain_context_file }}"
+    name: "domain_context_vars"
+
+- name: "Merging context variables with templating support"
+  ansible.builtin.set_fact:
+    context_vars: "{{ base_context_vars | combine(domain_context_vars, recursive=True) }}"
+
+- name: "Displaying the variables that were loaded from the '{{ context_file }}' and '{{ domain_context_file }}' files"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ context_vars }}"

@@ -1,0 +1,12 @@
+---
+- name: "Checking if lock file exists at '{{ context_vars.lock_file_path }}'"
+  ansible.builtin.stat:
+    path: "{{ context_vars.lock_file_path }}"
+  register: "lock_file_stat"
+
+- name: "Waiting for lock file to be released if it exists"
+  when: lock_file_stat.stat.exists | bool
+  ansible.builtin.wait_for:
+    path: "{{ context_vars.lock_file_path }}"
+    state: "absent"
+    timeout: "{{ context_vars.lock_timeout_seconds }}"

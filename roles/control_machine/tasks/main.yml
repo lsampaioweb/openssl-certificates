@@ -1,6 +1,0 @@
----
-- name: "Creating the folder that will contain all OpenSSL Certificates"
-  ansible.builtin.import_tasks: "certificate_folder.yml"
-
-- name: "Installing required packages"
-  ansible.builtin.import_tasks: "packages.yml"

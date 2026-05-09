@@ -1,0 +1,35 @@
+---
+galaxy_info:
+  namespace: "lsampaioweb"
+  role_name: "csr"
+  author: "Luciano Sampaio"
+  description: "Generates Certificate Signing Requests (CSRs) for SSL/TLS certificates with configurable subject information and extensions."
+  license: "MIT"
+  company: "Homelab"
+
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: "Debian"
+      versions:
+        - "bullseye"
+        - "bookworm"
+    - name: "Ubuntu"
+      versions:
+        - "focal"
+        - "jammy"
+    - name: "MacOSX"
+      versions:
+        - "all"
+
+  galaxy_tags:
+    - "ssl"
+    - "tls"
+    - "certificate"
+    - "pki"
+    - "csr"
+    - "crypto"
+    - "security"
+
+dependencies:
+  - role: "common"

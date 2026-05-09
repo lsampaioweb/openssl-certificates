@@ -1,0 +1,21 @@
+---
+- name: "Loading context files"
+  ansible.builtin.import_tasks: "load_context_files.yml"
+
+- name: "Constructing certificate path based on provided variables"
+  when: path is not defined
+  ansible.builtin.set_fact:
+    path: "{{ path_parts | reject('equalto', '') | join('/') }}"
+  vars:
+    path_parts:
+      - "{{ context_vars.certificates_base_path }}"
+      - "{{ ansible_facts.date_time.year }}"
+      - "{{ context_vars.certificate_domain }}"
+      - "{{ execution_environment }}"
+
+- name: "Getting the list of certificates"
+  ansible.builtin.import_tasks: "find_certificates_in_folder.yml"
+
+- name: "Including task to iterate over list of certificates"
+  when: certificates_list | length > 0
+  ansible.builtin.include_tasks: "iterate_over_list_of_certificates.yml"

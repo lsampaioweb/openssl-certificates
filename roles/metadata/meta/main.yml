@@ -1,0 +1,35 @@
+---
+galaxy_info:
+  namespace: "lsampaioweb"
+  role_name: "metadata"
+  author: "Luciano Sampaio"
+  description: "Updates the certificate metadata index with expiry dates and notification status to enable optimized verification without full x509 parsing."
+  license: "MIT"
+  company: "Homelab"
+
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: "Debian"
+      versions:
+        - "bullseye"
+        - "bookworm"
+    - name: "Ubuntu"
+      versions:
+        - "focal"
+        - "jammy"
+    - name: "MacOSX"
+      versions:
+        - "all"
+
+  galaxy_tags:
+    - "ssl"
+    - "tls"
+    - "certificate"
+    - "pki"
+    - "privatekey"
+    - "crypto"
+    - "security"
+
+dependencies:
+  - role: "common"

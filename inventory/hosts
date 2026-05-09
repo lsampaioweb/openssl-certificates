@@ -1,24 +1,17 @@
+[AnsibleController]
+localhost
+
+[AnsibleController:vars]
+ansible_connection=local
+# Use the same Python interpreter that's running the Ansible playbook.
+# This automatically uses pipx's Python when Ansible is installed via pipx.
+ansible_python_interpreter={{ ansible_playbook_python }}
+
 [CertificateAuthorityServer]
 localhost
 
 [CertificateAuthorityServer:vars]
 ansible_connection=local
-
-[MacBooks]
-Lucianos-MacBook-Pro.local
-
-[MacBooks:vars]
-ansible_python_interpreter=/usr/local/bin/python3
-ansible_user=lsampaio
-
-[ProxmoxHome]
-edge-pve-[01:02]
-
-[ProxmoxHome:vars]
-ansible_user=root
-
-[ProxmoxHomelab]
-pve-[01:07]
-
-[ProxmoxHomelab:vars]
-ansible_user=root
+# Use the same Python interpreter that's running the Ansible playbook.
+# This automatically uses pipx's Python when Ansible is installed via pipx.
+ansible_python_interpreter={{ ansible_playbook_python }}

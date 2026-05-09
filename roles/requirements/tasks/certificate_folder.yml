@@ -1,0 +1,6 @@
+---
+- name: "Creating a symbolic link from '{{ certificates_path_in_repository }}' to '{{ certificates_path }}'"
+  ansible.builtin.file:
+    src: "{{ certificates_path_in_repository }}"
+    dest: "{{ certificates_path }}"
+    state: "link"

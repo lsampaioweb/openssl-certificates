@@ -1,0 +1,99 @@
+---
+# The version of the configuration file format.
+version: "2.0"
+
+# Variables that will be used for creating a private key.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
+private_key:
+  # Secret storage provider for the private key passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "keyring"
+
+# Variables that will be used for creating a certificate signing request.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
+csr:
+  # Organization name to be included in the CSR.
+  organization_name: "Root Certificate Authority - 2026"
+  # Common name (usually the domain name) to be included in the CSR.
+  # This field is often required for SSL/TLS certificates.
+  common_name: "root-ca-2026.lan.home"
+  # Subject Alternative Names (SANs) to be included in the CSR.
+  # This is a list of additional names (e.g., domain names) the certificate should cover.
+  # Example:
+  # subject_alt_name:
+    # - "DNS:site.lan.home"
+    # - "DNS:othersan.lan.home"
+  subject_alt_name:
+    - "DNS:root-ca-2026.lan.home"
+  # Basic constraints to be included in the CSR.
+  # 'CA:TRUE' indicates that this certificate can be used to sign other certificates.
+  #  ,pathlen:1 means this Root CA can sign intermediate CAs (1 level down), but not end-entity certificates.
+  #  ,pathlen:0 means this Sub CA can sign end-entity certificates, but cannot sign other CAs.
+  # 'CA:FALSE' indicates that this certificate cannot be used to sign other certificates.
+  basic_constraints: "CA:TRUE,pathlen:1"
+  # Key usage extensions to be included in the CSR (Certificate Signing Request).
+  # This defines the allowed cryptographic operations for the key.
+  # key_usage:
+    # - "digitalSignature" # Sign data for authentication, integrity, TLS handshakes, CRLs, OCSP responses.
+    # - "keyEncipherment"  # Encrypt symmetric keys for transfer (RSA key exchange).
+    # - "keyAgreement"     # Establish symmetric keys via key agreement (ECDHE/DHE) - recommended for modern TLS.
+    # - "nonRepudiation"   # Prevents signing entity from denying an action (legal/audit contexts).
+    # - "dataEncipherment" # Encrypt/decrypt actual application data (rarely used).
+    # - "keyCertSign"      # Sign certificates - CA certificates ONLY (Root CA signs Sub CAs, Sub CA signs end-entity certs).
+    # - "cRLSign"          # Sign certificate revocation lists (CRLs) - CA certificates ONLY.
+  key_usage:
+    - "digitalSignature"
+    - "keyCertSign"
+    - "cRLSign"
+  # Extended key usage extensions to be included in the CSR.
+  # This further refines the specific purposes of the key in different contexts.
+  # extended_key_usage:
+    # - "serverAuth"      # For SSL/TLS server authentication.
+    # - "clientAuth"      # For SSL/TLS client authentication.
+    # - "emailProtection" # For securing email communications.
+    # - "codeSigning"     # For signing executable code to ensure authenticity.
+    # - "timeStamping"    # For creating secure timestamps.
+  extended_key_usage: []
+  # Indicates whether the extended key usage extension is critical.
+  extended_key_usage_critical: false
+
+# Variables that will be used for creating a certificate.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html
+certificate:
+  # Specifies the provider that will be used to sign the certificates.
+  # Options:
+  #   "vault": HashiCorp Vault PKI Engine (default).
+  #   "openssl": The local OpenSSL tool.
+  signing_provider: "openssl"
+  # Sets the expiration date of the certificate.
+  # Can be set using relative times (e.g., "+365d") or a specific date (e.g., "2024-12-31").
+  not_after: "+1000d"
+  # Specifies the provider for OpenSSL certificate creation.
+  # This is only used when signing_provider is set to "openssl".
+  # Options:
+  #   "selfsigned": Creates a self-signed certificate (typically for root CAs).
+  #   "ownca": Signs certificate using a custom local OpenSSL Certificate Authority.
+  provider: "selfsigned"
+
+# Variables that will be used for creating a PKCS12 file.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
+pkcs12:
+  # Secret storage provider for the PKCS12 passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "keyring"
+
+# Variables that will be used for sending email notifications about the certificates.
+# https://docs.ansible.com/ansible/latest/collections/community/general/mail_module.html
+notification_mail:
+  # Secret storage provider for the SMTP password.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  smtp_secret_provider: "keyring"

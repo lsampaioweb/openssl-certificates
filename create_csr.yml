@@ -1,0 +1,9 @@
+---
+- name: "Create Certificate Signing Requests (CSR)"
+  hosts: "CertificateAuthorityServer"
+
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "csr"

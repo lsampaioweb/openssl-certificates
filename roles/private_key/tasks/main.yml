@@ -1,0 +1,65 @@
+---
+- name: "Creating the basic variables"
+  ansible.builtin.set_fact:
+    private_key_creation_output: {}
+
+- name: "Generating a random password for the Private Key if required"
+  when: config_vars.private_key.passphrase == context_vars.passphrase_random_marker
+  ansible.builtin.include_role:
+    name: "common"
+    tasks_from: "utils/password/random.yml"
+  vars:
+    password_length: "{{ config_vars.private_key.passphrase_size }}"
+
+- name: "Setting the Private Key passphrase variable"
+  no_log: "{{ not debug | default(true) }}"
+  ansible.builtin.set_fact:
+    # If private_key.passphrase matches the passphrase_random_marker = "?",
+    # a new random passphrase is generated.
+    # If private_key.passphrase is empty (""), no encryption is applied.
+    # Otherwise, uses the provided private_key.passphrase value.
+    private_key_passphrase: "{{ (config_vars.private_key.passphrase == context_vars.passphrase_random_marker)
+      | ternary(random_password, config_vars.private_key.passphrase) }}"
+
+- name: "Printing input variables for Private Key creation"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Private Key file: {{ private_key_file }}"
+      - "Private Key type: {{ config_vars.private_key.type }}"
+      - "Private Key format: {{ config_vars.private_key.format }}"
+      - "Private Key size: {{ config_vars.private_key.size }}"
+      - "Private Key curve: {{ config_vars.private_key.curve }}"
+      - "Private Key cipher: {{ (private_key_passphrase != '') | ternary(config_vars.private_key.cipher, omit) }}"
+
+- name: "Creating an OpenSSL Private Key of type '{{ config_vars.private_key.type }}'"
+  no_log: "{{ not debug | default(true) }}"
+  # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
+  community.crypto.openssl_privatekey:
+    path: "{{ private_key_file }}"
+    type: "{{ config_vars.private_key.type }}"
+    format: "{{ config_vars.private_key.format }}"
+    size: "{{ config_vars.private_key.size }}"
+    curve: "{{ config_vars.private_key.curve }}"
+    cipher: "{{ (private_key_passphrase != '') | ternary(config_vars.private_key.cipher, omit) }}"
+    passphrase: "{{ private_key_passphrase | default(omit, true) }}"
+    mode: "{{ config_vars.private_key.mode }}"
+  register: "private_key_creation_output"
+
+- name: "Printing Private Key creation result"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ private_key_creation_output }}"
+
+- name: "Storing Private Key passphrase in secret storage '{{ config_vars.private_key.secret_provider }}'"
+  when:
+    # Even if the passphrase is empty (no encryption), we update the secret storage because it may contain an old passphrase from a previous run.
+    - private_key_creation_output.changed | default(false)
+    - not private_key_creation_output.failed | default(false)
+  ansible.builtin.include_role:
+    name: "common"
+    tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/write.yml"
+  vars:
+    secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
+    secret_value: "{{ private_key_passphrase }}"

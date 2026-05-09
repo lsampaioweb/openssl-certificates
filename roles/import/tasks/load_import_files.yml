@@ -1,0 +1,84 @@
+---
+- name: "Loading base import file: '{{ context_vars.import_file }}'"
+  ansible.builtin.include_vars:
+    file: "{{ context_vars.import_file }}"
+    name: "base_import_vars"
+
+- name: "Loading domain-specific import file: '{{ domain_import_file }}'"
+  ansible.builtin.include_vars:
+    file: "{{ domain_import_file }}"
+    name: "domain_import_vars"
+
+- name: "Merging base and domain import variables"
+  ansible.builtin.set_fact:
+    reference_import_vars: "{{ base_import_vars | combine(domain_import_vars, recursive=True) }}"
+
+- name: "Loading certificate import file: '{{ certificate_import_path }}'"
+  ansible.builtin.include_vars:
+    file: "{{ certificate_import_path }}"
+    name: "certificate_import_vars"
+
+- name: "Converting certificate import from older version to current version"
+  when: certificate_import_vars.version is not defined or certificate_import_vars.version != reference_import_vars.version
+  ansible.builtin.import_tasks: "convert_import_from_older_version.yml"
+
+- name: "Merging certificate and extra-vars import variables"
+  ansible.builtin.set_fact:
+    specific_import_vars: "{{ certificate_import_vars | combine(extra_import_vars | default({}), recursive=True) }}"
+
+- name: "Merging all import variables into final 'import_vars'"
+  ansible.builtin.set_fact:
+    import_vars: "{{ reference_import_vars | combine(specific_import_vars, recursive=True) }}"
+
+- name: "Displaying the final variables that were loaded and merged into 'import_vars'"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ import_vars }}"
+
+- name: "Initializing import_overrides dictionary"
+  ansible.builtin.set_fact:
+    config_overrides: {}
+    import_overrides: {}
+
+- name: "Processing each section to find differences"
+  ansible.builtin.include_role:
+    name: "pki"
+    tasks_from: "compare_dict_section.yml"
+  vars:
+    reference_config_vars: "{{ reference_import_vars }}"
+    specific_config_vars: "{{ specific_import_vars }}"
+  loop: "{{ specific_import_vars | dict2items | default([]) }}"
+  loop_control:
+    loop_var: "section"
+    label: "{{ section.key }}"
+
+- name: "Capturing import_overrides from pki role output"
+  ansible.builtin.set_fact:
+    import_overrides: "{{ config_overrides }}"
+
+- name: "Adding required attributes to import_overrides"
+  ansible.builtin.import_tasks: "add_required_attributes.yml"
+
+- name: "Displaying import_overrides (only different values)"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ import_overrides }}"
+
+- name: "Creating or updating the certificate import file at '{{ certificate_import_path }}'"
+  ansible.builtin.template:
+    src: "{{ context_vars.import_file }}.j2"
+    dest: "{{ certificate_import_path }}"
+    mode: "0644"
+    backup: "{{ context_vars.backup_files_to_keep > 0 }}"
+  register: "import_template_result"
+
+- name: "Moving the backup file created by template module to a proper backup directory"
+  when: import_template_result.changed and context_vars.backup_files_to_keep > 0
+  ansible.builtin.include_role:
+    name: "backup"
+    tasks_from: "backup_file.yml"
+  vars:
+    backup_file_name: "{{ context_vars.import_file }}"
+    backup_files_to_keep: "{{ context_vars.backup_files_to_keep }}"

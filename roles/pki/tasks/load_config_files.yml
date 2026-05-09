@@ -1,0 +1,96 @@
+---
+- name: "Creating config variables"
+  ansible.builtin.set_fact:
+    certificate_config_path: "{{ certificate_path ~ '/' ~ context_vars.config_file }}"
+    jinja2_config_file: "{{ context_vars.config_file }}.j2"
+
+- name: "Loading base config file: '{{ context_vars.config_file }}'"
+  ansible.builtin.include_vars:
+    file: "{{ context_vars.config_file }}"
+    name: "base_config_vars"
+
+- name: "Loading domain-specific config file: '{{ domain_config_file }}'"
+  ansible.builtin.include_vars:
+    file: "{{ domain_config_file }}"
+    name: "domain_config_vars"
+
+- name: "Merging base and domain config variables"
+  ansible.builtin.set_fact:
+    reference_config_vars: "{{ base_config_vars | combine(domain_config_vars, recursive=True) }}"
+
+- name: "Verifying if the '{{ certificate_config_path }}' file exists"
+  ansible.builtin.stat:
+    path: "{{ certificate_config_path }}"
+  register: "certificate_config_found"
+
+- name: "Loading certificate config file: '{{ certificate_config_path }}' if it exists"
+  when: certificate_config_found.stat.exists
+  ansible.builtin.include_vars:
+    file: "{{ certificate_config_path }}"
+    name: "temp_certificate_config_vars"
+
+- name: "Setting loaded certificate config or default minimal config to 'certificate_config_vars'"
+  ansible.builtin.set_fact:
+    certificate_config_vars: "{{ temp_certificate_config_vars if certificate_config_found.stat.exists else {'version': reference_config_vars.version} }}"
+
+- name: "Converting certificate config from older version to current version"
+  when: certificate_config_vars.version is not defined or certificate_config_vars.version != reference_config_vars.version
+  ansible.builtin.import_tasks: "convert_config_from_older_version.yml"
+
+- name: "Merging certificate and extra-vars config variables"
+  ansible.builtin.set_fact:
+    specific_config_vars: "{{ certificate_config_vars | combine(extra_config_vars | default({}), recursive=True) }}"
+
+- name: "Merging all config variables into final 'config_vars'"
+  ansible.builtin.set_fact:
+    config_vars: "{{ reference_config_vars | combine(specific_config_vars, recursive=True) }}"
+
+- name: "Displaying the final variables that were loaded and merged into 'config_vars'"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ config_vars }}"
+
+- name: "Initializing config_overrides dictionary"
+  ansible.builtin.set_fact:
+    config_overrides: {}
+
+- name: "Processing each section to find differences"
+  ansible.builtin.include_tasks: "compare_dict_section.yml"
+  loop: "{{ specific_config_vars | dict2items | default([]) }}"
+  loop_control:
+    loop_var: "section"
+    label: "{{ section.key }}"
+
+- name: "Adding required attributes to config_overrides"
+  ansible.builtin.import_tasks: "add_required_attributes.yml"
+
+- name: "Displaying config_overrides (only different values)"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ config_overrides }}"
+
+- name: "Creating certificate directory if it does not exist at '{{ certificate_path }}'"
+  when: not certificate_config_found.stat.exists
+  ansible.builtin.file:
+    path: "{{ certificate_path }}"
+    state: "directory"
+    recurse: true
+
+- name: "Creating or updating the certificate config file at '{{ certificate_config_path }}'"
+  ansible.builtin.template:
+    src: "{{ jinja2_config_file }}"
+    dest: "{{ certificate_config_path }}"
+    mode: "0644"
+    backup: "{{ context_vars.backup_files_to_keep > 0 }}"
+  register: "config_template_result"
+
+- name: "Moving the backup file created by template module to a proper backup directory"
+  when: config_template_result.changed and context_vars.backup_files_to_keep > 0
+  ansible.builtin.include_role:
+    name: "backup"
+    tasks_from: "backup_file.yml"
+  vars:
+    backup_file_name: "{{ context_vars.config_file }}"
+    backup_files_to_keep: "{{ context_vars.backup_files_to_keep }}"

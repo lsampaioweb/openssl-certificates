@@ -1,14 +1,6 @@
 ---
-- name: "Verify if the certificate is valid"
+- name: "Verify Certificate Validity"
   hosts: "CertificateAuthorityServer"
 
-  tasks:
-    - name: "Getting the list of certificates"
-      ansible.builtin.import_tasks: "roles/certificate/tasks/find-certificates-in-folder.yml"
-
-    - name: "Including task to verify if the certificate is valid"
-      ansible.builtin.include_tasks: "roles/certificate/tasks/verify-certificate.yml"
-      vars:
-        certificate_path: "{{ item }}"
-        include_config_files: true
-      loop: "{{ certificates_list }}"
+  roles:
+    - "verify"

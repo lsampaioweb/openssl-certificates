@@ -1,0 +1,103 @@
+---
+- name: "Checking if expired certificate needs backup: '{{ certificate_name }}'"
+  when: backup_mode is defined and backup_mode == "expired"
+  block:
+    - name: "Reading certificate to check expiration status"
+      community.crypto.x509_certificate_info:
+        path: "{{ certificate_file }}"
+      register: "certificate_info"
+
+    - name: "Determining if certificate is expired"
+      ansible.builtin.set_fact:
+        certificate_is_expired: "{{ certificate_info.expired | default(false) }}"
+
+    - name: "Archiving expired certificate: '{{ certificate_name }}'"
+      when: certificate_is_expired | default(false)
+      block:
+        - name: "Creating backup path variable for expired certificate"
+          ansible.builtin.set_fact:
+            backup_path: "{{ context_vars.backup_base_path ~ '/' ~ certificate_year ~ '/' ~ certificate_domain ~ '/' ~ certificate_environment }}"
+
+        - name: "Printing expired certificate backup details"
+          when: debug | bool
+          ansible.builtin.debug:
+            msg:
+              - "Backup mode: {{ backup_mode }}"
+              - "Backup base path: {{ context_vars.backup_base_path }}"
+              - "Backup path: {{ backup_path }}"
+              - "Certificate year: {{ certificate_year }}"
+              - "Certificate domain: {{ certificate_domain }}"
+              - "Certificate environment: {{ certificate_environment }}"
+              - "Certificate name: {{ certificate_name }}"
+              - "Certificate path: {{ certificate_path }}"
+              - "Certificate is expired: {{ certificate_is_expired }}"
+
+        - name: "Creating backup folder structure for expired certificate at '{{ backup_path }}'"
+          ansible.builtin.file:
+            path: "{{ backup_path }}"
+            state: "directory"
+            recurse: true
+
+        - name: "Copying expired certificate folder contents from '{{ certificate_path }}' to '{{ backup_path }}'"
+          ansible.builtin.copy:
+            src: "{{ certificate_path }}"
+            dest: "{{ backup_path }}"
+            mode: "preserve"
+            remote_src: true
+
+        - name: "Removing expired certificate folder '{{ certificate_path }}' after backup"
+          ansible.builtin.file:
+            path: "{{ certificate_path }}"
+            state: "absent"
+
+- name: "Backing up certificate before renewal: '{{ certificate_name }}'"
+  when: backup_mode is defined and backup_mode == "renewal"
+  block:
+    - name: "Creating backup path variable for renewal"
+      ansible.builtin.set_fact:
+        backup_path: "{{ context_vars.backup_base_path ~ '/' ~ certificate_year ~ '/' ~ certificate_domain ~ '/' ~ certificate_environment }}"
+
+    - name: "Printing renewal backup details"
+      when: debug | bool
+      ansible.builtin.debug:
+        msg:
+          - "Backup mode: {{ backup_mode }}"
+          - "Backup base path: {{ context_vars.backup_base_path }}"
+          - "Backup path: {{ backup_path }}"
+          - "Certificate year: {{ certificate_year }}"
+          - "Certificate domain: {{ certificate_domain }}"
+          - "Certificate environment: {{ certificate_environment }}"
+          - "Certificate name: {{ certificate_name }}"
+          - "Certificate path: {{ certificate_path }}"
+
+    - name: "Creating backup folder structure for renewal at '{{ backup_path }}'"
+      ansible.builtin.file:
+        path: "{{ backup_path }}"
+        state: "directory"
+        recurse: true
+
+    - name: "Copying certificate folder contents before renewal from '{{ certificate_path }}' to '{{ backup_path }}'"
+      ansible.builtin.copy:
+        src: "{{ certificate_path }}"
+        dest: "{{ backup_path }}"
+        mode: "preserve"
+        remote_src: true
+
+    - name: "Finding certificate files in '{{ certificate_path }}' for deletion while preserving config files"
+      ansible.builtin.find:
+        paths: "{{ certificate_path }}"
+        file_type: "file"
+        excludes:
+          - "{{ context_vars.config_file }}"
+          - "{{ context_vars.import_file }}"
+          # - "{{ context_vars.serial_number_file_name }}"  # Future: Vault implementation.
+      register: "certificate_files_to_delete"
+
+    - name: "Removing certificate files from '{{ certificate_path }}' while preserving config files"
+      ansible.builtin.file:
+        path: "{{ file_item.path }}"
+        state: "absent"
+      loop: "{{ certificate_files_to_delete.files | default([]) }}"
+      loop_control:
+        loop_var: "file_item"
+        label: "{{ file_item.path | basename }}"

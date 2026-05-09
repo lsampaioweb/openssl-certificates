@@ -1,14 +1,9 @@
 ---
-- name: "Create a private key"
+- name: "Create Private Keys"
   hosts: "CertificateAuthorityServer"
 
-  tasks:
-    - name: "Getting the list of certificates"
-      ansible.builtin.import_tasks: "roles/certificate/tasks/find-certificates-in-folder.yml"
-
-    - name: "Including task to create a private key"
-      ansible.builtin.include_tasks: "roles/certificate/tasks/create-private-key.yml"
-      vars:
-        certificate_path: "{{ item }}"
-        include_config_files: true
-      loop: "{{ certificates_list }}"
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "private_key"

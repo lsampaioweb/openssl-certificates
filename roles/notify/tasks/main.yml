@@ -1,0 +1,16 @@
+---
+- name: "Detecting notification context"
+  ansible.builtin.import_tasks: "detect_notification_context.yml"
+
+- name: "Processing notification"
+  when: notification_context is defined and not notification_context is none
+  block:
+    - name: "Preparing notification for '{{ notification_context }}' context"
+      ansible.builtin.include_tasks: "prepare_notification.yml"
+
+    - name: "Sending notification for certificate"
+      ansible.builtin.include_tasks: "send_notification.yml"
+
+    - name: "Updating last notification timestamp"
+      when: notification_context == "scheduled" | default(false)
+      ansible.builtin.include_tasks: "update_last_notification.yml"

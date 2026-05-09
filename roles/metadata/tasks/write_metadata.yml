@@ -1,0 +1,25 @@
+---
+- name: "Waiting for any existing lock to be released"
+  ansible.builtin.include_tasks: "wait_for_lock.yml"
+
+- name: "Writing metadata file with lock protection"
+  block:
+    - name: "Acquiring lock for metadata operation"
+      ansible.builtin.include_tasks: "acquire_lock.yml"
+
+    - name: "Writing updated metadata to file at '{{ context_vars.metadata_file_path }}'"
+      ansible.builtin.copy:
+        content: "{{ metadata | to_nice_json(indent=2, sort_keys=False) }}"
+        dest: "{{ context_vars.metadata_file_path }}"
+        mode: "0644"
+      register: "metadata_write_result"
+
+    - name: "Printing metadata write result"
+      when: debug | bool
+      ansible.builtin.debug:
+        msg:
+          - "Metadata file written: {{ metadata_write_result.changed }}"
+
+  always:
+    - name: "Releasing lock after writing"
+      ansible.builtin.include_tasks: "release_lock.yml"

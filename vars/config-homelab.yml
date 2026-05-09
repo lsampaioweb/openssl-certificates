@@ -1,0 +1,11 @@
+---
+csr:
+  # Organizational unit name to be included in the CSR.
+  organizational_unit_name: "Homelab"
+
+  # Email address to be included in the CSR.
+  email_address: "lsampaioweb+homelab@gmail.com"
+
+pkcs12:
+  # A friendly name for the PKCS12 file, used when importing it into a keystore.
+  friendly_name: "Homelab"

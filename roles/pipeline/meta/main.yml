@@ -1,0 +1,35 @@
+---
+galaxy_info:
+  namespace: "lsampaioweb"
+  role_name: "pipeline"
+  author: "Luciano Sampaio"
+  description: "Manages the certificate deployment pipeline by adding certificates to the pipeline file for automated deployment and notifications."
+  license: "MIT"
+  company: "Homelab"
+
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: "Debian"
+      versions:
+        - "bullseye"
+        - "bookworm"
+    - name: "Ubuntu"
+      versions:
+        - "focal"
+        - "jammy"
+    - name: "MacOSX"
+      versions:
+        - "all"
+
+  galaxy_tags:
+    - "ssl"
+    - "tls"
+    - "certificate"
+    - "pki"
+    - "deployment"
+    - "pipeline"
+    - "security"
+
+dependencies:
+  - role: "common"

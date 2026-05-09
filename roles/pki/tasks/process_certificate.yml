@@ -1,0 +1,52 @@
+---
+- name: "Processing certificate: {{ certificate_name }}"
+  block:
+    - name: "Printing certificate data"
+      when: debug | bool
+      ansible.builtin.debug:
+        msg:
+          - "certificate_path: {{ certificate_path }}"
+          - "certificate_domain: {{ certificate_domain }}"
+          - "certificate_environment: {{ certificate_environment }}"
+          - "certificate_name: {{ certificate_name }}"
+          - "certificate_path_and_name: {{ certificate_path_and_name }}"
+
+    - name: "Loading config files"
+      ansible.builtin.import_tasks: "load_config_files.yml"
+
+    - name: "Creating the basic variables that all roles use"
+      ansible.builtin.set_fact:
+        private_key_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.private_key.extension }}"
+        csr_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.csr.extension }}"
+        certificate_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.certificate.extension }}"
+        pkcs12_file: "{{ certificate_path_and_name ~ '.' ~ config_vars.pkcs12.extension }}"
+
+    - name: "Including the role(s) for each certificate"
+      ansible.builtin.include_role:
+        name: "{{ role }}"
+      loop: "{{ roles_to_include | default(default_roles_map, true) }}"
+      loop_control:
+        loop_var: "role"
+
+  rescue:
+    - name: "Capturing error details for certificate: {{ certificate_name }}"
+      ansible.builtin.set_fact:
+        certificate_error:
+          certificate: "{{ certificate_name }}"
+          path: "{{ certificate_path }}"
+          domain: "{{ certificate_domain }}"
+          environment: "{{ certificate_environment }}"
+          error: "{{ ansible_failed_result | default('Unknown error') }}"
+          timestamp: "{{ now(utc=true) }}"
+
+    - name: "Logging error to failure list"
+      ansible.builtin.set_fact:
+        failed_certificates: "{{ failed_certificates | default([]) + [certificate_error] }}"
+
+    - name: "Printing error details for certificate: {{ certificate_name }}"
+      ansible.builtin.debug:
+        msg:
+          - "ERROR: Failed to process certificate '{{ certificate_name }}'"
+          - "Path: {{ certificate_path }}"
+          - "Error details: {{ ansible_failed_result.msg | default('Unknown error') }}"
+          - "Continuing to next certificate..."

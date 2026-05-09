@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  author: "Luciano Sampaio"
+  description: "Role to backup configuration files."
+  license: "MIT"
+
+  min_ansible_version: "2.15"
+
+dependencies:
+  - role: "common"

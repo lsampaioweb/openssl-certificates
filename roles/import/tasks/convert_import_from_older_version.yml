@@ -1,0 +1,30 @@
+---
+- name: "Converting certificate import config from older version to current version"
+  ansible.builtin.set_fact:
+    certificate_import_vars: "{{ converted_import }}"
+  vars:
+    converted_import:
+      version: "{{ reference_import_vars.version }}"
+      macos:
+        keychain_path: "{{ certificate_import_vars.macos_keychain_path | default(omit) }}"
+        temp_folder: "{{ certificate_import_vars.macos_temp_folder | default(omit) }}"
+        targets: "{{ certificate_import_vars.macos_targets | default(omit) }}"
+      fortigate:
+        api_port: "{{ certificate_import_vars.fortigate_api_port | default(omit) }}"
+        vdom: "{{ certificate_import_vars.fortigate_vdom | default(omit) }}"
+        protocol: "{{ certificate_import_vars.fortigate_protocol | default(omit) }}"
+        validate_certs: "{{ certificate_import_vars.fortigate_validate_certs | default(omit) }}"
+        set_as_admin_cert: "{{ certificate_import_vars.fortigate_set_as_admin_cert | default(omit) }}"
+        certificate_scope: "{{ certificate_import_vars.fortigate_certificate_scope | default(omit) }}"
+        secret_provider: "{{ certificate_import_vars.fortigate_secret_provider | default(omit) }}"
+        secret_path: "{{ certificate_import_vars.fortigate_secret_path | default(omit) }}"
+        targets: "{{ certificate_import_vars.fortigate_targets | default(omit) }}"
+      proxmox:
+        api_port: "{{ certificate_import_vars.proxmox_api_port | default(omit) }}"
+        temp_folder: "{{ certificate_import_vars.proxmox_temp_folder | default(omit) }}"
+        secret_provider: "{{ certificate_import_vars.proxmox_secret_provider | default(omit) }}"
+        secret_path: "{{ certificate_import_vars.proxmox_secret_path | default(omit) }}"
+        targets: "{{ certificate_import_vars.proxmox_targets | default(omit) }}"
+      debian:
+        ca_certificates_path: "{{ certificate_import_vars.debian_ca_certificates_path | default(omit) }}"
+        targets: "{{ certificate_import_vars.debian_targets | default(omit) }}"

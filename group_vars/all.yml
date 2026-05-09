@@ -1,52 +1,27 @@
 ---
-# The domain name of the HomeLab.
-domain: "lan.homelab"
-
-# Specify if more messages should be displayed during the executions.
+# Specify if more messages should be displayed during the executions. Defaults to false if not specified.
 debug: false
 
-# The folder that will contain all OpenSSL Certificates.
-certificates_path: "/opt/certificates"
+# Domain for certificates. Options: home, homelab. Defaults to home if not specified.
+domain_context: "home"
 
-# The regex that will be used to search for folders. If a folder starts with "_", it will be ignored.
-certificates_patterns: "['^[^_](.)*$']"
+# Environment of the execution. Options: stg, prd. Defaults to prd if not specified.
+execution_environment: "prd"
 
-# The file with all the default configuration.
-config_file: "config.yml"
+# The file with all the default variables shared by all companies.
+context_file: "context.yml"
 
-# Specify if when creating new files the old ones should be moved to the backup folder.
-backup: true
+# The global context file that will be loaded, using domain context specific settings.
+domain_context_file: "context-{{ domain_context }}.yml"
 
-# When backup is true, old files will be moved into this folder.
-# Each certificate's folder will contain a backup folder.
-backup_folder: "backup"
+# The global config file that will be loaded, using certificate specific settings.
+domain_config_file: "config-{{ domain_context }}.yml"
 
-# The prefix that will be used to identify a secret in the long list of secrets.
-certificate_secret_manager_prefix: "ssl."
+# The global import file that will be loaded, using certificate specific settings.
+domain_import_file: "import-{{ domain_context }}.yml"
 
-# The file that will contain the dates of every notification that was sent about a certification expiring date.
-notification_file: "notifications.log"
+# The user for Ansible to connect to other servers.
+ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
 
-# The file with the instructions to import a certificate.
-import_file: "import.yml"
-
-# Import Paths.
-path_roles_common: "roles/common"
-path_common_tasks: "{{ path_roles_common }}/tasks"
-path_tasks_debian: "{{ path_common_tasks }}/debian"
-
-# Known_hosts.
-path_debian_known_hosts: "{{ path_tasks_debian }}/known_hosts"
-path_debian_known_hosts_add: "{{ path_debian_known_hosts }}/add.yml"
-
-# Packages.
-path_debian_packages: "{{ path_tasks_debian }}/packages"
-path_packages_apt: "{{ path_debian_packages }}/apt.yml"
-path_packages_pip: "{{ path_debian_packages }}/pip.yml"
-path_packages_pipx: "{{ path_debian_packages }}/pipx.yml"
-path_packages_ansible_galaxy: "{{ path_debian_packages }}/ansible-galaxy.yml"
-
-# Passwords.
-path_debian_passwords: "{{ path_tasks_debian }}/passwords"
-path_debian_passwords_add: "{{ path_debian_passwords }}/add.yml"
-path_debian_passwords_get: "{{ path_debian_passwords }}/get.yml"
+# The password for the Ansible user to connect to other servers.
+ansible_password: "{{ lookup('env', 'ANSIBLE_PASSWORD') }}"

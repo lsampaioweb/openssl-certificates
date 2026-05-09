@@ -1,0 +1,10 @@
+---
+csr_organization_name: "Certificate Authority Homelab"
+csr_common_name: "ca.lan.home"
+
+csr_basic_constraints: "CA:TRUE"
+csr_key_usage: ["digitalSignature", "keyEncipherment", "keyCertSign"]
+
+certificate_provider: "selfsigned"
+certificate_digest: "sha256"
+certificate_not_after: "+1095d"

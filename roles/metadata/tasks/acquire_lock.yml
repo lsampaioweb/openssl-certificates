@@ -1,0 +1,6 @@
+---
+- name: "Creating lock file to prevent concurrent access at '{{ context_vars.lock_file_path }}'"
+  ansible.builtin.file:
+    path: "{{ context_vars.lock_file_path }}"
+    state: "touch"
+    mode: "0644"

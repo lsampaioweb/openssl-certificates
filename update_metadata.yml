@@ -1,0 +1,9 @@
+---
+- name: "Verify Certificate Validity"
+  hosts: "CertificateAuthorityServer"
+
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "metadata"

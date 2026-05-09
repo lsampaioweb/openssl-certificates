@@ -1,0 +1,112 @@
+---
+- name: "Creating the basic variables"
+  ansible.builtin.set_fact:
+    pkcs12_creation_output: {}
+    pkcs12_passphrase: ""
+    random_password: ""
+    private_key_passphrase: ""
+
+- name: "Retrieving Private Key passphrase from secret storage if required"
+  when: config_vars.private_key.passphrase != ''
+  block:
+    - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.private_key.secret_provider }}'"
+      ansible.builtin.include_role:
+        name: "common"
+        tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
+      vars:
+        secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
+
+    - name: "Setting the Private Key passphrase variable 'private_key_passphrase'"
+      no_log: "{{ not debug | default(true) }}"
+      ansible.builtin.set_fact:
+        # If secret_value is not defined, it will use an empty string.
+        private_key_passphrase: "{{ secret_value | default('', true) }}"
+
+- name: "Generating a random password for the PKCS#12 file if private key has no password"
+  when: private_key_passphrase == ''
+  ansible.builtin.include_role:
+    name: "common"
+    tasks_from: "utils/password/random.yml"
+  vars:
+    password_length: "{{ config_vars.pkcs12.passphrase_size }}"
+
+- name: "Setting the PKCS#12 passphrase variable"
+  no_log: "{{ not debug | default(true) }}"
+  ansible.builtin.set_fact:
+    # If the private key has a passphrase, use the same passphrase for PKCS#12.
+    # If the private key has no passphrase (empty string), use the randomly generated password.
+    pkcs12_passphrase: "{{ (private_key_passphrase != '') | ternary(private_key_passphrase, random_password) }}"
+
+- name: "Printing input variables for PKCS#12 file creation"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Private Key file: {{ private_key_file }}"
+      - "Certificate file: {{ certificate_file }}"
+      - "PKCS#12 file: {{ pkcs12_file }}"
+      - "Action: {{ config_vars.pkcs12.action }}"
+      - "Friendly name: {{ config_vars.pkcs12.friendly_name }}"
+      - "Encryption: {{ config_vars.pkcs12.encryption }}"
+      - "Legacy format: {{ config_vars.pkcs12.legacy }}"
+
+- name: "Creating a legacy OpenSSL PKCS#12 file"
+  when: config_vars.pkcs12.legacy | bool
+  no_log: "{{ not debug | default(true) }}"
+  ansible.builtin.command:
+    cmd: >
+      openssl pkcs12 -export -legacy
+      -in {{ certificate_file }}
+      -inkey {{ private_key_file }}
+      -out {{ pkcs12_file }}
+      -passout pass:{{ pkcs12_passphrase }}
+      -keypbe {{ config_vars.pkcs12.legacy_key_alg }}
+      -certpbe {{ config_vars.pkcs12.legacy_cert_alg }}
+      -macalg {{ config_vars.pkcs12.legacy_mac_alg }}
+      -iter {{ config_vars.pkcs12.legacy_iter_count }}
+    creates: "{{ pkcs12_file }}"
+  register: "pkcs12_creation_output"
+
+- name: "Creating a modern format OpenSSL PKCS#12 file"
+  when: not config_vars.pkcs12.legacy | bool
+  no_log: "{{ not debug | default(true) }}"
+  # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
+  community.crypto.openssl_pkcs12:
+    # Private Key information.
+    privatekey_path: "{{ private_key_file }}"
+    privatekey_passphrase: "{{ private_key_passphrase | default(omit, true) }}"
+
+    # Certificate information.
+    certificate_path: "{{ certificate_file }}"
+
+    # PKCS#12 file information.
+    action: "{{ config_vars.pkcs12.action }}"
+    path: "{{ pkcs12_file }}"
+    passphrase: "{{ pkcs12_passphrase }}"
+    friendly_name: "{{ config_vars.pkcs12.friendly_name }}"
+    encryption_level: "{{ config_vars.pkcs12.encryption }}"
+    # This will include all other certificates found in the certificate file (like CA chain).
+    other_certificates:
+      - "{{ certificate_file }}"
+    other_certificates_parse_all: true
+    mode: "{{ config_vars.pkcs12.mode }}"
+  register: "pkcs12_creation_output"
+
+- name: "Printing PKCS#12 file creation result"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ pkcs12_creation_output }}"
+
+- name: "Storing PKCS#12 passphrase in secret storage '{{ config_vars.pkcs12.secret_provider }}'"
+  when:
+    # Store the PKCS#12 passphrase if it was changed or newly created.
+    - pkcs12_creation_output.changed | default(false)
+    - not pkcs12_creation_output.failed | default(false)
+    - private_key_passphrase != pkcs12_passphrase
+  no_log: "{{ not debug | default(true) }}"
+  ansible.builtin.include_role:
+    name: "common"
+    tasks_from: "secrets/{{ config_vars.pkcs12.secret_provider }}/write.yml"
+  vars:
+    secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
+    secret_value: "{{ pkcs12_passphrase }}"

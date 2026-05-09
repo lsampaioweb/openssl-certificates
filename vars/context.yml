@@ -1,0 +1,142 @@
+---
+# ==============================================================================
+# GENERAL CONFIGURATION
+# ==============================================================================
+
+# The domain for the certificates.
+certificate_domain: "lan.home"
+
+# The directory that will contain all SSL Certificates in the target system.
+certificates_base_path: "/opt/certificates"
+
+# The regex that will be used to search for folders. If a folder starts with "_", it will be ignored.
+certificates_patterns:
+  - '^[^_](.)+$'
+
+# Exclude patterns for the find module to ignore certain directories.
+# These regex patterns are applied to the basename of each directory found.
+certificate_excludes:
+  - '^\..*'                    # Excludes all hidden directories (e.g., ".ansible").
+  - '^_.+'                     # Excludes all directories starting with an underscore (e.g., "_template", "_garbage").
+  - '^pipeline$'               # Excludes the PKI pipeline directory.
+  - '^collections$'            # Excludes the Ansible collections directory.
+  - '^modules$'                # Excludes the Ansible modules directory.
+  - '^roles$'                  # Excludes the Ansible roles directory.
+  - '(?i)(^|.*[-_\.])backup$'  # Excludes directories ending with "backup" at start or after delimiter(s).
+  - '(?i)(^|.*[-_\.])bkp$'     # Excludes directories ending with "bkp" at start or after delimiter(s).
+  - '(?i)(^|.*[-_\.])old$'     # Excludes directories ending with "old" at start or after delimiter(s).
+
+# The default roles that should be executed if the user does not provide any.
+default_roles_map:
+  - "backup"
+  - "private_key"
+  - "csr"
+  - "certificate"
+  - "pkcs12"
+  - "verify"
+
+# Date format strings.
+certificate_datetime_format: "%Y%m%d%H%M%SZ"
+
+# DateTime format for ISO 8601 standard used in Ansible.
+ansible_datetime_format: "%Y-%m-%dT%H:%M:%SZ"
+
+# Human-readable date format for displaying certificate dates in notifications.
+display_datetime_format: "%Y-%m-%d %H:%M:%S"
+
+# ==============================================================================
+# CERTIFICATE CREATION CONFIGURATION
+# ==============================================================================
+
+# The file with the variables that will be used to create a certificate.
+config_file: "config.yml"
+
+# Marker to trigger random passphrase generation.
+passphrase_random_marker: "?"
+
+# Default secret storage provider for passphrases.
+# Options:
+#   "vault": HashiCorp Vault Secret Engine (default).
+#   "keyring" (Ubuntu).
+#   "keychain" (MacOS).
+default_secret_provider: "vault"
+
+# Default certificate signing provider.
+# Options:
+#   "vault": HashiCorp Vault PKI Engine (default).
+#   "openssl": The local OpenSSL tool.
+default_signing_provider: "vault"
+
+# ==============================================================================
+# METADATA CONFIGURATION
+# ==============================================================================
+
+# Metadata configuration.
+certificate_metadata:
+  # The version of the metadata structure.
+  version: "1.0"
+  # The file name that will contain the certificate metadata for each certificate.
+  file: "certificate-metadata.json"
+
+# The file path that will contain the metadata index with certificate expiry dates and notification status.
+metadata_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata.file }}"
+
+# The directory and filename for the metadata lock file to prevent concurrent access during updates.
+lock_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata.file }}.lock"
+
+# Timeout in seconds for acquiring the metadata lock file.
+lock_timeout_seconds: 30
+
+# ==============================================================================
+# NOTIFICATION CONFIGURATION
+# ==============================================================================
+
+# The file that will contain the dates of every notification that was sent about a certificate that is expiring soon.
+notification_file: "notifications.log"
+
+# ==============================================================================
+# CERTIFICATE VERIFICATION AND AUTO-RENEWAL CONFIGURATION
+# ==============================================================================
+
+auto_renewal:
+  # Number of days before expiration to trigger yellow/warning status.
+  days_for_yellow_alert: 11
+
+  # Number of days before expiration to trigger red/critical status.
+  days_for_red_alert: 5
+
+  # Number of days before expiration to trigger auto-renewal.
+  days_before_expiration: 10
+
+# ==============================================================================
+# BACKUP CONFIGURATION
+# ==============================================================================
+
+# The directory that will contain backup files.
+backup_directory: "backup"
+
+# The directory that will contain old and expired certificates.
+backup_base_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.backup_directory }}"
+
+# Number of config.yml or import.yml backup files to keep per certificate.
+backup_files_to_keep: 5
+
+# The datetime format to use in backup filenames for config files.
+backup_datetime_format: "+%Y-%m-%d-%H-%M-%S"
+
+# ==============================================================================
+# IMPORT CONFIGURATION
+# ==============================================================================
+
+# The file with the instructions to import a certificate.
+import_file: "import.yml"
+
+# ==============================================================================
+# VAULT CONFIGURATION
+# ==============================================================================
+
+# Vault address used for sending API requests.
+ansible_hashi_vault_addr: "{{ lookup('env', 'ANSIBLE_HASHI_VAULT_ADDR') }}"
+
+# Vault UI base path structure for web interface.
+vault_ui_base_path: "/ui/vault/secrets"

@@ -1,3 +1,5 @@
+# Rules to skip during ansible-lint checks.
 skip_list:
   - var-naming[no-role-prefix]
   - name[template]
+  - no-handler

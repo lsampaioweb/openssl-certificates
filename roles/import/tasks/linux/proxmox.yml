@@ -1,0 +1,7 @@
+---
+# Placeholder for Proxmox VE import implementation.
+# This will be implemented in a future iteration.
+
+- name: "Proxmox import not yet implemented"
+  ansible.builtin.fail:
+    msg: "Proxmox import functionality is not yet implemented. Please use the old certificate-old role for now."

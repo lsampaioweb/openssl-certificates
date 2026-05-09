@@ -1,0 +1,14 @@
+---
+- name: "Create Complete PKI Certificate Components"
+  hosts: "CertificateAuthorityServer"
+
+  roles:
+    - "pki"
+  vars:
+    roles_to_include:
+      - "private_key"
+      - "csr"
+      - "certificate"
+      - "pkcs12"
+      - "metadata"
+      - "notify"

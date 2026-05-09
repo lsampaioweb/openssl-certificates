@@ -1,0 +1,126 @@
+---
+- name: "Creating basic variables for certificate creation"
+  ansible.builtin.set_fact:
+    private_key_passphrase: ""
+    ca_private_key_file: ""
+    ca_private_key_passphrase: ""
+    ca_certificate_file: ""
+
+- name: "Retrieving Private Key passphrase from secret storage if required"
+  when: config_vars.private_key.passphrase != ''
+  block:
+    - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.private_key.secret_provider }}'"
+      ansible.builtin.include_role:
+        name: "common"
+        tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
+      vars:
+        secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
+
+    - name: "Setting the Private Key passphrase variable 'private_key_passphrase'"
+      no_log: "{{ not debug | default(true) }}"
+      ansible.builtin.set_fact:
+        # If secret_value is not defined, it will use an empty string.
+        private_key_passphrase: "{{ secret_value | default('', true) }}"
+
+- name: "Preparing CA variables for ownca provider"
+  when: config_vars.certificate.provider == "ownca"
+  block:
+    - name: "Extracting CA domain and environment from ownca.path"
+      ansible.builtin.set_fact:
+        # Extract domain and environment from CA path using same pattern as main.yml.
+        # Pattern: /opt/certificates/{year}/{domain}/{environment}/{ca_name}
+        # Index [4] = domain, Index [5] = environment
+        ca_domain: "{{ config_vars.certificate.ownca.path.split('/')[4]
+          if (config_vars.certificate.ownca.path.split('/') | length >= 5) else certificate_domain }}"
+        ca_environment: "{{ config_vars.certificate.ownca.path.split('/')[5]
+          if (config_vars.certificate.ownca.path.split('/') | length >= 6) else certificate_environment }}"
+
+    - name: "Setting CA file paths"
+      ansible.builtin.set_fact:
+        ca_private_key_file: "{{ ca_certificate_path_and_name ~ '.' ~ config_vars.private_key.extension }}"
+        ca_certificate_file: "{{ ca_certificate_path_and_name ~ '.' ~ config_vars.certificate.extension }}"
+      vars:
+        ca_certificate_path_and_name: "{{ config_vars.certificate.ownca.path ~ '/' ~ config_vars.certificate.ownca.name }}"
+
+    - name: "Retrieving CA Private Key passphrase from secret storage '{{ config_vars.private_key.secret_provider }}'"
+      ansible.builtin.include_role:
+        name: "common"
+        tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
+      vars:
+        secret_key: "{{ ca_domain ~ '/' ~ ca_environment ~ '/' ~ config_vars.certificate.ownca.name }}"
+
+    - name: "Setting the CA Private Key passphrase variable 'ca_private_key_passphrase'"
+      no_log: "{{ not debug | default(true) }}"
+      ansible.builtin.set_fact:
+        # If secret_value is not defined, it will use an empty string.
+        ca_private_key_passphrase: "{{ secret_value | default('', true) }}"
+
+- name: "Printing input variables for Certificate creation"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "Private Key file: {{ private_key_file }}"
+      - "CSR file: {{ csr_file }}"
+
+      - "Certificate provider: {{ config_vars.certificate.provider }}"
+      - "CA private key file: {{ ca_private_key_file | default('N/A') }}"
+      - "CA certificate file: {{ ca_certificate_file | default('N/A') }}"
+
+      - "Certificate file: {{ certificate_file }}"
+      - "Digest: {{ config_vars.certificate.digest }}"
+      - "Not after: {{ config_vars.certificate.not_after }}"
+
+- name: "Creating Certificate using OpenSSL ({{ config_vars.certificate.provider }})"
+  no_log: "{{ not debug | default(true) }}"
+  # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/x509_certificate_module.html
+  community.crypto.x509_certificate:
+    # Private Key parameters.
+    privatekey_path: "{{ private_key_file }}"
+    privatekey_passphrase: "{{ private_key_passphrase | default(omit, true) }}"
+
+    # CSR parameters.
+    csr_path: "{{ csr_file }}"
+
+    # Provider parameters, could be "selfsigned" or "ownca".
+    provider: "{{ config_vars.certificate.provider }}"
+
+    # Selfsigned-specific parameters (ignored if provider=ownca).
+    selfsigned_digest: "{{ config_vars.certificate.digest | default(omit, true) }}"
+    selfsigned_not_after: "{{ config_vars.certificate.not_after | default(omit, true) }}"
+
+    # OwnCA-specific parameters (ignored if provider=selfsigned).
+    ownca_privatekey_path: "{{ ca_private_key_file | default(omit, true) }}"
+    ownca_privatekey_passphrase: "{{ ca_private_key_passphrase | default(omit, true) }}"
+    ownca_path: "{{ ca_certificate_file | default(omit, true) }}"
+    ownca_digest: "{{ config_vars.certificate.digest | default(omit, true) }}"
+    ownca_not_after: "{{ config_vars.certificate.not_after | default(omit, true) }}"
+
+    # Certificate parameters.
+    path: "{{ certificate_file }}"
+    mode: "{{ config_vars.certificate.mode }}"
+  register: "certificate_creation_output"
+
+- name: "Appending CA certificate to create certificate chain"
+  when: certificate_creation_output.changed and config_vars.certificate.provider == "ownca"
+  block:
+    - name: "Reading leaf certificate content"
+      ansible.builtin.slurp:
+        src: "{{ certificate_file }}"
+      register: "leaf_cert_content"
+
+    - name: "Reading CA certificate content"
+      ansible.builtin.slurp:
+        src: "{{ ca_certificate_file }}"
+      register: "ca_cert_content"
+
+    - name: "Writing certificate chain (leaf + CA) to certificate file"
+      ansible.builtin.copy:
+        content: "{{ leaf_cert_content.content | b64decode }}{{ ca_cert_content.content | b64decode }}"
+        dest: "{{ certificate_file }}"
+        mode: "{{ config_vars.certificate.mode }}"
+
+- name: "Printing Certificate creation result"
+  when: debug | bool
+  ansible.builtin.debug:
+    msg:
+      - "{{ certificate_creation_output }}"

@@ -1,0 +1,43 @@
+---
+- name: "Waiting for any existing lock to be released"
+  ansible.builtin.include_tasks: "wait_for_lock.yml"
+
+- name: "Reading metadata file with lock protection"
+  block:
+    - name: "Acquiring lock for metadata operation"
+      ansible.builtin.include_tasks: "acquire_lock.yml"
+
+    - name: "Checking if metadata file already exists at '{{ context_vars.metadata_file_path }}'"
+      ansible.builtin.stat:
+        path: "{{ context_vars.metadata_file_path }}"
+      register: "metadata_file_stat"
+
+    - name: "Reading existing metadata file if it exists"
+      when: metadata_file_stat.stat.exists | bool
+      block:
+        - name: "Retrieving metadata file content at '{{ context_vars.metadata_file_path }}'"
+          ansible.builtin.slurp:
+            src: "{{ context_vars.metadata_file_path }}"
+          register: "metadata_file_content"
+
+        - name: "Parsing metadata file as JSON"
+          ansible.builtin.set_fact:
+            metadata: "{{ metadata_file_content.content
+              | b64decode
+              | default('{}', true)
+              | from_json }}"
+
+    - name: "Initializing metadata if file does not exist or is missing required fields"
+      when: not (metadata_file_stat.stat.exists | bool)
+        or metadata.version is not defined
+        or metadata.last_updated is not defined
+        or metadata.certificates is not defined
+      ansible.builtin.set_fact:
+        metadata:
+          version: "{{ metadata.version | default(context_vars.certificate_metadata.version) }}"
+          last_updated: "{{ now(utc=true, fmt=context_vars.certificate_datetime_format) }}"
+          certificates: "{{ metadata.certificates | default({}, true) }}"
+
+  always:
+    - name: "Releasing lock after reading"
+      ansible.builtin.include_tasks: "release_lock.yml"

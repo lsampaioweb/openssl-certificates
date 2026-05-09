@@ -1,0 +1,20 @@
+---
+# The version of the configuration file format.
+version: "2.0"
+
+# Variables that will be used for creating a certificate signing request.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
+csr:
+  # Common name (usually the domain name) to be included in the CSR.
+  # This field is often required for SSL/TLS certificates.
+  common_name: "load-balancer.lan.home"
+  # Subject Alternative Names (SANs) to be included in the CSR.
+  # This is a list of additional names (e.g., domain names) the certificate should cover.
+  # Example:
+  # subject_alt_name:
+    # - "DNS:site.lan.home"
+    # - "DNS:othersan.lan.home"
+  subject_alt_name:
+    - "DNS:load-balancer.lan.home"
+    - "DNS:load-balancer-01.lan.home"
+    - "DNS:load-balancer-02.lan.home"

@@ -1,0 +1,4 @@
+---
+- name: "Vault PKI certificate issuance - Not yet implemented"
+  ansible.builtin.fail:
+    msg: "Vault PKI integration is not yet implemented. Please use 'certificate.signing_provider: openssl' in your configuration."

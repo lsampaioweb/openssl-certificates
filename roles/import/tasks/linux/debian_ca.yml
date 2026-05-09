@@ -1,0 +1,51 @@
+---
+- name: "Creating Debian CA import variables for target '{{ target_config.host }}'"
+  ansible.builtin.set_fact:
+    target_host: "{{ target_config.host }}"
+    ca_certificates_path: "{{ target_config.ca_certificates_path | default(import_vars.linux.debian.ca_certificates_path) }}"
+
+- name: "Importing CA certificate to Debian trust store on '{{ target_host }}'"
+  ignore_unreachable: true
+  block:
+    - name: "Copying CA certificate to '{{ target_host }}'"
+      delegate_to: "{{ target_host }}"
+      become: true
+      ansible.builtin.copy:
+        src: "{{ certificate_path }}/{{ certificate_name }}.{{ config_vars.certificate.extension }}"
+        dest: "{{ ca_certificates_path }}/{{ certificate_name }}.{{ config_vars.certificate.extension }}"
+        mode: "0644"
+      register: "ca_cert_copy"
+
+    - name: "Updating CA trust store on '{{ target_host }}'"
+      when: ca_cert_copy.changed
+      delegate_to: "{{ target_host }}"
+      become: true
+      ansible.builtin.command:
+        cmd: "update-ca-certificates"
+      changed_when: true
+
+    - name: "Recording import result"
+      ansible.builtin.set_fact:
+        import_results: "{{ import_results + [result] }}"
+      vars:
+        result:
+          provider: "debian"
+          host: "{{ target_host }}"
+          status: "{{ 'imported' if ca_cert_copy.changed else 'skipped' }}"
+          changed: "{{ ca_cert_copy.changed }}"
+
+  rescue:
+    - name: "Recording failed import result"
+      ansible.builtin.set_fact:
+        import_results: "{{ import_results + [result] }}"
+      vars:
+        result:
+          provider: "debian"
+          host: "{{ target_host }}"
+          status: "failed"
+          changed: false
+          error: "{{ ansible_failed_result.msg | default('Unknown error') }}"
+
+    - name: "Displaying import failure message"
+      ansible.builtin.debug:
+        msg: "Failed to import CA certificate to Debian trust store on '{{ target_host }}': {{ ansible_failed_result.msg | default('Unknown error') }}"
