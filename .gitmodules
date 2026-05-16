@@ -5,3 +5,4 @@
 [submodule ".github/skills"]
 	path = .github/skills
 	url = https://github.com/lsampaioweb/copilot-skills-iac.git
+	branch = main
