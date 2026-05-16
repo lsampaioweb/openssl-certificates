@@ -2,3 +2,6 @@
 	path = roles/common
 	url = https://github.com/lsampaioweb/ansible-common-tasks.git
 	branch = main
+[submodule ".ia-instructions"]
+	path = .ia-instructions
+	url = https://github.com/lsampaioweb/ia-instructions.git
