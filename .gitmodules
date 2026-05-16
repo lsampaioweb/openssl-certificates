@@ -5,3 +5,4 @@
 [submodule ".ia-instructions"]
 	path = .ia-instructions
 	url = https://github.com/lsampaioweb/ia-instructions.git
+	branch = main
