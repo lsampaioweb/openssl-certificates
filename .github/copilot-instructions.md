@@ -1,156 +1,82 @@
 # Copilot Instructions
 
-This is an Ansible-based certificate management system for automated SSL/TLS certificate lifecycle management. Your primary role is to help maintain project consistency and prevent deviations from established architecture.
+This repository is an Ansible-based SSL/TLS certificate lifecycle system.
 
-## Mentoring Philosophy
+Use this file for execution rules. Use [README.md](../README.md) for operator setup and full runbook details.
 
-**Ruthless Code Review**: Focus on semantic clarity, idempotency, consistency, error handling, and security (no_log usage, file permissions).
+## Immediate Working Mode
 
-**Incremental Testing**: When implementing new roles, start with variable setup, comment out complex operations, test each section independently, then verify end-to-end integration.
+- Keep changes minimal, idempotent, and inside existing roles unless the user explicitly asks for new structure.
+- Default to Vault-based flows. Use `openssl` only for legacy/specific requests.
+- Do not add features, suffixes, or behavior variants without explicit user confirmation.
+- Keep task names in gerund form and variable names in snake_case.
+- Use English in task names, comments, and docs.
 
-**Variable Contamination Prevention**: Each role MUST reset its output variables at the start:
+## Critical Safety Rules
 
-```yaml
-- name: "Resetting role-specific variables"
-  ansible.builtin.set_fact:
-    role_creation_output: {}
-    role_specific_path: ""
-```
+- Treat secrets as sensitive by default and use conditional masking:
 
-**Review Focus**: Task names in gerund form, proper no_log for sensitive data, meaningful variable names, idempotent operations.
+  ```yaml
+  no_log: "{{ not debug | default(true) }}"
+  ```
 
-**Question Assumptions**: Challenge design decisions if:
-- New variables duplicate existing functionality.
-- Tasks could fit in existing roles instead of creating new ones.
-- Hardcoded values could be configurable.
-- Complex conditionals could be simplified.
-- Error handling is missing or inadequate.
-- **NEVER add features, suffixes, or variations without explicit user confirmation**. Ask first, implement after approval.
+- Do not introduce Python for automation logic. Prefer native Ansible modules.
+- Do not use `shell`/`command` when a native module exists.
+- Exception: macOS Keychain `security` command is allowed.
 
-## Project Discipline
+## Architecture Boundaries
 
-**VAULT** and **OPENSSL** support: All new development should default to Vault. However, the `openssl` provider can be used for legacy systems or specific use cases.
+- Preserve modular role boundaries: `private_key`, `csr`, `certificate`, `pkcs12`, `verify`, `import`.
+- Keep certificate verification scoped to file validation (not endpoint probing) unless explicitly requested.
+- Avoid hardcoded certificate paths. Respect dynamic path resolution from the PKI orchestration.
+- Maintain expected certificate path pattern:
 
-**Variable/Role Consistency**: Use existing variable names and patterns. Fit new tasks into existing roles rather than creating new ones.
+  `/opt/certificates/{year}/{domain}/{environment}/{certificate_name}`
 
-**Configuration File Synchronization**: CRITICAL - When ANY variable is added, updated, or removed from `vars/config.yml`, the SAME change MUST be applied to:
-1. `extra-vars.yml` - Runtime override template (commented out)
-2. `roles/pki/templates/config.yml.j2` - Certificate-specific config template
-3. `roles/pki/tasks/convert_config_from_older_version.yml` - Legacy format migration mappings
+## Configuration Integrity
 
-These files must NEVER drift! All four define the same variable structure. The conversion file ensures backward compatibility by mapping old flat-format variables to the current nested structure.
+- When changing any variable in `vars/config.yml`, mirror the same structural change in:
+1. `extra-vars.yml`
+2. `roles/pki/templates/config.yml.j2`
+3. `roles/pki/tasks/convert_config_from_older_version.yml`
+- Keep these files synchronized to prevent config drift.
+- Preserve namespaced merge model:
+1. Context merge to `context_vars`
+2. Config merge to `config_vars`
+- In source config/context files loaded with `name:`, reference same-file variables using that namespace.
 
-**Variable Namespacing**: Context and config files are loaded with `name:` parameter creating namespaced variables:
-- Context: `base_context_vars` → `domain_context_vars` → merged into `context_vars`
-- Config: `base_config_vars` → `domain_config_vars` → `certificate_config_vars` → `extra_config_vars` → merged into `config_vars`
-- Within context/config files, reference other variables in same file using full namespace: `{{ base_context_vars.variable_name }}`
-- After merging, reference using merged namespace: `{{ context_vars.variable_name }}` or `{{ config_vars.variable_name }}`
+## Include Pattern Enforcement
 
-**Path Pattern**: `/opt/certificates/{year}/{domain}/{environment}/{certificate_name}`
+- For cross-role task calls, use `ansible.builtin.include_role` with `tasks_from`.
+- Do not use relative `include_tasks` to reach other roles.
 
-## Architecture
-
-**Modular Roles**: `private_key`, `csr`, `certificate`, `pkcs12`, `verify`, `import` - each handles one PKI operation.
-
-**Vault PKI Integration**: Uses HashiCorp Vault PKI engine exclusively for certificate issuance. All certificate operations go through Vault APIs. Vault operations use dynamic paths like `{vault_pki_name}/issue/{vault_pki_role}` where PKI engines and roles are environment-specific.
-
-**Centralized Management**: CertificateAuthorityServer stores all certificates. Only the `import` role deploys to target servers.
-
-**Dynamic Path Resolution**: Certificate paths are dynamically resolved using regex patterns in `roles/pki/tasks/main.yml`. Avoid hardcoding paths when possible.
-
-**Verification**: The `verify` role validates certificate files (expiration, validity), not deployed service endpoints.
-
-## Workflows
-
-**Certificate Pipeline**:
-```bash
-# Complete pipeline (preferred).
-ansible-playbook create_all.yml -e @extra-vars.yml
-
-# Individual steps (debugging only).
-ansible-playbook create_private_key.yml -e @extra-vars.yml
-ansible-playbook create_csr.yml -e @extra-vars.yml
-ansible-playbook create_certificate.yml -e @extra-vars.yml
-ansible-playbook create_pkcs12.yml -e @extra-vars.yml
-ansible-playbook verify_certificate.yml -e @extra-vars.yml
-
-# Import to target servers.
-ansible-playbook import_certificate.yml -e @extra-vars.yml
-```
-
-**Daily Verification**: Cronjob runs `verify_certificate.yml` to check certificate expiration.
-
-**Configuration Management**: 4-layer hierarchy guarantees all variables are defined:
-
-1. Base (`vars/config.yml`) - ALL defaults
-2. Domain-specific (`vars/config-{domain}.yml`) - Domain overrides
-3. Certificate-specific (`{certificate_path}/config.yml`) - Per-cert customization
-4. Extra vars (`-e @extra-vars.yml`) - Runtime overrides
-
-Configs merge: base → domain → certificate → extra_vars. Final result in `config_vars`.
-
-**CRITICAL**: ALL config options defined in base `config.yml` will NEVER be undefined. Do NOT use `default(omit, true)` for standard fields. Use `default()` only for:
-
-- Fallback substitution: `{{ config_vars.csr.common_name | default(certificate_name, true) }}`
-- Truly optional parameters that should be omitted
-
-**Secrets**: Pattern `Certificates/{domain}/{environment}/{certificate_name}`
-
-## Development Guidelines
-
-**Environment Variables** (required):
-
-```bash
-export ANSIBLE_HASHI_VAULT_ADDR="https://vault.lan.home"
-export ANSIBLE_HASHI_VAULT_AUTH_METHOD="ldap"
-export ANSIBLE_HASHI_VAULT_USERNAME="usr_ansible_pd"
-```
-
-**Key Variables**: `certificate_domain`, `certificate_environment` (stg|prd), `certificates` (array or [] for all)
-
-**File Organization**: Use `extra-vars-{username}.yml` for personal configs.
-
-**Import Templates**: Application-specific import configurations in `roles/import/templates/` for `SpringBoot`, `Tomcat`, `Wildfly`, etc. Each template defines service paths, permissions, and restart procedures for specific application types.
-
-## Code Standards
-
-**Pure Ansible**: No Python code. No `shell`/`command` modules except macOS Keychain (`security` command - no native module).
-
-**Language**: English only.
-
-**Naming**: Task names in gerund form ("Creating..." not "Create..."). Variables use snake_case with scope prefixes.
-
-**Sensitive Data**: Use conditional no_log:
+Accepted pattern:
 
 ```yaml
-no_log: "{{ not debug | default(true) }}"
-```
-
-## Critical Patterns
-
-**Role Inclusion**: `roles/pki/tasks/steps.yml` includes roles based on `roles_to_include` variable.
-
-**Cross-Role Task Inclusion**: When calling tasks from another role, ALWAYS use `include_role` with `tasks_from`, NEVER use `include_tasks` with relative paths:
-
-```yaml
-# CORRECT - Use this pattern
 ansible.builtin.include_role:
   name: "metadata"
   tasks_from: "read_metadata.yml"
-
-# CORRECT - Dynamic task selection
-ansible.builtin.include_role:
-  name: "common"
-  tasks_from: "{{ context_vars.smtp_secret_provider }}/get.yml"
-
-# WRONG - Never use relative paths with include_tasks
-ansible.builtin.include_tasks: "{{ role_path }}/../other_role/tasks/some_task.yml"
 ```
 
-**Certificate Exclusions**: Folders prefixed with `_` are excluded. Backup paths filtered out.
+## Command Quickstart For Agents
 
-**Password Handling**:
+- Prepare controller: `ansible-playbook prepare_controller.yml -i inventory/hosts -K`
+- Full certificate pipeline: `ansible-playbook create_all.yml -e @extra-vars.yml`
+- Verification run: `ansible-playbook verify_certificate.yml -e @extra-vars.yml`
+- Import run: `ansible-playbook import_certificate.yml -e @extra-vars.yml`
 
-- `"?"` = auto-generate (stored in secret manager, non-idempotent by design)
-- `""` = no password (NOT stored)
-- Explicit value = use as-is (stored)
+Use [README.md](../README.md) for prerequisites, environment variables, and extended execution examples.
+
+## Project-Specific Pitfalls
+
+- Certificate directories prefixed with `_` are intentionally excluded.
+- Password semantics must remain stable:
+1. `"?"` means auto-generate and store.
+2. `""` means no password and do not store.
+3. Explicit value means use as provided and store.
+- For config fallback behavior, avoid broad `default(omit, true)` on standard fields.
+
+## Related Docs
+
+- Operational runbook: [README.md](../README.md)
+- Shared role helpers: [roles/common/README.md](../roles/common/README.md)
