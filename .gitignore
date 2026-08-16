@@ -21,9 +21,4 @@ ca_host_key
 certificate-metadata.json
 certificate-metadata.json.lock
 
-# VS Code Copilot symlinks (pointing to .ia-instructions submodule).
-.github/agents
-.github/hooks
-.github/instructions
-.github/prompts
-.github/skills
+.github
