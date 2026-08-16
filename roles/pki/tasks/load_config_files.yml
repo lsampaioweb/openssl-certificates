@@ -89,7 +89,7 @@
 
 - name: "Moving the backup file created by template module to a proper backup directory"
   when: config_template_result.changed and context_vars.backup_files_to_keep > 0
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: "backup"
     tasks_from: "backup_file.yml"
   vars:
