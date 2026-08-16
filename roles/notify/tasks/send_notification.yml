@@ -8,6 +8,7 @@
       when: smtp_mail_password is not defined or smtp_mail_password | length == 0
       block:
         - name: "Retrieving SMTP password from secret provider: '{{ config_vars.notification_mail.smtp_secret_provider }}'"
+          no_log: "{{ not (debug | default(false)) }}"
           ansible.builtin.include_role:
             name: "common"
             tasks_from: "secrets/{{ config_vars.notification_mail.smtp_secret_provider }}/read.yml"
@@ -15,11 +16,13 @@
             secret_key: "{{ config_vars.notification_mail.smtp_password_id }}"
 
         - name: "Setting 'smtp_mail_password' variable from secret value"
+          no_log: "{{ not (debug | default(false)) }}"
           ansible.builtin.set_fact:
             smtp_mail_password: "{{ secret_value | default('', true) }}"
 
     - name: "Sending email for certificate '{{ certificate_common_name }}' status"
-      ansible.builtin.include_role:
+      no_log: "{{ not (debug | default(false)) }}"
+      ansible.builtin.import_role:
         name: "common"
         tasks_from: "mail/send.yml"
       vars:

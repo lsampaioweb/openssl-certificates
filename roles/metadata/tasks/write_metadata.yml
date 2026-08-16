@@ -1,11 +1,11 @@
 ---
 - name: "Waiting for any existing lock to be released"
-  ansible.builtin.include_tasks: "wait_for_lock.yml"
+  ansible.builtin.import_tasks: "wait_for_lock.yml"
 
 - name: "Writing metadata file with lock protection"
   block:
     - name: "Acquiring lock for metadata operation"
-      ansible.builtin.include_tasks: "acquire_lock.yml"
+      ansible.builtin.import_tasks: "acquire_lock.yml"
 
     - name: "Writing updated metadata to file at '{{ context_vars.metadata_file_path }}'"
       ansible.builtin.copy:
@@ -22,4 +22,4 @@
 
   always:
     - name: "Releasing lock after writing"
-      ansible.builtin.include_tasks: "release_lock.yml"
+      ansible.builtin.import_tasks: "release_lock.yml"

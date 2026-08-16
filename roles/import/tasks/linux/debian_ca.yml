@@ -20,9 +20,11 @@
       when: ca_cert_copy.changed
       delegate_to: "{{ target_host }}"
       become: true
+      # No native Ansible module exists for update-ca-certificates.
       ansible.builtin.command:
         cmd: "update-ca-certificates"
-      changed_when: true
+      register: "update_ca_result"
+      changed_when: update_ca_result.rc == 0
 
     - name: "Recording import result"
       ansible.builtin.set_fact:

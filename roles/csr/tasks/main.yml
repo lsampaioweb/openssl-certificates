@@ -8,6 +8,7 @@
   when: config_vars.private_key.passphrase != ''
   block:
     - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.private_key.secret_provider }}'"
+      no_log: "{{ not (debug | default(false)) }}"
       ansible.builtin.include_role:
         name: "common"
         tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
@@ -15,7 +16,7 @@
         secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
 
     - name: "Setting the Private Key passphrase variable 'private_key_passphrase'"
-      no_log: "{{ not debug | default(true) }}"
+      no_log: "{{ not (debug | default(false)) }}"
       ansible.builtin.set_fact:
         # If secret_value is not defined, it will use an empty string.
         private_key_passphrase: "{{ secret_value | default('', true) }}"
@@ -44,7 +45,7 @@
       - "Extended key usage critical: {{ config_vars.csr.extended_key_usage_critical }}"
 
 - name: "Creating a Certificate Signing Request (CSR)"
-  no_log: "{{ not debug | default(true) }}"
+  no_log: "{{ not (debug | default(false)) }}"
   # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/openssl_csr_module.html
   community.crypto.openssl_csr:
     # Private Key parameters.

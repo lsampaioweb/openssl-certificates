@@ -1,6 +1,6 @@
 ---
 - name: "Loading context files"
-  ansible.builtin.include_role:
+  ansible.builtin.import_role:
     name: "pki"
     tasks_from: "load_context_files.yml"
 
@@ -9,7 +9,7 @@
 
 - name: "Including task to iterate over list of certificates"
   when: certificates_list | default([]) | length > 0
-  ansible.builtin.include_role:
+  ansible.builtin.import_role:
     name: "pki"
     tasks_from: "iterate_over_list_of_certificates.yml"
   vars:

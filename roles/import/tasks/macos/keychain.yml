@@ -6,7 +6,7 @@
     temp_folder: "{{ target_config.temp_folder | default(import_vars.macos.temp_folder) }}"
     certificate_file: "{{ certificate_path }}/{{ certificate_name }}.{{ config_vars.certificate.extension }}"
     temp_certificate_path: "{{ target_config.temp_folder
-                            | default(import_vars.macos.temp_folder) }}/{{ certificate_name }}.{{ config_vars.certificate.extension }}"
+      | default(import_vars.macos.temp_folder) }}/{{ certificate_name }}.{{ config_vars.certificate.extension }}"
 
 - name: "Loading certificate file details from '{{ certificate_file }}'"
   community.crypto.x509_certificate_info:
@@ -30,6 +30,7 @@
   block:
     - name: "Checking if certificate already exists in keychain on '{{ target_host }}'"
       delegate_to: "{{ target_host }}"
+      # No native Ansible module exists for macOS security command operations.
       ansible.builtin.command:
         cmd: "/usr/bin/security find-certificate -c '{{ certificate_info.subject.commonName }}' -p '{{ keychain_path }}'"
       register: "keychain_cert_raw"
@@ -43,6 +44,7 @@
 
     - name: "Extracting certificate expiration from keychain certificate"
       when: keychain_cert_raw.rc == 0
+      # No native Ansible module exists for parsing PEM via openssl CLI.
       ansible.builtin.command:
         cmd: "/usr/bin/openssl x509 -text -noout"
         stdin: "{{ keychain_cert_raw.stdout }}"
@@ -56,8 +58,9 @@
       vars:
         cert_not_in_keychain: "{{ keychain_cert_raw.rc != 0 }}"
         local_cert_expiration: "{{ certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
-        keychain_cert_expiration: "{{ (keychain_certificate_info.stdout | regex_search('Not After : (.+)', '\\1') | first).strip()
-                                    | to_datetime('%b %d %H:%M:%S %Y %Z') if keychain_cert_raw.rc == 0 else '' }}"
+        keychain_cert_expiration:
+          "{{ (keychain_certificate_info.stdout | regex_search('Not After : (.+)', '\\1') | first).strip()
+          | to_datetime('%b %d %H:%M:%S %Y %Z') if keychain_cert_raw.rc == 0 else '' }}"
         expiration_dates_differ: "{{ keychain_cert_raw.rc == 0 and local_cert_expiration != keychain_cert_expiration }}"
 
     - name: "Displaying import decision for '{{ target_host }}'"
@@ -67,7 +70,7 @@
           - "Certificate exists in keychain: {{ keychain_cert_raw.rc == 0 }}"
           - "Local certificate expiration: {{ certificate_info.not_after }}"
           - "Keychain certificate expiration: {{ (keychain_certificate_info.stdout | regex_search('Not After : (.+)', '\\1') | first).strip()
-                                              if keychain_cert_raw.rc == 0 else 'N/A' }}"
+            if keychain_cert_raw.rc == 0 else 'N/A' }}"
           - "Should import: {{ should_import_certificate }}"
 
     - name: "Skipping import - certificate already current in keychain"
@@ -88,6 +91,7 @@
         - name: "Allowing Ansible to modify trust settings on '{{ target_host }}'"
           delegate_to: "{{ target_host }}"
           become: true
+          # No native Ansible module exists for macOS authorizationdb operations.
           ansible.builtin.command:
             cmd: "/usr/bin/security authorizationdb write com.apple.trust-settings.admin allow"
           register: "auth_allow"
@@ -96,6 +100,7 @@
         - name: "Importing certificate into keychain on '{{ target_host }}'"
           delegate_to: "{{ target_host }}"
           become: true
+          # No native Ansible module exists for macOS keychain trust import.
           ansible.builtin.command:
             cmd: "/usr/bin/security add-trusted-cert -d -r trustRoot -k {{ keychain_path }} '{{ temp_certificate_path }}'"
           register: "import_result"
@@ -104,6 +109,7 @@
         - name: "Removing Ansible trust settings modification permissions on '{{ target_host }}'"
           delegate_to: "{{ target_host }}"
           become: true
+          # No native Ansible module exists for macOS authorizationdb operations.
           ansible.builtin.command:
             cmd: "/usr/bin/security authorizationdb remove com.apple.trust-settings.admin"
           register: "auth_remove"

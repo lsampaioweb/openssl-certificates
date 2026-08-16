@@ -1,6 +1,6 @@
 ---
 - name: "Loading certificate metadata from file"
-  ansible.builtin.include_role:
+  ansible.builtin.import_role:
     name: "metadata"
     tasks_from: "read_metadata.yml"
 
@@ -20,6 +20,6 @@
     cert_data: "{{ metadata.certificates[certificate_path] | default({}) }}"
 
 - name: "Saving updated metadata to file"
-  ansible.builtin.include_role:
+  ansible.builtin.import_role:
     name: "metadata"
     tasks_from: "write_metadata.yml"

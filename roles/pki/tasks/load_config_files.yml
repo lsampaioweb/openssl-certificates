@@ -56,6 +56,7 @@
     config_overrides: {}
 
 - name: "Processing each section to find differences"
+  # Loop requires runtime include.
   ansible.builtin.include_tasks: "compare_dict_section.yml"
   loop: "{{ specific_config_vars | dict2items | default([]) }}"
   loop_control:
@@ -88,7 +89,7 @@
 
 - name: "Moving the backup file created by template module to a proper backup directory"
   when: config_template_result.changed and context_vars.backup_files_to_keep > 0
-  ansible.builtin.include_role:
+  ansible.builtin.import_role:
     name: "backup"
     tasks_from: "backup_file.yml"
   vars:

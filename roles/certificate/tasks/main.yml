@@ -4,4 +4,5 @@
     certificate_creation_output: {}
 
 - name: "Dispatching to the appropriate certificate provider"
+  # Runtime dispatch: signing_provider is only known after config is loaded.
   ansible.builtin.include_tasks: "{{ config_vars.certificate.signing_provider | lower }}.yml"

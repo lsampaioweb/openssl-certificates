@@ -7,7 +7,7 @@
   vars:
     packages: "{{ ansible_galaxy_collections }}"
 
-- name: "Debug Ansible Galaxy installation output"
+- name: "Debugging Ansible Galaxy installation output"
   when: debug | bool
   ansible.builtin.debug:
     msg:

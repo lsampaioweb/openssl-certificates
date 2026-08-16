@@ -6,8 +6,8 @@
 
 - name: "Adding or updating certificate metadata if file exists"
   when: file_exists.stat.exists | bool
-  ansible.builtin.include_tasks: "update_metadata.yml"
+  ansible.builtin.import_tasks: "update_metadata.yml"
 
 - name: "Removing certificate from metadata if file no longer exists"
   when: not file_exists.stat.exists | bool
-  ansible.builtin.include_tasks: "remove_metadata.yml"
+  ansible.builtin.import_tasks: "remove_metadata.yml"

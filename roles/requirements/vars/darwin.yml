@@ -5,6 +5,11 @@ pipx_executable: "{{ lookup('env', 'HOME') }}/.local/bin/pipx"
 
 pipx_packages:
   # Personal Development Environment - Ansible tools for infrastructure management.
-  - {name: "ansible", install_deps: true}
-  - {name: "ansible-lint", install_deps: true}
-  - {name: "ansible", state: "inject", include_injected: true, inject_packages: ["cryptography", "jmespath", "hvac", "certifi", "passlib"]}
+  - name: "ansible"
+    install_deps: true
+  - name: "ansible-lint"
+    install_deps: true
+  - name: "ansible"
+    state: "inject"
+    include_injected: true
+    inject_packages: ["cryptography", "jmespath", "hvac", "certifi", "passlib"]

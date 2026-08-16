@@ -10,6 +10,7 @@
   when: config_vars.private_key.passphrase != ''
   block:
     - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.private_key.secret_provider }}'"
+      no_log: "{{ not (debug | default(false)) }}"
       ansible.builtin.include_role:
         name: "common"
         tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
@@ -17,7 +18,7 @@
         secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
 
     - name: "Setting the Private Key passphrase variable 'private_key_passphrase'"
-      no_log: "{{ not debug | default(true) }}"
+      no_log: "{{ not (debug | default(false)) }}"
       ansible.builtin.set_fact:
         # If secret_value is not defined, it will use an empty string.
         private_key_passphrase: "{{ secret_value | default('', true) }}"
@@ -43,6 +44,7 @@
         ca_certificate_path_and_name: "{{ config_vars.certificate.ownca.path ~ '/' ~ config_vars.certificate.ownca.name }}"
 
     - name: "Retrieving CA Private Key passphrase from secret storage '{{ config_vars.private_key.secret_provider }}'"
+      no_log: "{{ not (debug | default(false)) }}"
       ansible.builtin.include_role:
         name: "common"
         tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
@@ -50,7 +52,7 @@
         secret_key: "{{ ca_domain ~ '/' ~ ca_environment ~ '/' ~ config_vars.certificate.ownca.name }}"
 
     - name: "Setting the CA Private Key passphrase variable 'ca_private_key_passphrase'"
-      no_log: "{{ not debug | default(true) }}"
+      no_log: "{{ not (debug | default(false)) }}"
       ansible.builtin.set_fact:
         # If secret_value is not defined, it will use an empty string.
         ca_private_key_passphrase: "{{ secret_value | default('', true) }}"
@@ -71,7 +73,7 @@
       - "Not after: {{ config_vars.certificate.not_after }}"
 
 - name: "Creating Certificate using OpenSSL ({{ config_vars.certificate.provider }})"
-  no_log: "{{ not debug | default(true) }}"
+  no_log: "{{ not (debug | default(false)) }}"
   # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/x509_certificate_module.html
   community.crypto.x509_certificate:
     # Private Key parameters.

@@ -28,4 +28,4 @@
           - "Removed from metadata: {{ cert_exists_in_metadata }}"
 
     - name: "Saving updated metadata to file"
-      ansible.builtin.include_tasks: "write_metadata.yml"
+      ansible.builtin.import_tasks: "write_metadata.yml"

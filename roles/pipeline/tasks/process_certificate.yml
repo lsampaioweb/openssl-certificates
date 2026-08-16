@@ -52,16 +52,16 @@
 
     - name: "Creating the certificate '{{ working_certificate.name }}'"
       when: not working_certificate.created
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: "pki"
       vars:
         roles_to_include:
-          - "pki_backup"
-          - "pki_private_key"
-          - "pki_csr"
-          - "pki_certificate"
-          - "pki_pkcs12"
-          - "pki_verify"
+          - "backup"
+          - "private_key"
+          - "csr"
+          - "certificate"
+          - "pkcs12"
+          - "verify"
         backup_mode: "renewal"
 
     - name: "Updating 'created: true' and 'imported: false' in our state variable"
@@ -71,21 +71,21 @@
 
     - name: "Updating the created status of certificate '{{ working_certificate.name }}' in the pipeline list"
       when: certificate_process_mode == "creating"
-      ansible.builtin.include_role:
-        name: "pki_pipeline"
+      ansible.builtin.import_role:
+        name: "pipeline"
         tasks_from: "update_item_in_list.yml"
       vars:
         item_to_update: "{{ working_certificate }}"
 
     - name: "Importing the certificate '{{ working_certificate.name }}'"
       when: not working_certificate.imported
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: "pki"
       vars:
         roles_to_include:
-          - "pki_import"
+          - "import"
           - "glpi"
-          - "pki_verify"
+          - "verify"
 
     - name: "Updating 'imported: true' in our state variable"
       when: certificate_process_mode == "importing"
@@ -94,16 +94,16 @@
 
     - name: "Updating the imported status of certificate '{{ working_certificate.name }}' in the pipeline list"
       when: certificate_process_mode == "importing"
-      ansible.builtin.include_role:
-        name: "pki_pipeline"
+      ansible.builtin.import_role:
+        name: "pipeline"
         tasks_from: "update_item_in_list.yml"
       vars:
         item_to_update: "{{ working_certificate }}"
 
 - name: "Removing certificate '{{ working_certificate.name }}' from pipeline list after creation and import"
   when: working_certificate.created and working_certificate.imported
-  ansible.builtin.include_role:
-    name: "pki_pipeline"
+  ansible.builtin.import_role:
+    name: "pipeline"
     tasks_from: "remove_item_from_list.yml"
   vars:
     item_to_remove: "{{ working_certificate }}"

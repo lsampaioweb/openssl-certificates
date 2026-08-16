@@ -14,7 +14,7 @@
     certificate_alert_is_expired: "{{ certificate_info.expired }}"
 
 - name: "Formatting certificate serial number from Decimal to Hex with colons"
-  ansible.builtin.include_role:
+  ansible.builtin.import_role:
     name: "common"
     tasks_from: "utils/format_certificate_serial.yml"
   vars:

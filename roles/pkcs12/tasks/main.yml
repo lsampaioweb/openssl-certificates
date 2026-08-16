@@ -10,6 +10,7 @@
   when: config_vars.private_key.passphrase != ''
   block:
     - name: "Retrieving Private Key passphrase from secret storage '{{ config_vars.private_key.secret_provider }}'"
+      no_log: "{{ not (debug | default(false)) }}"
       ansible.builtin.include_role:
         name: "common"
         tasks_from: "secrets/{{ config_vars.private_key.secret_provider }}/read.yml"
@@ -17,21 +18,22 @@
         secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
 
     - name: "Setting the Private Key passphrase variable 'private_key_passphrase'"
-      no_log: "{{ not debug | default(true) }}"
+      no_log: "{{ not (debug | default(false)) }}"
       ansible.builtin.set_fact:
         # If secret_value is not defined, it will use an empty string.
         private_key_passphrase: "{{ secret_value | default('', true) }}"
 
 - name: "Generating a random password for the PKCS#12 file if private key has no password"
   when: private_key_passphrase == ''
-  ansible.builtin.include_role:
+  no_log: "{{ not (debug | default(false)) }}"
+  ansible.builtin.import_role:
     name: "common"
     tasks_from: "utils/password/random.yml"
   vars:
     password_length: "{{ config_vars.pkcs12.passphrase_size }}"
 
 - name: "Setting the PKCS#12 passphrase variable"
-  no_log: "{{ not debug | default(true) }}"
+  no_log: "{{ not (debug | default(false)) }}"
   ansible.builtin.set_fact:
     # If the private key has a passphrase, use the same passphrase for PKCS#12.
     # If the private key has no passphrase (empty string), use the randomly generated password.
@@ -51,7 +53,8 @@
 
 - name: "Creating a legacy OpenSSL PKCS#12 file"
   when: config_vars.pkcs12.legacy | bool
-  no_log: "{{ not debug | default(true) }}"
+  no_log: "{{ not (debug | default(false)) }}"
+  # No native Ansible module supports the legacy PKCS#12 encryption algorithms.
   ansible.builtin.command:
     cmd: >
       openssl pkcs12 -export -legacy
@@ -65,10 +68,11 @@
       -iter {{ config_vars.pkcs12.legacy_iter_count }}
     creates: "{{ pkcs12_file }}"
   register: "pkcs12_creation_output"
+  changed_when: pkcs12_creation_output.rc == 0
 
 - name: "Creating a modern format OpenSSL PKCS#12 file"
   when: not config_vars.pkcs12.legacy | bool
-  no_log: "{{ not debug | default(true) }}"
+  no_log: "{{ not (debug | default(false)) }}"
   # https://docs.ansible.com/projects/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
   community.crypto.openssl_pkcs12:
     # Private Key information.
@@ -103,7 +107,7 @@
     - pkcs12_creation_output.changed | default(false)
     - not pkcs12_creation_output.failed | default(false)
     - private_key_passphrase != pkcs12_passphrase
-  no_log: "{{ not debug | default(true) }}"
+  no_log: "{{ not (debug | default(false)) }}"
   ansible.builtin.include_role:
     name: "common"
     tasks_from: "secrets/{{ config_vars.pkcs12.secret_provider }}/write.yml"

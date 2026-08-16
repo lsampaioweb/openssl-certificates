@@ -49,7 +49,7 @@
     ansible_httpapi_port: "{{ api_port }}"
     ansible_httpapi_use_ssl: "{{ protocol == 'https' }}"
     ansible_httpapi_validate_certs: "{{ validate_certs }}"
-  no_log: "{{ not debug | default(true) }}"
+  no_log: "{{ not (debug | default(false)) }}"
 
 - name: "Getting certificate runtime details (Monitor API)"
   delegate_to: "{{ host }}"
@@ -117,7 +117,7 @@
     - name: "Creating the specific variables"
       ansible.builtin.set_fact:
         passphrase: "{{ vault_response.secret.key }}"
-      no_log: "{{ not debug | default(true) }}"
+      no_log: "{{ not (debug | default(false)) }}"
 
     - name: "Reading SSL certificate file from local server"
       ansible.builtin.slurp:
@@ -150,7 +150,6 @@
         - delete_cert_result.failed
         - "'not found' not in (delete_cert_result.msg | default(''))"
         - "'does not exist' not in (delete_cert_result.msg | default(''))"
-      ignore_errors: true
 
     - name: "Uploading the local SSL certificate '{{ certificate_name }}' to the device"
       delegate_to: "{{ host }}"

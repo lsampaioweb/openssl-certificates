@@ -1,6 +1,6 @@
 ---
 - name: "Loading certificate metadata from file"
-  ansible.builtin.include_role:
+  ansible.builtin.import_role:
     name: "metadata"
     tasks_from: "read_metadata.yml"
 
@@ -9,6 +9,7 @@
   loop_control:
     loop_var: "cert_entry"
     label: "{{ cert_entry.key }}"
+  # Loop requires runtime include.
   ansible.builtin.include_tasks: "check_if_certificate_is_expiring.yml"
   vars:
     cert_key: "{{ cert_entry.key }}"

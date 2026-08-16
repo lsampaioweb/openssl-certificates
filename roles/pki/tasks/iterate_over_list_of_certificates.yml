@@ -1,6 +1,5 @@
 ---
 - name: "Iterating over each certificate"
-  loop: "{{ certificates_list | default([]) }}"
   when:
     # /opt/certificates/2025 will be ignored.
     - (certificate_path != (context_vars.certificates_base_path ~ '/' ~ certificate_year))
@@ -11,6 +10,7 @@
     # /opt/certificates/backup/??? will be ignored.
     - not (certificate_path is search("^" ~ context_vars.backup_base_path))
     # Other exclusions (_*, .ansible, etc.) are handled by the excludes parameter in find_certificates_in_folder.yml.
+  # Loop requires runtime include.
   ansible.builtin.include_tasks: "process_certificate.yml"
   vars:
     # Current certificate path from the loop iteration.
@@ -60,3 +60,4 @@
 
     # The base path and name for the certificate files.
     certificate_path_and_name: "{{ certificate_path ~ '/' ~ certificate_name }}"
+  loop: "{{ certificates_list | default([]) }}"

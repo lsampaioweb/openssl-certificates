@@ -18,4 +18,4 @@
 
 - name: "Including task to iterate over list of certificates"
   when: certificates_list | length > 0
-  ansible.builtin.include_tasks: "iterate_over_list_of_certificates.yml"
+  ansible.builtin.import_tasks: "iterate_over_list_of_certificates.yml"
