@@ -1,5 +1,11 @@
 # Rules to skip during ansible-lint checks.
 skip_list:
+  # Suppress role variable naming requirement to avoid prefixing all vars with role name.
   - var-naming[no-role-prefix]
+  # Suppress template name convention to allow template.yml.j2 naming without template prefix.
   - name[template]
+  # Handlers exist but are defined dynamically in roles/common/handlers/main.yml for reusable cross-role operations.
   - no-handler
+
+# Rules to warn (informational only, do not block).
+warn_list: []
