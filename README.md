@@ -36,8 +36,8 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
     Specifies the method used to sign the certificate.
 
     Options:
-    - `vault`: Use HashiCorp Vault  (**default**).
-    - `openssl`: Use the local OpenSSL tool to sign the certificate.
+    - `vault`: Use HashiCorp Vault.
+    - `openssl`: Use the local OpenSSL tool to sign the certificate (**default**).
       - `selfsigned`: Creates a self-signed certificate, meaning the certificate will be signed by the entity that created it (not by an external or trusted CA)..
       - `ownca`: Uses a custom Certificate Authority (CA) defined within the playbook or role.
 
