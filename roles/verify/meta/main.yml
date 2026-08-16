@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  namespace: "lsampaioweb"
+  role_name: "verify"
   author: "Luciano Sampaio"
   description: "Role to verify if the SSL certificates are valid, close to or already expired, in case of the last two, notify the responsible team."
   license: "MIT"

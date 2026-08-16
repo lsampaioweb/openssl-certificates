@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  namespace: "lsampaioweb"
+  role_name: "backup"
   author: "Luciano Sampaio"
   description: "Role to backup configuration files."
   license: "MIT"

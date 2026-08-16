@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  namespace: "lsampaioweb"
+  role_name: "requirements"
   author: "Luciano Sampaio"
   description: "Role to set up the Ansible control machine with necessary packages and configurations."
   license: "MIT"

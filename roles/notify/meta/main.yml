@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  namespace: "lsampaioweb"
+  role_name: "notify"
   author: "Luciano Sampaio"
   description: "Role to notify about SSL/TLS certificate status via email."
   license: "MIT"
