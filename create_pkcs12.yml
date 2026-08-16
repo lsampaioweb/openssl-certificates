@@ -1,5 +1,5 @@
 ---
-- name: "Create PKCS#12 Keystores"
+- name: "Creating PKCS#12 Keystores"
   hosts: "CertificateAuthorityServer"
 
   roles:

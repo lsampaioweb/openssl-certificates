@@ -1,0 +1,12 @@
+---
+- name: "Preparing Ansible Controller"
+  ansible.builtin.import_playbook: "prepare_controller.yml"
+
+- name: "Creating Complete PKI Certificate Components"
+  ansible.builtin.import_playbook: "create_all.yml"
+
+- name: "Importing Certificates to Target Servers"
+  ansible.builtin.import_playbook: "import_certificate.yml"
+
+- name: "Verifying Certificate Validity"
+  ansible.builtin.import_playbook: "verify_certificate.yml"

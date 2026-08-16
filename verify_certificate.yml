@@ -1,5 +1,5 @@
 ---
-- name: "Verify Certificate Validity"
+- name: "Verifying Certificate Validity"
   hosts: "CertificateAuthorityServer"
 
   roles:

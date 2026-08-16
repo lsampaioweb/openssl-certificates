@@ -1,5 +1,5 @@
 ---
-- name: "Import Certificates to Target Servers"
+- name: "Importing Certificates to Target Servers"
   hosts: "CertificateAuthorityServer"
 
   roles:

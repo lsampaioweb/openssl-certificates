@@ -1,5 +1,5 @@
 ---
-- name: "Prepare Ansible Controller"
+- name: "Preparing Ansible Controller"
   hosts: "AnsibleController"
   become: true
 

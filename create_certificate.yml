@@ -1,5 +1,5 @@
 ---
-- name: "Create Certificates"
+- name: "Creating Certificates"
   hosts: "CertificateAuthorityServer"
 
   roles:

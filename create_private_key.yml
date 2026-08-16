@@ -1,5 +1,5 @@
 ---
-- name: "Create Private Keys"
+- name: "Creating Private Keys"
   hosts: "CertificateAuthorityServer"
 
   roles:
