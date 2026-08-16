@@ -22,7 +22,7 @@
 
     - name: "Sending email for certificate '{{ certificate_common_name }}' status"
       no_log: "{{ not (debug | default(false)) }}"
-      ansible.builtin.import_role:
+      ansible.builtin.include_role:
         name: "common"
         tasks_from: "mail/send.yml"
       vars:

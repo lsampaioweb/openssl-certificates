@@ -27,14 +27,15 @@
 - name: "Preparing notification variables"
   ansible.builtin.set_fact:
     certificate_common_name: "{{ certificate_info.subject.commonName }}"
-    certificate_days_to_expire: "{{ ((certificate_info.not_after | to_datetime(context_vars.certificate_datetime_format)) -
-                                    (ansible_facts['date_time']['iso8601'] | to_datetime(context_vars.ansible_datetime_format))).days }}"
+    certificate_days_to_expire:
+      "{{ ((certificate_info.not_after | to_datetime(context_vars.certificate_datetime_format)) -
+      (ansible_facts['date_time']['iso8601'] | to_datetime(context_vars.ansible_datetime_format))).days }}"
 
     # Formatting certificate dates for display.
     certificate_not_before_formatted: "{{ context_vars.display_datetime_format
-                                        | strftime((certificate_info.not_before | to_datetime(context_vars.certificate_datetime_format)).timestamp() | int) }}"
+      | strftime((certificate_info.not_before | to_datetime(context_vars.certificate_datetime_format)).timestamp() | int) }}"
     certificate_not_after_formatted: "{{ context_vars.display_datetime_format
-                                        | strftime((certificate_info.not_after | to_datetime(context_vars.certificate_datetime_format)).timestamp() | int) }}"
+      | strftime((certificate_info.not_after | to_datetime(context_vars.certificate_datetime_format)).timestamp() | int) }}"
 
     # Setting file extension variables for template.
     private_key_extension: "{{ config_vars.private_key.extension }}"
@@ -44,10 +45,11 @@
     awx_job_details_url: "{{ context_vars.awx_job_details_url | default('') }}"
 
     # Only Vault has web UI with clickable URLs.
-    secret_access_url: "{{ context_vars.ansible_hashi_vault_addr ~ context_vars.vault_ui_base_path ~ '/' ~
-                          config_vars.private_key.secret_provider_mount_point ~ '/show/' ~
-                          config_vars.private_key.secret_base_path ~ '/' ~ secret_key
-                          if config_vars.private_key.secret_provider == 'vault' else '' }}"
+    secret_access_url:
+      "{{ context_vars.ansible_hashi_vault_addr ~ context_vars.vault_ui_base_path ~ '/' ~
+      config_vars.private_key.secret_provider_mount_point ~ '/show/' ~
+      config_vars.private_key.secret_base_path ~ '/' ~ secret_key
+      if config_vars.private_key.secret_provider == 'vault' else '' }}"
     secret_provider: "{{ config_vars.private_key.secret_provider }}"
     secret_key: "{{ certificate_domain ~ '/' ~ certificate_environment ~ '/' ~ certificate_name }}"
 
@@ -107,6 +109,8 @@
   when: debug | bool
   ansible.builtin.debug:
     msg:
+      - "Notification Context: {{ notification_context | default('Not defined') }}"
+      - "Certificate Common Name: {{ certificate_common_name | default('Not defined') }}"
       - "who_executed: {{ who_executed | default('Not defined') }}"
       - "Mail Subject: {{ mail_subject | default('Not defined') }}"
       - "Mail Main Message: {{ mail_main_message | default('Not defined') }}"
