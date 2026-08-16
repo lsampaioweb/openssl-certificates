@@ -89,8 +89,8 @@
             mode: "0644"
 
         - name: "Allowing Ansible to modify trust settings on '{{ target_host }}'"
-          delegate_to: "{{ target_host }}"
           become: true
+          delegate_to: "{{ target_host }}"
           # No native Ansible module exists for macOS authorizationdb operations.
           ansible.builtin.command:
             cmd: "/usr/bin/security authorizationdb write com.apple.trust-settings.admin allow"
@@ -98,8 +98,8 @@
           changed_when: auth_allow.rc == 0
 
         - name: "Importing certificate into keychain on '{{ target_host }}'"
-          delegate_to: "{{ target_host }}"
           become: true
+          delegate_to: "{{ target_host }}"
           # No native Ansible module exists for macOS keychain trust import.
           ansible.builtin.command:
             cmd: "/usr/bin/security add-trusted-cert -d -r trustRoot -k {{ keychain_path }} '{{ temp_certificate_path }}'"
@@ -107,8 +107,8 @@
           changed_when: import_result.rc == 0
 
         - name: "Removing Ansible trust settings modification permissions on '{{ target_host }}'"
-          delegate_to: "{{ target_host }}"
           become: true
+          delegate_to: "{{ target_host }}"
           # No native Ansible module exists for macOS authorizationdb operations.
           ansible.builtin.command:
             cmd: "/usr/bin/security authorizationdb remove com.apple.trust-settings.admin"

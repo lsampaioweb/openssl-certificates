@@ -8,8 +8,8 @@
   ignore_unreachable: true
   block:
     - name: "Copying CA certificate to '{{ target_host }}'"
-      delegate_to: "{{ target_host }}"
       become: true
+      delegate_to: "{{ target_host }}"
       ansible.builtin.copy:
         src: "{{ certificate_path }}/{{ certificate_name }}.{{ config_vars.certificate.extension }}"
         dest: "{{ ca_certificates_path }}/{{ certificate_name }}.{{ config_vars.certificate.extension }}"
@@ -18,8 +18,8 @@
 
     - name: "Updating CA trust store on '{{ target_host }}'"
       when: ca_cert_copy.changed
-      delegate_to: "{{ target_host }}"
       become: true
+      delegate_to: "{{ target_host }}"
       # No native Ansible module exists for update-ca-certificates.
       ansible.builtin.command:
         cmd: "update-ca-certificates"
