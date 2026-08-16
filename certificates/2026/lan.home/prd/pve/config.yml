@@ -5,11 +5,12 @@ version: "2.0"
 # Variables that will be used for creating a private key.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html
 private_key:
-  # Passphrase for the private key file.
-  # - An empty string ("") means no passphrase will be used for the private key (default).
-  # - A question mark ("?") triggers the automatic generation of a random passphrase.
-  # - Any other string (e.g., "SuperSecretPassword") will be used as the explicit passphrase.
-  passphrase: ""
+  # Secret storage provider for the private key passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "keyring"
 
 # Variables that will be used for creating a certificate signing request.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
@@ -29,3 +30,23 @@ csr:
     - "DNS:pve-02.lan.home"
     - "IP:192.168.3.2"
     - "IP:192.168.3.3"
+
+# Variables that will be used for creating a PKCS12 file.
+# https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
+pkcs12:
+  # Secret storage provider for the PKCS12 passphrase.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  secret_provider: "keyring"
+
+# Variables that will be used for sending email notifications about the certificates.
+# https://docs.ansible.com/ansible/latest/collections/community/general/mail_module.html
+notification_mail:
+  # Secret storage provider for the SMTP password.
+  # Options:
+  #   "vault": HashiCorp Vault Secret Engine (default).
+  #   "keyring" (Ubuntu).
+  #   "keychain" (MacOS).
+  smtp_secret_provider: "keyring"
