@@ -16,9 +16,9 @@ execution_environment: "prd"
 # List of certificates to process.
 # Leave empty [] to process all certificates.
 certificates:
-  - "root-ca"
+  # - "root-ca"
   # - "sub-ca"
-  # - "firewall"
+  - "firewall"
 #   - "pve"
 #   - "grafana"
 #   - "jump-server"
