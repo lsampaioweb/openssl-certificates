@@ -9,7 +9,6 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
 1. Target only user-provided scope. If missing, stop and request inputs.
 2. Load and apply the style contract from `.github/instructions/ai-customization.instructions.md`.
 3. Establish active cross-file references across target directories.
-4. If `.github/review/adjudications.yml` exists, load active entries and use them as suppression memory.
 
 ## 2. Resolution Rules
 - **Scanning Rigor:** Scan 100% of files in scope.
@@ -22,9 +21,6 @@ argument-hint: "Required: file, file list, folder, or glob to audit."
   6. Token efficiency (density; reward high-signal literals; penalize descriptive bloat).
 - **Scoring Protocol:** Score each file 0–10. Assign 0–2 per dimension with factual justification. Map dimensions as follows: Clarity = frontmatter + token efficiency (2 checklist items → 1 column), Enforceability = directives, Consistency = cross-file alignment, Brevity = verbosity, Conflict-Free = duplicates + conflicts (2 checklist items → 1 column).
 - **Status Classification:** PASS (9–10) | WARN (7–8) | FAIL (0–6).
-- **Evidence Precision:** For line-specific findings, include a short excerpt from the same line or adjacent block.
-- **Adjudication Suppression:** If a finding fingerprint matches an active adjudication entry with status `accepted-false-positive` or `accepted-risk`, do not report it as a finding; list it under Evidence as suppressed.
-- **Determinism Contract:** Keep headings and field keys exactly as declared in this file. Sort findings by severity rank, then file path (asc), line (asc), and type (asc). Use `none` for empty sections.
 
 ## 3. Safety Guards
 - Never sample.
@@ -54,7 +50,6 @@ Use this exact markdown schema:
 
 ### Evidence
 - Scores: <path | total | Clarity 0-2 reason | Enforceability 0-2 reason | Consistency 0-2 reason | Brevity 0-2 reason | Conflict-Free 0-2 reason | status>
-- Suppressed by adjudication: <none | finding-id -> adjudication-id>
 - Quick wins: <none | item1; item2>
 
 ### Next Action
