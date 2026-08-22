@@ -1,5 +1,5 @@
 ---
-description: "Use to audit code against active instruction files in both directions, with file-batch coverage when the scope is too large."
+description: "Use to audit code against active instruction files in both directions with deterministic full-scope coverage by default."
 argument-hint: "Required: target path, module, file, or glob; omit to audit the full workspace. Re-run starting at Continue from when Verdict is CONTINUE."
 ---
 
@@ -8,18 +8,19 @@ argument-hint: "Required: target path, module, file, or glob; omit to audit the 
 ## 1. Scope & Analysis
 1. Resolve the target scope from `{{$ARGUMENTS}}`. If missing, audit the full workspace.
 2. Before reading implementation file content, enumerate every implementation file in scope that is relevant to the active instruction set. Sort that list by path ascending. This list is the **coverage queue**.
+3. If `.github/review/adjudications.yml` exists, load it and apply active entries as suppression memory.
 4. Prefer the user-provided path, module, or glob; do not expand beyond that scope.
 5. Identify all applicable instruction files for the target scope.
-6. Take the next batch of at most **25** files from the coverage queue (path order). If the queue has 25 or fewer files, review the full queue. State the batch limit in Coverage when Remaining is non-empty.
-7. Use whole-scope pattern searches when they efficiently test an active rule across the current batch.
+6. Review the **full** coverage queue in one run by default. Use batching only when the user explicitly requests batching.
+7. Use whole-scope pattern searches when they efficiently test an active rule across the queue.
 8. Use file reads to confirm surrounding context and cover rule classes that pattern searches cannot validate.
-9. For every file in the current batch, check code against applicable instructions.
-10. For every file in the current batch, derive instruction coverage needs from observed code patterns in the same run.
-11. Build findings only from code implementation files in the current batch.
+9. For every file in scope, check code against applicable instructions.
+10. For every file in scope, derive instruction coverage needs from observed code patterns in the same run.
+11. Build findings only from code implementation files in scope.
 
 ## 2. Resolution Rules
-- Check code against all applicable instruction files for the current batch.
-- Derive instruction coverage needs from observed code patterns in the current batch.
+- Check code against all applicable instruction files for the current scope.
+- Derive instruction coverage needs from observed code patterns in the current scope.
 - Keep instruction/prompt/agent file quality out of scope for findings.
 - Exclude `.github/instructions/*.instructions.md`, `.github/prompts/*.prompt.md`, and `.github/agents/*.agent.md` from violation evidence unless they are the explicit audit target.
 - **Shared Governance Retention:** Treat instruction, prompt, and agent files under `.github/` as shared cross-project assets; never recommend deleting them only because another stack is absent from this repository.
@@ -29,7 +30,7 @@ argument-hint: "Required: target path, module, file, or glob; omit to audit the 
 - **Coverage Absence:** If no instruction files exist for the target scope, infer the minimum enforceable initial set from the code and propose it.
 - **New File Placement:** Place proposed instruction files in `.github/instructions/*`.
 - **Evidence Rule:** Base all conclusions on files that actually exist in scope.
-- **Batch Completeness:** Within the current batch, report all Required Violations, Optional Gaps, Ambiguous Cases, and Instruction Coverage Gaps found in the same run.
+- **Batch Completeness:** Within the processed scope, report all Required Violations, Optional Gaps, Ambiguous Cases, and Instruction Coverage Gaps found in the same run.
 - **Finding Format:** For each finding, state the problem briefly and include one minimal remediation action.
 - **Rule Citation:** Set `Rule` to `<instruction-file>#<exact bullet quote or section anchor>`. Do not cite a vague coverage area alone.
 - **Severity Map:** Critical = security, auth bypass, data loss, or secret exposure. High = clear Must-rule contract break. Medium = explicit non-security Must-rule gap. Low = explicit naming/style Must-rule gap. Soft preferences and inferred stricter rules are not Required Violations.
@@ -37,9 +38,12 @@ argument-hint: "Required: target path, module, file, or glob; omit to audit the 
 - **Deduplication Rule:** Merge repeated observations that share the same root cause into one finding.
 - **Compression Rule:** Do not list compliant files, retained instruction files, or exhaustive instruction inventories unless they are necessary to explain a finding.
 - **Reference Precision:** Include line references when they are available without guesswork.
+- **Line Evidence Rule:** For line-specific findings, include a short code excerpt from the same line or adjacent block. If excerpt verification fails, move the item to Ambiguous Cases.
 - **Ambiguity Handling:** If a conclusion depends on an instruction whose meaning is materially ambiguous in the target stack, do not report it as a Required Violation. Classify it under Ambiguous Cases and state the exact instruction ambiguity.
 - **No Speculative Expansion:** Do not infer stricter requirements than the active instruction text explicitly supports.
-- **Continuation Rule:** When Remaining is non-empty, set Verdict to `CONTINUE` and set Next Action to re-run this prompt on the same scope starting at the first Remaining path.
+- **Adjudication Suppression:** If a finding fingerprint matches an active adjudication entry with status `accepted-false-positive` or `accepted-risk`, do not emit it under Required Violations; list it under Evidence as suppressed.
+- **Determinism Contract:** Keep headings and field keys exactly as declared in this file. Sort findings by severity rank, then file path (asc), line (asc), and type (asc). Use `none` for empty sections.
+- **Continuation Rule:** Set Verdict to `CONTINUE` only when scope was explicitly batched by user request or processing was blocked by context/tool constraints.
 
 ## 3. Safety Guards
 - **Execution Boundary:** Apply changes only after explicit user confirmation.
@@ -55,7 +59,7 @@ Use this exact markdown schema:
 - Mode: <read-only | apply-after-confirmation>
 - Instructions applied: <only files that materially affected findings>
 - Coverage queue size: <N>
-- Batch limit reason: <none | max 25 files | user-requested path>
+- Batch limit reason: <none | user-requested batching | context/tool limit>
 
 ### Coverage
 - Reviewed this run: <path1; path2; ... | none>
@@ -63,7 +67,7 @@ Use this exact markdown schema:
 - Continue from: <first Remaining path | none>
 
 ### Result
-- Summary: <top compliance outcome for the current batch>
+- Summary: <top compliance outcome for the processed scope>
 
 ### Findings (Critical | High | Medium | Low)
 - Keep heading shape exactly: `[ID] - [SEVERITY] - [TYPE]`.
@@ -89,6 +93,7 @@ Use this exact markdown schema:
 
 ### Evidence
 - Retained shared governance: <none | path1; path2>
+- Suppressed by adjudication: <none | finding-id -> adjudication-id>
 - File actions: <none | Update path reason; Create path reason; Delete path reason>
 
 ### Next Action
