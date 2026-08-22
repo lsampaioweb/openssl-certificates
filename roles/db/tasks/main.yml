@@ -1,0 +1,13 @@
+---
+- name: "Checking if certificate file exists"
+  ansible.builtin.stat:
+    path: "{{ certificate_file }}"
+  register: "file_exists"
+
+- name: "Adding or updating certificate db if file exists"
+  when: file_exists.stat.exists | bool
+  ansible.builtin.import_tasks: "update_db.yml"
+
+- name: "Removing certificate from db if file no longer exists"
+  when: not file_exists.stat.exists | bool
+  ansible.builtin.import_tasks: "remove_db.yml"

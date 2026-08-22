@@ -34,9 +34,39 @@ applyTo: "**"
 
 ### Validation & Tooling
 - Require all code to pass `ansible-lint` with **0 failures, 0 warnings** in production profile before code is merged.
+- Run `ansible-lint` at project root (not per-file or per-role in isolation) to detect cross-file issues and ensure configuration inheritance.
 - Maintain `.ansible-lint` configuration file in the project root with explicit `skip_list` and `warn_list` if project-specific exceptions are needed.
 - Validate YAML syntax on all playbooks and roles before committing.
 - Document all ansible-core and ansible-lint versions used in CI/CD or development setup to ensure consistent validation across environments.
+
+### Pre-commit Hooks
+- Use Git pre-commit hooks or a `pre-commit` framework configuration to run linting and syntax checks before commits.
+- Example minimal hook:
+  ```bash
+  #!/bin/bash
+  # .git/hooks/pre-commit
+  ansible-lint .
+  yamllint roles/ group_vars/ vars/
+  ```
+- Document pre-commit setup in project README or development guide.
+
+### CI/CD Pipeline
+- Integrate `ansible-lint` and YAML syntax checks into CI/CD workflows (GitHub Actions, GitLab CI, etc.).
+- Run linting on every pull request or merge request before approval.
+- Block merges if linting fails (exit code ≠ 0).
+- Example GitHub Actions workflow snippet:
+  ```yaml
+  - name: Lint Ansible playbooks
+    run: ansible-lint .
+
+  - name: Validate YAML syntax
+    run: yamllint roles/ group_vars/ vars/
+  ```
+
+### Exception Handling
+- When a linting rule must be suppressed for a specific file or line, use `# noqa: <rule-id>` inline comment instead of adding to skip_list.
+- Document the rationale for inline suppressions (for example, `# noqa: name[template] -- destination format documented in context`).
+- Only add rules to `.ansible-lint` `skip_list` for project-wide exceptions (for example, role variable naming that deliberately omits role prefixes).
 
 ## Safety Guards
 

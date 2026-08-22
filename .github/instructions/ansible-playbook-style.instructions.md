@@ -41,11 +41,20 @@ applyTo: "**/*.yml"
 - Use `ansible.builtin.include_tasks` when static import cannot satisfy the use case (including but not limited to: dynamic filenames, loops, or host-fact-driven branching).
 - For role composition decisions (`import_role` vs `include_role`), see `ansible-role.instructions.md`.
 
+### Dynamic include safety
+- When using dynamic `include_tasks` with runtime variable interpolation (for example `include_tasks: "{{ variable }}.yml"`), document the expected file paths and valid variable values in a comment above the task.
+- Validate runtime variables before dispatch when feasible: use `assert` to confirm the variable is defined and matches an expected pattern, or gate the include with a `when` condition that validates the source.
+- On dynamic includes with optional file paths, use `block`/`rescue` to handle missing-file failures gracefully, or pre-check file existence with `stat` before attempting the include.
+- Example: if `include_tasks: "{{ config_vars.certificate.signing_provider | lower }}.yml"` may fail if the provider is invalid, add a preceding `assert` task: `assert: { that: config_vars.certificate.signing_provider in ['openssl', 'vault'], fail_msg: 'Invalid signing_provider' }`.
+
 ### Module and play declarations
 - Keep module invocations fully qualified (for example, `ansible.builtin.*`).
 - Replace deprecated modules before their announced ansible-core removal version.
 - Track deprecated-module replacements as planned work; do not defer migration past one minor release before removal.
-- Keep top-level play declarations explicit with `hosts` and `become` when privilege escalation is required.
+- Keep top-level play declarations explicit with `hosts` and a privilege model decision.
+- Set play-level `become` only when tasks require escalation from the connection user.
+- Do not require play-level `become` when the connection user is already privileged (for example, `ansible_user: root`).
+- During reviews, determine `become` requirements from executed tasks and effective connection user; never infer a violation from missing `become` alone.
 - Add `become: false` on tasks that must run as the calling user, not the become user.
 - Set `become_user` when the operation must run as a specific non-root user.
 - Always pair `become_user` with `become: true`.

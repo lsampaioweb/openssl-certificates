@@ -1,15 +1,24 @@
 ---
 - name: "Loading context files"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: "pki"
     tasks_from: "load_context_files.yml"
 
 - name: "Getting the list of certificates that need to be processed"
   ansible.builtin.import_tasks: "find_certificates_to_process.yml"
 
-- name: "Including task to iterate over list of certificates"
+- name: "Processing certificates scheduled for renewal"
+  when: certificates_to_renew | default([]) | length > 0
+  loop: "{{ certificates_to_renew | default([]) }}"
+  loop_control:
+    loop_var: "certificate"
+    label: "{{ certificate.name }}"
+  # Loop requires runtime include.
+  ansible.builtin.include_tasks: "process_certificate.yml"
+
+- name: "Notifying about certificates expiring soon"
   when: certificates_list | default([]) | length > 0
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: "pki"
     tasks_from: "iterate_over_list_of_certificates.yml"
   vars:

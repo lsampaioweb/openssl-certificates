@@ -39,6 +39,12 @@ applyTo: "**/ansible.cfg"
 - Choose a `ControlPersist` duration proportional to the longest expected task gap.
 - Keep `host_key_checking` enabled by default.
 
+### Linting configuration
+- Maintain `.ansible-lint` at the project root with explicit `skip_list` and `warn_list` entries for project-specific exceptions.
+- Optionally override root `.ansible-lint` in `roles/common/.ansible-lint` or other specific roles when they have unique linting requirements (for example, roles with deprecated modules in `files/` or special template conventions).
+- When a role does not have its own `.ansible-lint`, it inherits the root project configuration during `ansible-lint` runs.
+- Document any role-specific lint suppressions with `# noqa: <rule>` comments directly in the affected code.
+
 ## Safety Guards
 
 - Never set permissive defaults that expose secrets in callback output.

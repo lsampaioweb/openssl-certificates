@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  namespace: "lsampaioweb"
+  role_name: "pki"
   author: "Luciano Sampaio"
   description: "Ansible Role to manage Public Key Infrastructure (PKI) using OpenSSL or HCP Vault."
   license: "MIT"

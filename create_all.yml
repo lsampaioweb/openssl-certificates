@@ -10,5 +10,5 @@
       - "csr"
       - "certificate"
       - "pkcs12"
-      - "metadata"
+      - "db"
       - "notify"

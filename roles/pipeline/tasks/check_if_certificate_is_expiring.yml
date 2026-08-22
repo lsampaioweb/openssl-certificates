@@ -11,10 +11,29 @@
 - name: "Determining certificate-specific alert thresholds"
   ansible.builtin.set_fact:
     cert_yellow_threshold: "{{ cert_data.days_for_yellow_alert | default(context_vars.auto_renewal.days_for_yellow_alert, true) | int }}"
+    cert_renewal_threshold: "{{ cert_data.renewal_days_window | default(context_vars.auto_renewal.days_before_expiration, true) | int }}"
 
 - name: "Determining alert zone for certificate"
   ansible.builtin.set_fact:
     certificate_is_green: "{{ certificate_days_to_expire | int > cert_yellow_threshold }}"
+    certificate_should_renew: "{{ certificate_days_to_expire | int <= cert_renewal_threshold }}"
+
+- name: "Processing renewal for certificate '{{ cert_key }}'"
+  when: certificate_should_renew | bool
+  block:
+    - name: "Building certificate object for renewal"
+      ansible.builtin.set_fact:
+        cert_renewal_object:
+          name: "{{ cert_key | basename }}"
+          path: "{{ cert_key }}"
+          window: "{{ cert_data.window | default(context_vars.auto_renewal.certificate_pki_pipeline_window, true) }}"
+          created: false
+          imported: false
+          days_until_expiry: "{{ certificate_days_to_expire }}"
+
+    - name: "Adding certificate '{{ cert_key }}' to the renewal list"
+      ansible.builtin.set_fact:
+        certificates_to_renew: "{{ certificates_to_renew | default([]) + [cert_renewal_object] }}"
 
 - name: "Processing alert for certificate '{{ cert_key }}'"
   when: not (certificate_is_green | bool)
@@ -23,8 +42,9 @@
       ansible.builtin.set_fact:
         notification_needed: "{{ true if (last_notification_date is none) else (last_notification_date != today_date) }}"
       vars:
-        last_notification_date: "{{ (cert_data.last_notification | to_datetime(context_vars.certificate_datetime_format)).strftime('%Y-%m-%d')
-                                  if ('last_notification' in cert_data and cert_data.last_notification) else none }}"
+        last_notification_date:
+          "{{ (cert_data.last_notification | to_datetime(context_vars.certificate_datetime_format)).strftime('%Y-%m-%d')
+          if ('last_notification' in cert_data and cert_data.last_notification) else none }}"
         today_date: "{{ current_datetime.strftime('%Y-%m-%d') }}"
 
     - name: "Adding the current certificate '{{ cert_key }}' to the list of certificates needing notification"

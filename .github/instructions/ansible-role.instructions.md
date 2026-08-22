@@ -33,12 +33,14 @@ applyTo: "**/roles/**"
   ---
   galaxy_info:
     role_name: my_role        # lowercase, no hyphens; uniquely identifies role
-    namespace: my_namespace   # lowercase; DNS-style namespace for Galaxy
+    namespace: my_namespace   # lowercase; must match ^[a-z][a-z0-9_-]+$ (no dots)
     author: Author Name
     description: "Role description"
     license: MIT              # required field
     min_ansible_version: "2.10"  # required field; optional fields (tags, github_branch, etc.) below per ansible-galaxy requirements
   ```
+- Namespace values must match `^[a-z][a-z0-9_-]+$`.
+- Do not use dot-separated namespace values (for example, `local.proxmox`).
 - Run `ansible-lint` to validate `meta/main.yml` for Galaxy compliance before marking role complete.
 - Do not assume default role name from directory; always explicitly declare `role_name` and `namespace`.
 

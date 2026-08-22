@@ -1,4 +1,8 @@
 ---
+- name: "Computing backup destination path"
+  ansible.builtin.set_fact:
+    backup_path: "{{ context_vars.backup_base_path ~ '/' ~ certificate_year ~ '/' ~ certificate_domain ~ '/' ~ certificate_environment }}"
+
 - name: "Checking if expired certificate needs backup: '{{ certificate_name }}'"
   when: backup_mode is defined and backup_mode == "expired"
   block:
@@ -14,10 +18,6 @@
     - name: "Archiving expired certificate: '{{ certificate_name }}'"
       when: certificate_is_expired | default(false)
       block:
-        - name: "Creating backup path variable for expired certificate"
-          ansible.builtin.set_fact:
-            backup_path: "{{ context_vars.backup_base_path ~ '/' ~ certificate_year ~ '/' ~ certificate_domain ~ '/' ~ certificate_environment }}"
-
         - name: "Printing expired certificate backup details"
           when: debug | bool
           ansible.builtin.debug:
@@ -53,10 +53,6 @@
 - name: "Backing up certificate before renewal: '{{ certificate_name }}'"
   when: backup_mode is defined and backup_mode == "renewal"
   block:
-    - name: "Creating backup path variable for renewal"
-      ansible.builtin.set_fact:
-        backup_path: "{{ context_vars.backup_base_path ~ '/' ~ certificate_year ~ '/' ~ certificate_domain ~ '/' ~ certificate_environment }}"
-
     - name: "Printing renewal backup details"
       when: debug | bool
       ansible.builtin.debug:

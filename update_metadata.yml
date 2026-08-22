@@ -6,4 +6,4 @@
     - "pki"
   vars:
     roles_to_include:
-      - "metadata"
+      - "db"

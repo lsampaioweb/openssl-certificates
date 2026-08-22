@@ -1,25 +1,25 @@
 ---
-- name: "Loading certificate metadata from file"
-  ansible.builtin.import_role:
-    name: "metadata"
-    tasks_from: "read_metadata.yml"
+- name: "Loading certificate db from file"
+  ansible.builtin.include_role:
+    name: "db"
+    tasks_from: "read_db.yml"
 
 - name: "Updating last notification timestamp for certificate '{{ certificate_path }}'"
   ansible.builtin.set_fact:
-    metadata: >-
-      {{ metadata | combine({
+    db: >-
+      {{ db | combine({
           'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
-          'certificates': metadata.certificates | combine({
+          'certificates': db.certificates | combine({
               (certificate_path): cert_data | combine({
                 'last_notification': now(utc=true, fmt=context_vars.certificate_datetime_format)
               })
             })
         }, recursive=True) }}
   vars:
-    # Reconstructing cert_data from metadata since original was lost between phases.
-    cert_data: "{{ metadata.certificates[certificate_path] | default({}) }}"
+    # Reconstructing cert_data from db since original was lost between phases.
+    cert_data: "{{ db.certificates[certificate_path] | default({}) }}"
 
-- name: "Saving updated metadata to file"
-  ansible.builtin.import_role:
-    name: "metadata"
-    tasks_from: "write_metadata.yml"
+- name: "Saving updated db to file"
+  ansible.builtin.include_role:
+    name: "db"
+    tasks_from: "write_db.yml"

@@ -4,10 +4,20 @@
     path: "{{ certificate_file }}"
   register: "certificate_info"
 
-- name: "Preparing base certificate metadata entry"
+- name: "Preparing base certificate db entry"
   ansible.builtin.set_fact:
     cert_data:
       expiry_date: "{{ certificate_info.not_after }}"
+
+- name: "Adding created progress flag when provided"
+  when: certificate_created is defined
+  ansible.builtin.set_fact:
+    cert_data: "{{ cert_data | combine({'created': certificate_created | bool}) }}"
+
+- name: "Adding imported progress flag when provided"
+  when: certificate_imported is defined
+  ansible.builtin.set_fact:
+    cert_data: "{{ cert_data | combine({'imported': certificate_imported | bool}) }}"
 
 - name: "Adding yellow alert override if different from global"
   when: (config_vars.auto_renewal.days_for_yellow_alert | int) != (context_vars.auto_renewal.days_for_yellow_alert | int)
@@ -21,47 +31,47 @@
     cert_data: "{{ cert_data
       | combine({'days_for_red_alert': config_vars.auto_renewal.days_for_red_alert | int}) }}"
 
-- name: "Loading metadata from file"
-  ansible.builtin.import_tasks: "read_metadata.yml"
+- name: "Loading db from file"
+  ansible.builtin.import_tasks: "read_db.yml"
 
-- name: "Checking if certificate metadata needs to be updated"
+- name: "Checking if certificate db needs to be updated"
   ansible.builtin.set_fact:
     cert_key: "{{ temp_cert_key }}"
-    # Checking if certificate is not in metadata and if it is, if the expiry date in metadata differs from the certificate's actual expiry date.
-    metadata_needs_update: "{{ (temp_cert_key not in metadata.certificates)
-      or ('expiry_date' not in metadata.certificates[temp_cert_key])
-      or (metadata.certificates[temp_cert_key]['expiry_date'] != certificate_info.not_after) }}"
+    # Checking if certificate is not in db and if it is, if the expiry date in db differs from the certificate's actual expiry date.
+    db_needs_update: "{{ (temp_cert_key not in db.certificates)
+      or ('expiry_date' not in db.certificates[temp_cert_key])
+      or (db.certificates[temp_cert_key]['expiry_date'] != certificate_info.not_after) }}"
   vars:
     temp_cert_key: "{{ certificate_path }}"
 
-- name: "Processing current certificate metadata update"
-  when: metadata_needs_update
+- name: "Processing current certificate db update"
+  when: db_needs_update
   block:
     - name: "Removing existing certificate entry to ensure clean replacement"
       ansible.builtin.set_fact:
-        metadata: >
-          {{ metadata | combine({
-            'certificates': metadata.certificates | dict2items
+        db: >
+          {{ db | combine({
+            'certificates': db.certificates | dict2items
               | rejectattr('key', 'equalto', cert_key)
               | items2dict
           }) }}
 
-    - name: "Adding new certificate entry with fresh metadata"
+    - name: "Adding new certificate entry with fresh db"
       ansible.builtin.set_fact:
-        metadata: >
-          {{ metadata | combine({
+        db: >
+          {{ db | combine({
             'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
-            'certificates': metadata.certificates | combine({(cert_key): cert_data}),
+            'certificates': db.certificates | combine({(cert_key): cert_data}),
           }, recursive=True) }}
 
-    - name: "Printing metadata update file information"
+    - name: "Printing db update file information"
       when: debug | bool
       ansible.builtin.debug:
         msg:
           - "Certificate full path: {{ cert_key }}"
           - "Certificate: {{ certificate_name }}"
           - "Expiry Date: {{ certificate_info.not_after }}"
-          - "Metadata needs update: {{ metadata_needs_update }}"
+          - "db needs update: {{ db_needs_update }}"
 
-    - name: "Saving updated metadata to file"
-      ansible.builtin.import_tasks: "write_metadata.yml"
+    - name: "Saving updated db to file"
+      ansible.builtin.import_tasks: "write_db.yml"

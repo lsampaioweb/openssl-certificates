@@ -71,20 +71,20 @@ default_signing_provider: "openssl"
 # METADATA CONFIGURATION
 # ==============================================================================
 
-# Metadata configuration.
-certificate_metadata:
-  # The version of the metadata structure.
+# Database configuration.
+certificate_db:
+  # The version of the db structure.
   version: "1.0"
-  # The file name that will contain the certificate metadata for each certificate.
-  file: "certificate-metadata.json"
+  # The file name that will contain the certificate db for each certificate.
+  file: "certificate-db.json"
 
-# The file path that will contain the metadata index with certificate expiry dates and notification status.
-metadata_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata.file }}"
+# The file path that will contain the db index with certificate expiry dates and notification status.
+db_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_db.file }}"
 
-# The directory and filename for the metadata lock file to prevent concurrent access during updates.
-lock_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_metadata.file }}.lock"
+# The directory and filename for the db lock file to prevent concurrent access during updates.
+lock_file_path: "{{ base_context_vars.certificates_base_path ~ '/' ~ base_context_vars.certificate_db.file }}.lock"
 
-# Timeout in seconds for acquiring the metadata lock file.
+# Timeout in seconds for acquiring the db lock file.
 lock_timeout_seconds: 30
 
 # ==============================================================================
@@ -107,6 +107,10 @@ auto_renewal:
 
   # Number of days before expiration to trigger auto-renewal.
   days_before_expiration: 10
+
+  # Maintenance windows for certificate import operations.
+  # Empty list [] means imports allowed at any time.
+  certificate_pki_pipeline_window: []
 
 # ==============================================================================
 # BACKUP CONFIGURATION

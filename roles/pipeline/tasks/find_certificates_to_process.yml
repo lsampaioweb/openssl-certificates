@@ -1,11 +1,11 @@
 ---
-- name: "Loading certificate metadata from file"
-  ansible.builtin.import_role:
-    name: "metadata"
-    tasks_from: "read_metadata.yml"
+- name: "Loading certificate db from file"
+  ansible.builtin.include_role:
+    name: "db"
+    tasks_from: "read_db.yml"
 
-- name: "Iterating over all certificates in metadata"
-  loop: "{{ metadata.certificates | dict2items | default([]) }}"
+- name: "Iterating over all certificates in db"
+  loop: "{{ db.certificates | dict2items | default([]) }}"
   loop_control:
     loop_var: "cert_entry"
     label: "{{ cert_entry.key }}"

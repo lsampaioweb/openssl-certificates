@@ -1,0 +1,31 @@
+---
+- name: "Loading db from file"
+  ansible.builtin.import_tasks: "read_db.yml"
+
+- name: "Checking if certificate exists in db"
+  ansible.builtin.set_fact:
+    cert_exists_in_db: "{{ certificate_path in db.certificates }}"
+
+- name: "Removing certificate entry from db"
+  when: cert_exists_in_db
+  block:
+    - name: "Removing existing certificate entry"
+      ansible.builtin.set_fact:
+        db: >
+          {{ db | combine({
+            'last_updated': now(utc=true, fmt=context_vars.certificate_datetime_format),
+            'certificates': db.certificates | dict2items
+              | rejectattr('key', 'equalto', certificate_path)
+              | items2dict
+          }) }}
+
+    - name: "Printing db removal information"
+      when: debug | bool
+      ansible.builtin.debug:
+        msg:
+          - "Certificate full path: {{ certificate_path }}"
+          - "Certificate: {{ certificate_name }}"
+          - "Removed from db: {{ cert_exists_in_db }}"
+
+    - name: "Saving updated db to file"
+      ansible.builtin.import_tasks: "write_db.yml"

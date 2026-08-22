@@ -1,0 +1,43 @@
+---
+- name: "Waiting for any existing lock to be released"
+  ansible.builtin.import_tasks: "wait_for_lock.yml"
+
+- name: "Reading db file with lock protection"
+  block:
+    - name: "Acquiring lock for db operation"
+      ansible.builtin.import_tasks: "acquire_lock.yml"
+
+    - name: "Checking if db file already exists at '{{ context_vars.db_file_path }}'"
+      ansible.builtin.stat:
+        path: "{{ context_vars.db_file_path }}"
+      register: "db_file_stat"
+
+    - name: "Reading existing db file if it exists"
+      when: db_file_stat.stat.exists | bool
+      block:
+        - name: "Retrieving db file content at '{{ context_vars.db_file_path }}'"
+          ansible.builtin.slurp:
+            src: "{{ context_vars.db_file_path }}"
+          register: "db_file_content"
+
+        - name: "Parsing db file as JSON"
+          ansible.builtin.set_fact:
+            db: "{{ db_file_content.content
+              | b64decode
+              | default('{}', true)
+              | from_json }}"
+
+    - name: "Initializing db if file does not exist or is missing required fields"
+      when: not (db_file_stat.stat.exists | bool)
+        or db.version is not defined
+        or db.last_updated is not defined
+        or db.certificates is not defined
+      ansible.builtin.set_fact:
+        db:
+          version: "{{ db.version | default(context_vars.certificate_db.version) }}"
+          last_updated: "{{ now(utc=true, fmt=context_vars.certificate_datetime_format) }}"
+          certificates: "{{ db.certificates | default({}, true) }}"
+
+  always:
+    - name: "Releasing lock after reading"
+      ansible.builtin.import_tasks: "release_lock.yml"
