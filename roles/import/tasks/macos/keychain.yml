@@ -58,9 +58,12 @@
       vars:
         cert_not_in_keychain: "{{ keychain_cert_raw.rc != 0 }}"
         local_cert_expiration: "{{ certificate_info.not_after | to_datetime('%Y%m%d%H%M%SZ') }}"
-        keychain_cert_expiration:
-          "{{ (keychain_certificate_info.stdout | regex_search('Not After : (.+)', '\\1') | first).strip()
-          | to_datetime('%b %d %H:%M:%S %Y %Z') if keychain_cert_raw.rc == 0 else '' }}"
+        keychain_cert_expiration: >-
+          {{
+            (keychain_certificate_info.stdout | regex_search('Not After : (.+)', '\\1') | first).strip()
+            | to_datetime('%b %d %H:%M:%S %Y %Z')
+            if keychain_cert_raw.rc == 0 else ''
+          }}
         expiration_dates_differ: "{{ keychain_cert_raw.rc == 0 and local_cert_expiration != keychain_cert_expiration }}"
 
     - name: "Displaying import decision for '{{ target_host }}'"
@@ -69,8 +72,10 @@
         msg:
           - "Certificate exists in keychain: {{ keychain_cert_raw.rc == 0 }}"
           - "Local certificate expiration: {{ certificate_info.not_after }}"
-          - "Keychain certificate expiration: {{ (keychain_certificate_info.stdout | regex_search('Not After : (.+)', '\\1') | first).strip()
-            if keychain_cert_raw.rc == 0 else 'N/A' }}"
+          - >-
+            Keychain certificate expiration: {{
+            (keychain_certificate_info.stdout | regex_search('Not After : (.+)', '\\1') | first).strip()
+            if keychain_cert_raw.rc == 0 else 'N/A' }}
           - "Should import: {{ should_import_certificate }}"
 
     - name: "Skipping import - certificate already current in keychain"
@@ -152,4 +157,6 @@
 
     - name: "Displaying import failure message"
       ansible.builtin.debug:
-        msg: "Failed to import certificate to MacOS Keychain on '{{ target_host }}': {{ ansible_failed_result.msg | default('Unknown error') }}"
+        msg: >-
+          Failed to import certificate to MacOS Keychain on '{{ target_host }}':
+          {{ ansible_failed_result.msg | default('Unknown error') }}

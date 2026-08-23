@@ -20,4 +20,3 @@ ca_host_key
 **/notifications.log
 certificate-db.json
 certificate-db.json.lock
-

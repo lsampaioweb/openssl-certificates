@@ -19,7 +19,7 @@
         - config_key.key not in reference_config_vars.get(section.key, {}) or config_key.value != reference_config_vars[section.key][config_key.key]
       ansible.builtin.set_fact:
         section_overrides: "{{ section_overrides | combine({config_key.key: config_key.value}) }}"
-      loop: "{{ (section.value | dict2items) if (section.value is mapping) else [] }}"
+      loop: "{{ ((section.value | dict2items) if (section.value is mapping) else []) | default([], true) }}"
       loop_control:
         loop_var: "config_key"
         label: "{{ section.key }}.{{ config_key.key }}"

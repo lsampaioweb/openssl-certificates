@@ -24,7 +24,7 @@
     - name: "Including the role(s) for each certificate"
       ansible.builtin.include_role:
         name: "{{ role }}"
-      loop: "{{ roles_to_include | default(default_roles_map, true) }}"
+      loop: "{{ roles_to_include | default(default_roles_map, true) | default([], true) }}"
       loop_control:
         loop_var: "role"
 
