@@ -3,8 +3,8 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-.vscode
-.ansible
+.vscode/
+.ansible/
 
 # Certificate files.
 ca_host_key
@@ -21,5 +21,3 @@ ca_host_key
 certificate-db.json
 certificate-db.json.lock
 
-# The AI Custom files should be ignored.
-.github
