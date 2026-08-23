@@ -20,3 +20,6 @@ ca_host_key
 **/notifications.log
 certificate-db.json
 certificate-db.json.lock
+
+# The AI custom files should be ignored.
+.github/
