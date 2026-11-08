@@ -22,14 +22,14 @@ csr:
   # This is a list of additional names (e.g., domain names) the certificate should cover.
   # Example:
   # subject_alt_name:
-    # - "DNS:site.lan.home"
-    # - "DNS:othersan.lan.home"
+  # - "DNS:site.lan.home"
+  # - "DNS:othersan.lan.home"
   subject_alt_name:
     - "DNS:pve.lan.home"
     - "DNS:pve-01.lan.home"
     - "DNS:pve-02.lan.home"
-    - "IP:192.168.3.2"
-    - "IP:192.168.3.3"
+    - "IP:10.1.10.1"
+    - "IP:10.1.10.2"
 
 # Variables that will be used for creating a PKCS12 file.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_pkcs12_module.html
