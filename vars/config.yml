@@ -67,8 +67,8 @@ private_key:
   cipher: "auto"
 
   # Passphrase for the private key file.
-  # - An empty string ("") means no passphrase will be used for the private key (default).
-  # - A question mark ("?") triggers the automatic generation of a random passphrase.
+  # - An empty string ("") means no passphrase will be used for the private key.
+  # - A question mark ("?") triggers the automatic generation of a random passphrase (default).
   # - Any other string (e.g., "SuperSecretPassword") will be used as the explicit passphrase.
   passphrase: "{{ context_vars.passphrase_random_marker }}"
 

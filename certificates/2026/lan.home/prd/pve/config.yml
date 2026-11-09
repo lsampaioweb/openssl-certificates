@@ -11,6 +11,11 @@ private_key:
   #   "keyring" (Ubuntu).
   #   "keychain" (MacOS).
   secret_provider: "keyring"
+  # Passphrase for the private key file.
+  # - An empty string ("") means no passphrase will be used for the private key.
+  # - A question mark ("?") triggers the automatic generation of a random passphrase (default).
+  # - Any other string (e.g., "SuperSecretPassword") will be used as the explicit passphrase.
+  passphrase: ""
 
 # Variables that will be used for creating a certificate signing request.
 # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html
@@ -22,8 +27,8 @@ csr:
   # This is a list of additional names (e.g., domain names) the certificate should cover.
   # Example:
   # subject_alt_name:
-  # - "DNS:site.lan.home"
-  # - "DNS:othersan.lan.home"
+    # - "DNS:site.lan.home"
+    # - "DNS:othersan.lan.home"
   subject_alt_name:
     - "DNS:pve.lan.home"
     - "DNS:pve-01.lan.home"

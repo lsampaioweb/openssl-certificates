@@ -18,8 +18,8 @@ execution_environment: "prd"
 certificates:
   # - "root-ca"
   # - "sub-ca"
-  - "firewall"
-  # - "pve"
+  # - "firewall"
+  - "pve"
 #   - "grafana"
 #   - "jump-server"
 #   - "ldap"
@@ -34,14 +34,14 @@ certificates:
 #   version: "2.0"
 #   private_key:
 #     extension: "key"
+#     secret_provider: "{{ context_vars.default_secret_provider }}"
 #     format: "pkcs8"
 #     type: "ECC"
-#     curve: "secp256r1"
 #     size: 3072
+#     curve: "secp256r1"
 #     cipher: "auto"
 #     passphrase: "{{ context_vars.passphrase_random_marker }}"
 #     passphrase_size: 30
-#     secret_provider: "{{ context_vars.default_secret_provider }}"
 #     mode: "0600"
 #   csr:
 #     extension: "csr"

@@ -22,8 +22,8 @@ csr:
   # This is a list of additional names (e.g., domain names) the certificate should cover.
   # Example:
   # subject_alt_name:
-  # - "DNS:site.lan.home"
-  # - "DNS:othersan.lan.home"
+    # - "DNS:site.lan.home"
+    # - "DNS:othersan.lan.home"
   subject_alt_name:
     - "DNS:firewall.lan.home"
     - "DNS:firewall-01.lan.home"
