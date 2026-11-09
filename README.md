@@ -11,10 +11,9 @@ This set of playbooks can verify if the certificate created by our own Certifica
 You can also provide extra variables using a YAML file. For example, to create a file named `extra-vars.yml` with the following content:
 
 ```yaml
-debug: true
 domain_context: "home"
-certificate_environment: "prd"
-certificates: ["proxmox", "grafana", "zabbix"]
+execution_environment: "prd"
+certificates: ["pve", "grafana", "zabbix"]
 ```
 
 ## Exclude Folders
@@ -23,7 +22,7 @@ To exclude specific folders from execution, prepend an **underscore** ("_") to t
 
 - These folders will be processed:
 
-  `proxmox`, `grafana`, `zabbix`
+  `pve`, `grafana`, `zabbix`
 
 - These folders will be excluded:
 
